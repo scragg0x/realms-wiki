@@ -4,4 +4,3 @@ base:
     - users
     - redis
     - rethinkdb
-    - gollum
