@@ -3,14 +3,11 @@ rethink-repo:
     - ppa: rethinkdb/ppa
 
 rethinkdb:
+  user.present:
+    - shell: /bin/bash
+    - home: /home/rethinkdb
   pkg:
     - installed
-  service:
-    - running
-    - enable: True
-    - reload: True
-    - require:
-      - pkg: rethinkdb
 
 python-pip:
   pkg.installed
@@ -26,3 +23,7 @@ rethinkdb-pip:
       - pkg: python-pip
       - pkg: rethinkdb
       - pkg: build-essential
+
+/etc/rethinkdb/rdb0.conf:
+  file.managed:
+    - source: salt://rethinkdb/rdb0.conf

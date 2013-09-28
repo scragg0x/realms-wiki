@@ -5,4 +5,4 @@ from reimagine import app
 
 if __name__ == '__main__':
     app.logger.setLevel(logging.INFO)
-    pywsgi.WSGIServer(('', 9999), app).serve_forever()
+    pywsgi.WSGIServer(('', 10000), app).serve_forever()

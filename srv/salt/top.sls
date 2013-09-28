@@ -4,3 +4,5 @@ base:
     - users
     - redis
     - rethinkdb
+    - reimagine
+    - supervisor
