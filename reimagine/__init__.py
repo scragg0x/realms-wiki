@@ -35,7 +35,7 @@ from models import Site
 
 site = Site.get_by_name(".")
 
-wiki = Wiki(site.get('repo'))
+w = Wiki(site.get('repo'))
 
 
 def redirect_url():
@@ -65,10 +65,13 @@ def rename(page):
 
 @app.route("/edit/<page>", methods=['GET', 'POST'])
 def edit(page):
-    pass
+    data = w.get_page(page)
+    if data:
+        return render_template('page/edit.html', page=data)
+    else:
+        return redirect('/create/'+page)
 
-
-@app.route("/delete/<page>")
+@app.route("/delete/<page>", methods=['POST'])
 def delete(page):
     pass
 
@@ -80,12 +83,9 @@ def create(page):
 
 @app.route("/<page>")
 def render(page):
-    file_path = site.get('repo') + "/" + page.lower() + ".md"
-    if path.isfile(file_path):
-        f = open(file_path)
-        content = f.read()
-        f.close()
-        return render_template('page/page.html', content=content)
+    data = w.get_page(page)
+    if data:
+        return render_template('page/page.html', page=data)
     else:
         return redirect('/create/'+page)
 
