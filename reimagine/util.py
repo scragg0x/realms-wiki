@@ -2,6 +2,12 @@ import re
 import os
 
 
+def mkdir_safe(path):
+    if path and not(os.path.exists(path)):
+        os.makedirs(path)
+    return path
+
+
 def extract_path(file_path):
     if not file_path:
         return None

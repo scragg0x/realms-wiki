@@ -1,4 +1,5 @@
-from reimagine import rdb, conn
+import rethinkdb as rdb
+from reimagine import conn
 
 
 def get_one(cur):
@@ -7,9 +8,7 @@ def get_one(cur):
 
 
 class BaseModel():
-    __db__ = None
     __table__ = None
-    _rdb = rdb
     _conn = conn
 
     def __init__(self):
@@ -17,14 +16,13 @@ class BaseModel():
 
     @classmethod
     def filter(cls, f, limit=None):
-        q = cls._rdb.db(cls.__db__).table(cls.__table__).filter(f)
+        q = rdb.table(cls.__table__).filter(f)
         if limit:
             q.limit(int(limit))
         return q.run(cls._conn)
 
 
 class Site(BaseModel):
-    __db__ = 'lastdb'
     __table__ = 'sites'
 
     @classmethod
