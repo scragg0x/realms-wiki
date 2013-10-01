@@ -5,7 +5,7 @@ python-pkgs:
       - python-pip
       - build-essential
 
-{% for pkg in ['tornado', 'pyzmq', 'itsdangerous', 'boto', 'redis', 'simplejson', 'sockjs-tornado', 'flask', 'flask-bcrypt', 'flask-login', 'flask-assets', 'gittle', 'gevent' ] %}
+{% for pkg in ['tornado', 'pyzmq', 'itsdangerous', 'boto', 'redis', 'simplejson', 'sockjs-tornado', 'flask', 'flask-bcrypt', 'flask-login', 'flask-assets', 'gittle', 'gevent', 'lxml' ] %}
 {{ pkg }}-pip:
   pip:
     - name: {{ pkg }}

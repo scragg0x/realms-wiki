@@ -1,0 +1,87 @@
+{% extends 'layout.html' %}
+{% block js %}
+    <script src="/static/js/ace/ace.js"></script>
+    <script src="/static/js/ace/mode-markdown.js"></script>
+    <script src="/static/js/keymaster.min.js"></script>
+    <script src="/static/js/dillinger.js"></script>
+    <script>
+        $(function(){
+            $("#save").click(function(){
+                $(this).prop('disable', true);
+                var data = {
+                    name: $("#page-name").val(),
+                    content: editor.getSession().getValue()
+                }
+                $.post(window.location, data, function(){
+                    location.href = "/" + data['name'];
+                });
+            });
+        });
+    </script>
+{% endblock %}
+{% block body %}
+
+    <div id="app-wrap" class="container-fluid">
+        <div id="app-controls" class="row">
+            <div class="col-xs-6">
+                <input id="page-name" type="text" class="form-control" id="page" name="name" placeholder="Name" value="{{- name -}}" />
+            </div>
+
+            <div class="col-xs-6">
+                <div class="pull-right">
+
+                    <a href="#" id="drop6" role="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown">Theme <b class="caret"></b></a>
+                    <ul id="theme-list" class="dropdown-menu" role="menu" aria-labelledby="drop6">
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/chrome" class="">Chrome</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/clouds" class="">Clouds</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/clouds_midnight" class="">Clouds Midnight</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/cobalt" class="">Cobalt</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/crimson_editor" class="">Crimson Editor</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/dawn" class="selected">Dawn</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/dawn" class="">Dreamweaver</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/eclipse" class="">Eclipse</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/idle_fingers" class="">idleFingers</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/kr_theme" class="">krTheme</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore" class="">Merbivore</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore_soft" class="">Merbivore Soft</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/mono_industrial" class="">Mono Industrial</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/monokai" class="">Monokai</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/pastel_on_dark">Pastel on Dark</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_dark" class="">Solarized Dark</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_light" class="">Solarized Light</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/textmate" class="">TextMate</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow" class="">Tomorrow</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night">Tomorrow Night</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_blue" class="">Tomorrow Night Blue</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_bright" class="">Tomorrow Night Bright</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_eighties" class="">Tomorrow Night 80s</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/twilight" class="">Twilight</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/vibrant_ink" class="">Vibrant Ink</a></li>
+                    </ul>
+                    <a id="save-native" class="btn btn-primary"><i class="icon-save"></i> Save</a>
+                </div>
+            </div>
+        </div>
+        <div id="editor">{{ content }}</div>
+        <div id="preview"></div>
+    </div>
+
+
+    <!--
+    <form role="form" method="post">
+        <div class="form-group">
+            <label for="name"></label>
+            <input type="text" class="form-control" id="page" name="name" placeholder="Name" value="{{- name -}}" />
+        </div>
+
+        <div class="form-group">
+            <label for="content"></label>
+            <div id="epiceditor"></div>
+            <textarea name="content" id="content" class="form-control" placeholder="Content" style="display:none;">{{- content -}}</textarea>
+        </div>
+
+        <input type="submit" class="btn btn-primary" value="Save" />
+    </form>
+-->
+
+{% endblock %}

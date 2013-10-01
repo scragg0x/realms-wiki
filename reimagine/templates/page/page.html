@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-{{ page.data }}
+    <div class="markdown">{{- page.data|safe -}}</div>
 
 {% endblock %}

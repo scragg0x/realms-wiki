@@ -17,3 +17,5 @@ common-pkgs:
       - python-dev
       - pkg-config
       - curl
+      - libxml2-dev
+      - libxslt-dev

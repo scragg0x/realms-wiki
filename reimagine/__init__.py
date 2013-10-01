@@ -8,9 +8,8 @@ from flask.ext.bcrypt import Bcrypt
 from flask.ext.login import LoginManager
 from flask.ext.assets import Environment
 from session import RedisSessionInterface
-from gittle import Gittle
 from wiki import Wiki
-from util import mkdir_safe
+from util import to_canonical, remove_ext
 
 app = Flask(__name__)
 app.config.update(config.flask)
@@ -39,13 +38,7 @@ if not config.db['dbname'] in rdb.db_list().run(conn) and config.ENV is not 'PRO
     for tbl in ['sites', 'users', 'pages']:
         rdb.table_create(tbl).run(conn)
 
-repo_dir = config.repos['dir'] + "/" + config.repos['main']
-
-repo = Gittle(repo_dir)
-mkdir_safe(repo_dir)
-
-if not repo.has_index():
-    repo.init(repo_dir)
+repo_dir = config.repo['dir']
 
 from models import Site
 
@@ -72,35 +65,54 @@ def root():
     return redirect('/Home')
 
 
-@app.route("/rename/<page>", methods=['POST'])
-def rename(page):
-    pass
-
-
-@app.route("/edit/<page>", methods=['GET', 'POST'])
-def edit(page):
-    data = w.get_page(page)
-    if data:
-        return render_template('page/edit.html', page=data)
+@app.route("/edit/<name>", methods=['GET', 'POST'])
+def edit(name):
+    data = w.get_page(name)
+    cname = to_canonical(name)
+    if request.method == 'POST':
+        edit_cname = to_canonical(request.form['name'])
+        if edit_cname != cname:
+            w.rename_page(cname, edit_cname)
+        w.write_page(edit_cname, request.form['content'])
+        return redirect("/" + edit_cname)
     else:
-        return redirect('/create/'+page)
+        if data:
+            name = remove_ext(data['name'])
+            content = data['data']
+            return render_template('page/edit.html', name=name, content=content)
+        else:
+            return redirect('/create/'+cname)
 
-@app.route("/delete/<page>", methods=['POST'])
-def delete(page):
+
+@app.route("/delete/<name>", methods=['POST'])
+def delete(name):
     pass
 
 
-@app.route("/create/<page>")
-def create(page):
-    return render_template('page/create.html')
+@app.route("/create/<name>", methods=['GET', 'POST'])
+def create(name):
+    cname = to_canonical(name)
+    if w.get_page(cname):
+        # Page exists, edit instead
+        return redirect("/edit/" + cname)
+
+    if request.method == 'POST':
+        w.write_page(request.form['name'], request.form['content'], create=True)
+        return redirect("/" + cname)
+    else:
+        return render_template('page/create.html', name=cname)
 
 
-@app.route("/<page>")
-def render(page):
-    data = w.get_page(page)
+@app.route("/<name>")
+def render(name):
+    cname = to_canonical(name)
+    if cname != name:
+        return redirect('/' + cname)
+
+    data = w.get_page(cname)
     if data:
         return render_template('page/page.html', page=data)
     else:
-        return redirect('/create/'+page)
+        return redirect('/create/'+cname)
 
 import ratelimit
