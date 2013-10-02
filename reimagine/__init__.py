@@ -1,17 +1,20 @@
-import config
-import redis
 import logging
-import rethinkdb as rdb
 import os
 import time
+
+import redis
+import rethinkdb as rdb
 from flask import Flask, request, render_template, url_for, redirect
 from flask.ext.bcrypt import Bcrypt
 from flask.ext.login import LoginManager
 from flask.ext.assets import Environment
+from recaptcha.client import captcha
+
+import config
 from session import RedisSessionInterface
 from wiki import Wiki
 from util import to_canonical, remove_ext
-from recaptcha.client import captcha
+
 
 app = Flask(__name__)
 app.config.update(config.flask)
@@ -160,8 +163,6 @@ def render(name):
 
     data = w.get_page(cname)
     if data:
-        #if data.get('data'):
-         #   data['data'] = markdown(data['data'])
         return render_template('page/page.html', name=cname, page=data)
     else:
         return redirect('/create/'+cname)

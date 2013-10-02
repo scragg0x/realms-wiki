@@ -1,6 +1,8 @@
+import os
+
 from gittle import Gittle
+
 from util import to_canonical
-from lxml.html.clean import clean_html
 
 
 class MyGittle(Gittle):
@@ -32,6 +34,10 @@ class MyGittle(Gittle):
                                  message=commit['message']))
         return versions
 
+    def mv_fs(self, file_pair):
+        old_name, new_name = file_pair
+        os.rename(self.path + "/" + old_name, self.path + "/" + new_name)
+
 
 class Wiki():
     path = None
@@ -52,9 +58,8 @@ class Wiki():
         self.path = path
 
     def write_page(self, name, content, message=None, create=False):
-        name = to_canonical(name)
         #content = clean_html(content)
-        filename = name.lower() + ".md"
+        filename = self.cname_to_filename(to_canonical(name))
         f = open(self.path + "/" + filename, 'w')
         f.write(content)
         f.close()
@@ -68,10 +73,15 @@ class Wiki():
                                 files=[filename])
 
     def rename_page(self, old_name, new_name):
-        self.repo.mv([old_name, new_name])
+        old_name, new_name = map(self.cname_to_filename, [old_name, new_name])
+        self.repo.mv([(old_name, new_name)])
+        self.repo.commit(name=self.default_committer_name,
+                         email=self.default_committer_email,
+                         message="Moving %s to %s" % (old_name, new_name),
+                         files=[old_name])
 
     def get_page(self, name, sha='HEAD'):
-        name = name.lower() + ".md"
+        name = self.cname_to_filename(name)
         try:
             return self.repo.get_commit_files(sha, paths=[name]).get(name)
         except KeyError:
@@ -79,5 +89,7 @@ class Wiki():
             return None
 
     def get_history(self, name):
-        name = name.lower() + ".md"
-        return self.repo.file_history(name)
+        return self.repo.file_history(self.cname_to_filename(name))
+
+    def cname_to_filename(self, cname):
+        return cname.lower() + ".md"

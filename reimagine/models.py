@@ -1,6 +1,6 @@
-import rethinkdb as rdb
-from reimagine import conn
 from rethinkORM import RethinkModel
+
+from reimagine import conn
 
 
 class BaseModel(RethinkModel):
@@ -8,7 +8,6 @@ class BaseModel(RethinkModel):
     def __init__(self, **kwargs):
         if not kwargs.get('conn'):
             kwargs['conn'] = conn
-
         super(BaseModel, self).__init__(**kwargs)
 
     @classmethod
