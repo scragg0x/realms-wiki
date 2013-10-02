@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+    <h2>History</h2>
+    <table class="table table-bordered">
+    {% for h in history %}
+        <tr>
+            <td class="checkbox-cell text-center"><input type="checkbox" /></td>
+            <td>{{ h.author }}</td>
+            <td><a href="/commit/{{ h.sha }}/{{ name }}" class='label label-primary'>{{ h.sha|truncate(7, True, end="") }}</a> {{ h.message }} </td>
+            <td>{{ h.time|datetime }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+
+{% endblock %}

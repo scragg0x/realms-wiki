@@ -1,0 +1,30 @@
+{% import 'macros.html' as macros %}
+{% extends 'layout.html' %}
+{% block body %}
+
+    <h2>Register</h2>
+
+    <form role="form" method="post">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" id="username" name="username" />
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="text" class="form-control" id="email" name="email" />
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            {{ macros.recaptcha(config) }}
+        </div>
+
+        <input type="submit" class="btn btn-primary" value="Submit" />
+    </form>
+
+{% endblock %}

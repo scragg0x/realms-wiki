@@ -1,6 +1,15 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-    <div class="markdown">{{- page.data|safe -}}</div>
+<div id="page-content" style="display:none">
+{{ page.data|safe }}
+</div>
 
+{% endblock %}
+{% block js %}
+<script>
+$(function(){
+    $("#page-content").html(converter({{ page.data|tojson|safe }})).show();
+});
+</script>
 {% endblock %}

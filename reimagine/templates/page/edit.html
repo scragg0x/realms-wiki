@@ -4,27 +4,16 @@
     <script src="/static/js/ace/mode-markdown.js"></script>
     <script src="/static/js/keymaster.min.js"></script>
     <script src="/static/js/dillinger.js"></script>
-    <script>
-        $(function(){
-            $("#save").click(function(){
-                $(this).prop('disable', true);
-                var data = {
-                    name: $("#page-name").val(),
-                    content: editor.getSession().getValue()
-                }
-                $.post(window.location, data, function(){
-                    location.href = "/" + data['name'];
-                });
-            });
-        });
-    </script>
 {% endblock %}
 {% block body %}
 
     <div id="app-wrap" class="container-fluid">
         <div id="app-controls" class="row">
-            <div class="col-xs-6">
-                <input id="page-name" type="text" class="form-control" id="page" name="name" placeholder="Name" value="{{- name -}}" />
+            <div class="col-xs-3">
+                <input id="page-name" type="text" class="form-control" name="name" placeholder="Name" value="{{- name -}}" />
+            </div>
+            <div class="col-xs-3">
+                <input id="page-message" type="text" class="form-control" name="page-message" placeholder="Comment" value="" />
             </div>
 
             <div class="col-xs-6">

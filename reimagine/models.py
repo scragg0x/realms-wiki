@@ -1,30 +1,28 @@
 import rethinkdb as rdb
 from reimagine import conn
+from rethinkORM import RethinkModel
 
 
-def get_one(cur):
-    res = cur.chunks[0]
-    return res[0] if len(res) else None
+class BaseModel(RethinkModel):
 
+    def __init__(self, **kwargs):
+        if not kwargs.get('conn'):
+            kwargs['conn'] = conn
 
-class BaseModel():
-    __table__ = None
-    _conn = conn
-
-    def __init__(self):
-        pass
+        super(BaseModel, self).__init__(**kwargs)
 
     @classmethod
-    def filter(cls, f, limit=None):
-        q = rdb.table(cls.__table__).filter(f)
-        if limit:
-            q.limit(int(limit))
-        return q.run(cls._conn)
+    def create(cls, **kwargs):
+        return super(BaseModel, cls).create(**kwargs)
 
 
 class Site(BaseModel):
-    __table__ = 'sites'
+    table = 'sites'
 
-    @classmethod
-    def get_by_name(cls, name):
-        return get_one(cls.filter({'name': name}, limit=1))
+
+class User(BaseModel):
+    table = 'users'
+
+
+    def login(self, login, password):
+        pass

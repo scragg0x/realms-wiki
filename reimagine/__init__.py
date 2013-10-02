@@ -3,6 +3,7 @@ import redis
 import logging
 import rethinkdb as rdb
 import os
+import time
 from flask import Flask, request, render_template, url_for, redirect
 from flask.ext.bcrypt import Bcrypt
 from flask.ext.login import LoginManager
@@ -10,6 +11,7 @@ from flask.ext.assets import Environment
 from session import RedisSessionInterface
 from wiki import Wiki
 from util import to_canonical, remove_ext
+from recaptcha.client import captcha
 
 app = Flask(__name__)
 app.config.update(config.flask)
@@ -49,6 +51,11 @@ def redirect_url():
     return request.args.get('next') or request.referrer or url_for('index')
 
 
+@app.template_filter('datetime')
+def _jinja2_filter_datetime(ts):
+    return time.strftime('%b %d, %Y %I:%M %p', time.localtime(ts))
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('errors/404.html'), 404
@@ -62,7 +69,47 @@ def page_error(e):
 
 @app.route("/")
 def root():
-    return redirect('/Home')
+    return redirect('/home')
+
+@app.route("/commit/<sha>/<name>")
+def commit_sha(name, sha):
+    cname = to_canonical(name)
+
+    data = w.get_page(cname, sha=sha)
+    if data:
+        return render_template('page/page.html', page=data)
+    else:
+        return redirect('/create/'+cname)
+
+
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        response = captcha.submit(
+            request.form['recaptcha_challenge_field'],
+            request.form['recaptcha_response_field'],
+            app.config['RECAPTCHA_PRIVATE_KEY'],
+            request.remote_addr)
+        if not response.is_valid:
+            return redirect('/register?fail')
+        else:
+            return redirect("/")
+    else:
+        return render_template('account/register.html')
+
+
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        pass
+    else:
+        return render_template('account/login.html')
+
+
+@app.route("/history/<name>")
+def history(name):
+    history = w.get_history(name)
+    return render_template('page/history.html', name=name, history=history)
 
 
 @app.route("/edit/<name>", methods=['GET', 'POST'])
@@ -73,7 +120,7 @@ def edit(name):
         edit_cname = to_canonical(request.form['name'])
         if edit_cname != cname:
             w.rename_page(cname, edit_cname)
-        w.write_page(edit_cname, request.form['content'])
+        w.write_page(edit_cname, request.form['content'], message=request.form['message'])
         return redirect("/" + edit_cname)
     else:
         if data:
@@ -89,18 +136,20 @@ def delete(name):
     pass
 
 
+@app.route("/create/", methods=['GET', 'POST'])
 @app.route("/create/<name>", methods=['GET', 'POST'])
-def create(name):
-    cname = to_canonical(name)
-    if w.get_page(cname):
-        # Page exists, edit instead
-        return redirect("/edit/" + cname)
-
+def create(name=None):
+    cname = ""
+    if name:
+        cname = to_canonical(name)
+        if w.get_page(cname):
+            # Page exists, edit instead
+            return redirect("/edit/" + cname)
     if request.method == 'POST':
-        w.write_page(request.form['name'], request.form['content'], create=True)
+        w.write_page(request.form['name'], request.form['content'],  message=request.form['message'], create=True)
         return redirect("/" + cname)
     else:
-        return render_template('page/create.html', name=cname)
+        return render_template('page/edit.html', name=cname, content="")
 
 
 @app.route("/<name>")
@@ -111,7 +160,9 @@ def render(name):
 
     data = w.get_page(cname)
     if data:
-        return render_template('page/page.html', page=data)
+        #if data.get('data'):
+         #   data['data'] = markdown(data['data'])
+        return render_template('page/page.html', name=cname, page=data)
     else:
         return redirect('/create/'+cname)
 

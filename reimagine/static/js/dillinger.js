@@ -16,7 +16,7 @@ $(function(){
         , interval: 3000 // might be too aggressive; don't want to block UI for large saves.
         }
       , wordcount: true
-      , current_filename : 'Untitled Document'
+      , current_filename : $("#page-name").val()
       , dropbox:
         {
           filepath: '/Dillinger/'
@@ -36,7 +36,8 @@ $(function(){
     , $wordcount = $('#wordcount')
     , $import_github = $('#import_github')
     , $wordcounter = $('#wordcounter')
-    , $filename = $('#filename')
+    , $filename = $('#filename'),
+      $pagename = $("#page-name")
 
 
   // Hash of themes and their respective background colors
@@ -115,10 +116,10 @@ $(function(){
    */
   function getUserProfile(){
 
-    var p
+    var p;
 
     try{
-      p = JSON.parse( localStorage.profile )
+      p = JSON.parse( localStorage.profile );
       // Need to merge in any undefined/new properties from last release
       // Meaning, if we add new features they may not have them in profile
       p = $.extend(true, profile, p)
@@ -126,9 +127,11 @@ $(function(){
       p = profile
     }
 
-    profile = p
+    if (p.filename != $pagename.val()) {
+        updateUserProfile({ filename: $pagename.val(), currentMd: "" });
 
-    // console.dir(profile)
+    }
+    profile = p
   }
 
   /**
@@ -307,7 +310,7 @@ $(function(){
         smartLists: true,
         smartypants: false,
         langPrefix: 'lang-'
-      })
+      });
 
       converter = marked;
 
@@ -354,10 +357,10 @@ $(function(){
     fetchTheme(profile.theme, function(){
       $theme.find('li > a[data-value="'+profile.theme+'"]').addClass('selected')
 
-      editor.getSession().setUseWrapMode(true)
-      editor.setShowPrintMargin(false)
+      editor.getSession().setUseWrapMode(true);
+      editor.setShowPrintMargin(false);
 
-      editor.getSession().setMode('ace/mode/markdown')
+      editor.getSession().setMode('ace/mode/markdown');
 
       editor.getSession().setValue( profile.currentMd || editor.getSession().getValue())
 
@@ -366,9 +369,6 @@ $(function(){
 
     });
 
-    // Set/unset paper background image on preview
-    // TODO: FIX THIS BUG
-    $preview.css('backgroundImage', profile.showPaper ? 'url("'+paperImgPath+'")' : 'url("")' )
 
     // Set text for dis/enable autosave / word counter
     $autosave.html( profile.autosave.enabled ? '<i class="icon-remove"></i>&nbsp;Disable Autosave' : '<i class="icon-ok"></i>&nbsp;Enable Autosave' )
@@ -419,6 +419,7 @@ $(function(){
     if (isManual) {
         var data = {
             name: $("#page-name").val(),
+            message: $("#page-message").val(),
             content: editor.getSession().getValue()
         };
         $.post(window.location, data, function(){
