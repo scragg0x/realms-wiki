@@ -1,11 +1,11 @@
 import os
-
+import ghdiff
 from gittle import Gittle
-
 from util import to_canonical
 
 
 class MyGittle(Gittle):
+
     def file_history(self, path):
         """Returns all commits where given file was modified
         """
@@ -57,7 +57,7 @@ class Wiki():
 
         self.path = path
 
-    def write_page(self, name, content, message=None, create=False):
+    def write_page(self, name, content, message=None, create=False, username=None, email=None):
         #content = clean_html(content)
         filename = self.cname_to_filename(to_canonical(name))
         f = open(self.path + "/" + filename, 'w')
@@ -67,8 +67,16 @@ class Wiki():
         if create:
             self.repo.add(filename)
 
-        return self.repo.commit(name=self.default_committer_name,
-                                email=self.default_committer_email,
+        if not message:
+            message = "Updated %s" % name
+
+        if not username:
+            username = self.default_committer_name
+            email = "%s@domain.com" % username
+
+
+        return self.repo.commit(name=username,
+                                email=email,
                                 message=message,
                                 files=[filename])
 
@@ -87,6 +95,12 @@ class Wiki():
         except KeyError:
             # HEAD doesn't exist yet
             return None
+
+    def compare(self, name, new_sha, old_sha):
+        old = self.get_page(name, sha=old_sha)
+        new = self.get_page(name, sha=new_sha)
+
+        return ghdiff.diff(old['data'], new['data'])
 
     def get_history(self, name):
         return self.repo.file_history(self.cname_to_filename(name))

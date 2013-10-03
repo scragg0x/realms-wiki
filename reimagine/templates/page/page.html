@@ -1,15 +1,20 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-<div id="page-content" style="display:none">
-{{ page.data|safe }}
-</div>
+    <div class="controls pull-right">
+        <a class="btn btn-default btn-sm" href="/edit/{{ name }}">Edit</a>
+        <a class="btn btn-default btn-sm" href="/history/{{ name }}">History</a>
+    </div>
+
+    <div id="page-content" style="display:none">
+        {{ page.data|safe }}
+    </div>
 
 {% endblock %}
 {% block js %}
-<script>
-$(function(){
-    $("#page-content").html(converter({{ page.data|tojson|safe }})).show();
-});
-</script>
+    <script>
+        $(function(){
+            $("#page-content").html(converter({{ page.data|tojson|safe }})).show();
+        });
+    </script>
 {% endblock %}

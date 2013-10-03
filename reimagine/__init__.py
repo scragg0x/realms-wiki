@@ -4,11 +4,12 @@ import time
 
 import redis
 import rethinkdb as rdb
-from flask import Flask, request, render_template, url_for, redirect
+from flask import Flask, request, render_template, url_for, redirect, flash, session
 from flask.ext.bcrypt import Bcrypt
-from flask.ext.login import LoginManager
+from flask.ext.login import LoginManager, login_user, logout_user
 from flask.ext.assets import Environment
 from recaptcha.client import captcha
+from werkzeug.routing import BaseConverter
 
 import config
 from session import RedisSessionInterface
@@ -16,12 +17,18 @@ from wiki import Wiki
 from util import to_canonical, remove_ext
 
 
+class RegexConverter(BaseConverter):
+    def __init__(self, url_map, *items):
+        super(RegexConverter, self).__init__(url_map)
+        self.regex = items[0]
+
 app = Flask(__name__)
 app.config.update(config.flask)
 app.debug = (config.ENV is not 'PROD')
 app.secret_key = config.secret_key
 app.static_path = os.sep + 'static'
 app.session_interface = RedisSessionInterface()
+app.url_map.converters['regex'] = RegexConverter
 
 bcrypt = Bcrypt(app)
 
@@ -45,7 +52,13 @@ if not config.db['dbname'] in rdb.db_list().run(conn) and config.ENV is not 'PRO
 
 repo_dir = config.repo['dir']
 
-from models import Site
+# This is down here because of dependencies above
+from models import Site, User, CurrentUser
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return CurrentUser(user_id)
 
 w = Wiki(repo_dir)
 
@@ -53,6 +66,14 @@ w = Wiki(repo_dir)
 def redirect_url():
     return request.args.get('next') or request.referrer or url_for('index')
 
+
+def validate_captcha():
+    response = captcha.submit(
+        request.form['recaptcha_challenge_field'],
+        request.form['recaptcha_response_field'],
+        app.config['RECAPTCHA_PRIVATE_KEY'],
+        request.remote_addr)
+    return response.is_valid
 
 @app.template_filter('datetime')
 def _jinja2_filter_datetime(ts):
@@ -72,7 +93,18 @@ def page_error(e):
 
 @app.route("/")
 def root():
-    return redirect('/home')
+    return render('home')
+    #return redirect('/home')
+
+@app.route("/account/")
+def account():
+    return render_template('account/index.html')
+
+@app.route("/logout/")
+def logout():
+    logout_user()
+    del session['user']
+    return redirect(url_for('root'))
 
 @app.route("/commit/<sha>/<name>")
 def commit_sha(name, sha):
@@ -85,18 +117,29 @@ def commit_sha(name, sha):
         return redirect('/create/'+cname)
 
 
+@app.route("/compare/<name>/<regex('[^.]+'):fsha><regex('\.{2,3}'):dots><regex('.+'):lsha>")
+def compare(name, fsha, dots, lsha):
+    diff = w.compare(name, fsha, lsha)
+    return render_template('page/compare.html', name=name, diff=diff)
+
+
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        response = captcha.submit(
-            request.form['recaptcha_challenge_field'],
-            request.form['recaptcha_response_field'],
-            app.config['RECAPTCHA_PRIVATE_KEY'],
-            request.remote_addr)
-        if not response.is_valid:
-            return redirect('/register?fail')
-        else:
-            return redirect("/")
+        user = User()
+        if user.get_by_email(request.form['email']):
+            flash('Email is already taken')
+            return redirect('/register')
+        if user.get_by_username(request.form['username']):
+            flash('Username is already taken')
+            return redirect('/register')
+
+        # Create user and login
+        u = User.create(email=request.form['email'].lower(),
+                        username=request.form['username'],
+                        password=bcrypt.generate_password_hash(request.form['password']))
+        login_user(u)
+        return redirect("/")
     else:
         return render_template('account/register.html')
 
@@ -104,7 +147,11 @@ def register():
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        pass
+        if User.auth(request.form['email'], request.form['password']):
+            return redirect("/")
+        else:
+            flash("Email or Password invalid")
+            return redirect("/login")
     else:
         return render_template('account/login.html')
 

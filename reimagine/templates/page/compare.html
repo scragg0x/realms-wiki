@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+    <h2>History for <strong>{{ name }}</strong></h2>
+    <p>
+        <a class="btn btn-default btn-sm" href="/history/{{ name }}">Back to History</a>
+        <a href="" class="btn btn-default btn-sm">Revert Changes</a>
+    </p>
+
+    {{ diff|safe }}
+    <p></p>
+
+    <p>
+        <a class="btn btn-default btn-sm" href="/history/{{ name }}">Back to History</a>
+    </p>
+{% endblock %}

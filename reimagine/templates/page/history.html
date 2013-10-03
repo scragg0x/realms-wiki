@@ -1,16 +1,58 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-    <h2>History</h2>
-    <table class="table table-bordered">
+    <h2>History for <strong>{{ name }}</strong></h2>
+    <p>
+        <a class="btn btn-default btn-sm compare-revisions">Compare Revisions</a>
+    </p>
+
+    <table class="table table-bordered revision-tbl">
+    <thead>
+    <tr>
+        <th></th>
+        <th>Name</th>
+        <th>Revision Message</th>
+        <th>Date</th>
+    </tr>
+    </thead>
     {% for h in history %}
         <tr>
-            <td class="checkbox-cell text-center"><input type="checkbox" /></td>
+            <td class="checkbox-cell text-center">
+                <input type="checkbox" name="versions[]" value="{{ h.sha }}" />
+            </td>
             <td>{{ h.author }}</td>
             <td><a href="/commit/{{ h.sha }}/{{ name }}" class='label label-primary'>{{ h.sha|truncate(7, True, end="") }}</a> {{ h.message }} </td>
             <td>{{ h.time|datetime }}</td>
         </tr>
     {% endfor %}
     </table>
+    <p>
+        <a class="btn btn-default btn-sm compare-revisions">Compare Revisions</a>
+    </p>
 
+{% endblock %}
+
+{% block js %}
+<script>
+$(function(){
+    $('.revision-tbl :checkbox').change(function () {
+        var $cs=$(this).closest('.revision-tbl').find(':checkbox:checked');
+        if ($cs.length > 2) {
+            this.checked=false;
+        }
+    });
+
+    $(".compare-revisions").click(function(){
+        var $cs = $('.revision-tbl').find(':checkbox:checked');
+        console.log($cs.length);
+        if ($cs.length != 2) return;
+        var revs = [];
+        $.each($cs, function(i, v){
+            revs.push(v.value);
+        });
+        revs = revs.join("...");
+        location.href = "/compare/{{ name }}/" + revs;
+    });
+});
+</script>
 {% endblock %}

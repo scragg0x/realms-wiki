@@ -6,7 +6,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>ReImagine</title>
+    <title>Realms</title>
 
     <link href="/static/css/cerulean.bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/font-awesome.min.css" rel="stylesheet">
@@ -27,7 +27,7 @@
   <body>
 
     <!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top">
+    <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -35,24 +35,54 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">ReImagine</a>
+          <a class="navbar-brand" href="/">Realms</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div class="navbar-collapse collapse navbar-inverse-collapse">
           <ul class="nav navbar-nav">
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li><a href="/create/"><i class="icon-plus"></i> Create</a></li>
-            {% if name %}
-            <li><a href="/edit/{{- name -}}"><i class="icon-edit"></i> Edit</a></li>
-            <li><a href="/history/{{- name -}}"><i class="icon-time"></i> History</a></li>
+            {% if session.get('user') %}
+              <li class="dropdown user-avatar">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <span>
+                    <img src="http://static.ffxiah.com/images/avatars/mini/5a85e45e0976c8a96c955e83a9743b47.jpg" class="menu-avatar">
+                    <span>{{ session['user'].get('username') }} <i class="icon-caret-down"></i></span>
+                </span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="/account">Account</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+                </li>
+            {% else %}
+                <li><a href="/login"><i class="icon-user"></i> Login</a></li>
+                <li><a href="/register"><i class="icon-pencil"></i> Register</a></li>
             {% endif %}
-            <li><a href="/login"><i class="icon-user"></i> Login</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </div>
 
-    <div class="container">{% block body %}{% endblock %}</div>
+
+    <div class="container">
+      <div id="main-body">
+     {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        {% for category, message in messages %}
+            {% if category == 'message' %}
+                {% set category = "info" %}
+            {% endif %}
+          <div class='alert alert-{{ category }}'>
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block body %}{% endblock %}
+      </div>
+    </div>
 
     <script src="/static/js/jquery-1.10.2.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>

@@ -1,5 +1,15 @@
 .navbar {
-  margin-bottom: 25px;
+
+}
+
+#main-body {
+  background-color: #fff;
+  padding: 20px;
+  margin: 0 -20px;
+  -webkit-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
+  -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  box-shadow: 0 1px 2px rgba(0,0,0,.15);
 }
 
 .checkbox-cell {
@@ -26,7 +36,7 @@
   left: 50%;
   bottom: 10px;
   right: 10px;
-  top: 60px;
+  top: 50px;
   overflow: auto;
   background: rgba(255,255,255,0.9);
   border: 1px solid #EEE;
@@ -58,7 +68,7 @@
 #editor {
   position: absolute;
   margin-right: 5px;
-  top: 60px;
+  top: 50px;
   left: 10px;
   bottom: 10px;
   right: 50%;
@@ -85,4 +95,27 @@
   -ms-box-flex: 1;
   -o-box-flex: 1;
   box-flex: 1;
+}
+
+.user-avatar a img {
+    width: 32px;
+    height: 32px;
+    -webkit-box-shadow: 0 1px 3px #1e1e1e;
+    -moz-box-shadow: 0 1px 3px #1e1e1e;
+    box-shadow: 0 1px 3px #1e1e1e;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    -ms-border-radius: 2px;
+    -o-border-radius: 2px;
+    border-radius: 2px;
+}
+
+
+.navbar-nav .user-avatar a {
+    line-height: 30px;
+}
+
+.navbar-nav>li.user-avatar a {
+    padding-top: 9px;
+    padding-bottom: 9px;
 }
