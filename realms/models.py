@@ -2,7 +2,7 @@ import rethinkdb as rdb
 from flask import session
 from flask.ext.login import login_user
 from rethinkORM import RethinkModel
-from reimagine import conn, bcrypt
+from realms import conn, bcrypt
 
 
 def to_dict(cur, first=False):
