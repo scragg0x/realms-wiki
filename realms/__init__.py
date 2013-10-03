@@ -14,7 +14,7 @@ from werkzeug.routing import BaseConverter
 import config
 from session import RedisSessionInterface
 from wiki import Wiki
-from util import to_canonical, remove_ext
+from util import to_canonical, remove_ext, mkdir_safe
 
 
 class RegexConverter(BaseConverter):
@@ -50,7 +50,8 @@ if not config.db['dbname'] in rdb.db_list().run(conn) and config.ENV is not 'PRO
     for tbl in ['sites', 'users', 'pages']:
         rdb.table_create(tbl).run(conn)
 
-repo_dir = config.repo['dir']
+main_repo_dir = config.repos['main']
+repo_dir = config.repos['dir']
 
 # This is down here because of dependencies above
 from models import Site, User, CurrentUser
@@ -60,7 +61,7 @@ from models import Site, User, CurrentUser
 def load_user(user_id):
     return CurrentUser(user_id)
 
-w = Wiki(repo_dir)
+w = Wiki(main_repo_dir)
 
 
 def redirect_url():
