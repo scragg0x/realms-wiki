@@ -6,7 +6,7 @@ python-pkgs:
       - build-essential
 
 
-{% for pkg in ['ghdiff', 'tornado', 'pyzmq', 'itsdangerous', 'boto', 'redis', 'simplejson', 'sockjs-tornado', 'flask', 'flask-bcrypt', 'flask-login', 'flask-assets', 'gittle', 'gevent', 'lxml', 'markdown2', 'recaptcha-client', 'rethinkdb', 'RethinkORM' ] %}
+{% for pkg in ['ghdiff', 'tornado', 'pyzmq', 'itsdangerous', 'boto', 'redis', 'simplejson', 'sockjs-tornado', 'flask', 'flask-bcrypt', 'flask-login', 'flask-assets', 'gittle', 'gevent', 'lxml', 'markdown2', 'recaptcha-client', 'RethinkORM' ] %}
 {{ pkg }}-pip:
   pip:
     - name: {{ pkg }}
