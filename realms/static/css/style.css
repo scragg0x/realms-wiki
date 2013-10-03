@@ -1,5 +1,6 @@
-.navbar {
-
+body {
+  padding-top: 50px;
+  background-color:#eee;
 }
 
 #main-body {
@@ -42,27 +43,18 @@
   border: 1px solid #EEE;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
   border-radius: 4px;
-  -webkit-box-shadow: 0 0 80px rgba(0,0,0,0.3) inset 0 0 5px rgba(0,0,0,0.6);
-  -moz-box-shadow: 0 0 80px rgba(0,0,0,0.3) inset 0 0 5px rgba(0,0,0,0.6);
-  -webkit-box-shadow: 0 0 80px rgba(0,0,0,0.3) inset 0 0 5px rgba(0,0,0,0.6);
-  -moz-box-shadow: 0 0 80px rgba(0,0,0,0.3) inset 0 0 5px rgba(0,0,0,0.6);
-  box-shadow: 0 0 80px rgba(0,0,0,0.3) inset 0 0 5px rgba(0,0,0,0.6);
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   -webkit-box-flex: 1;
   -moz-box-flex: 1;
   -ms-box-flex: 1;
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  -ms-box-flex: 1;
   -o-box-flex: 1;
   box-flex: 1;
+  -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  box-shadow: 0 1px 2px rgba(0,0,0,.15);
 }
 
 #editor {
@@ -74,27 +66,17 @@
   right: 50%;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
   border-radius: 4px;
-  -webkit-box-shadow: 0 0 80px rgba(0,0,0,0.3) inset 0 0 5px rgba(0,0,0,0.6);
-  -moz-box-shadow: 0 0 80px rgba(0,0,0,0.3) inset 0 0 5px rgba(0,0,0,0.6);
-  -webkit-box-shadow: 0 0 80px rgba(0,0,0,0.3) inset 0 0 5px rgba(0,0,0,0.6);
-  -moz-box-shadow: 0 0 80px rgba(0,0,0,0.3) inset 0 0 5px rgba(0,0,0,0.6);
-  box-shadow: 0 0 80px rgba(0,0,0,0.3) inset 0 0 5px rgba(0,0,0,0.6);
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   -webkit-box-flex: 1;
   -moz-box-flex: 1;
   -ms-box-flex: 1;
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  -ms-box-flex: 1;
   -o-box-flex: 1;
   box-flex: 1;
+  -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  box-shadow: 0 1px 2px rgba(0,0,0,.15);
 }
 
 .user-avatar a img {

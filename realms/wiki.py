@@ -1,6 +1,10 @@
 import os
+from lxml.html.clean import clean_html
+
 import ghdiff
+
 from gittle import Gittle
+
 from util import to_canonical
 
 
@@ -58,7 +62,7 @@ class Wiki():
         self.path = path
 
     def write_page(self, name, content, message=None, create=False, username=None, email=None):
-        #content = clean_html(content)
+        content = clean_html(content)
         filename = self.cname_to_filename(to_canonical(name))
         f = open(self.path + "/" + filename, 'w')
         f.write(content)

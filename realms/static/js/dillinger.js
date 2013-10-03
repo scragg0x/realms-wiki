@@ -129,7 +129,6 @@ $(function(){
 
     if (p.filename != $pagename.val()) {
         updateUserProfile({ filename: $pagename.val(), currentMd: "" });
-
     }
     profile = p
   }
@@ -417,6 +416,8 @@ $(function(){
     isManual && Notifier.showMessage(Notifier.messages.docSavedLocal);
 
     if (isManual) {
+        updateUserProfile({  currentMd: "" });
+
         var data = {
             name: $("#page-name").val(),
             message: $("#page-message").val(),
