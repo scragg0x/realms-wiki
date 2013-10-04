@@ -7,7 +7,7 @@
             <div class="form-group">
                 <label for="wiki" class="control-label">Site Name</label>
                 <div class="input-group">
-                    <input id="wiki" name="name" type="text" class="form-control" />
+                    <input id="wiki" name="name" type="text" class="form-control" value="{{ request.args.get('site') }}" />
                     <span class="input-group-addon">.realms.io</span>
                 </div>
             </div>

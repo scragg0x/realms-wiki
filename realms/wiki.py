@@ -4,8 +4,10 @@ from lxml.html.clean import clean_html
 import ghdiff
 
 from gittle import Gittle
+from dulwich.repo import NotGitRepository
 
 from util import to_canonical
+from models import Site
 
 
 class MyGittle(Gittle):
@@ -54,12 +56,16 @@ class Wiki():
 
     def __init__(self, path):
         try:
-            self.repo = MyGittle.init(path)
-        except OSError:
-            # Repo already exists
             self.repo = MyGittle(path)
+        except NotGitRepository:
+            self.repo = MyGittle.init(path)
 
         self.path = path
+
+    @staticmethod
+    def is_registered(name):
+        s = Site()
+        return True if s.get_by_name(name) else False
 
     def write_page(self, name, content, message=None, create=False, username=None, email=None):
         content = clean_html(content)

@@ -1,8 +1,7 @@
 import time
 from functools import update_wrapper
 from flask import request, g
-from realms import app
-from models import cache
+from services import cache
 
 
 class RateLimit(object):
@@ -28,10 +27,10 @@ def get_view_rate_limit():
 
 
 def on_over_limit(limit):
-    return 'You hit the rate limit', 400
+    return 'Slow it down', 400
 
 
-def ratelimit(limit, per=300, send_x_headers=True,
+def ratelimiter(limit, per=300, send_x_headers=True,
               over_limit=on_over_limit,
               scope_func=lambda: request.remote_addr,
               key_func=lambda: request.endpoint):
@@ -45,14 +44,3 @@ def ratelimit(limit, per=300, send_x_headers=True,
             return f(*args, **kwargs)
         return update_wrapper(rate_limited, f)
     return decorator
-
-
-@app.after_request
-def inject_x_rate_headers(response):
-    limit = get_view_rate_limit()
-    if limit and limit.send_x_headers:
-        h = response.headers
-        h.add('X-RateLimit-Remaining', str(limit.remaining))
-        h.add('X-RateLimit-Limit', str(limit.limit))
-        h.add('X-RateLimit-Reset', str(limit.reset))
-    return response

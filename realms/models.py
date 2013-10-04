@@ -1,27 +1,13 @@
 import rethinkdb as rdb
 import bcrypt
-import redis
-from flask import session
-from flask.ext.login import login_user
+from flask import session, flash
+from flask.ext.login import login_user, logout_user
 from rethinkORM import RethinkModel
-from realms import config
-
-# Default DB connection
-conn = rdb.connect(config.db['host'], config.db['port'], db=config.db['dbname'])
-
-# Default Cache connection
-cache = redis.StrictRedis(host=config.cache['host'], port=config.cache['port'])
+from util import gravatar_url
+from services import db
 
 
-def init_db():
-    if not config.db['dbname'] in rdb.db_list().run(conn) and config.ENV is not 'PROD':
-        # Create default db and repo
-        print "Creating DB %s" % config.db['dbname']
-        rdb.db_create(config.db['dbname']).run(conn)
-        for tbl in ['sites', 'users', 'pages']:
-            rdb.table_create(tbl).run(conn)
-
-def to_dict(cur, first=False):
+def to_dict(cur, first):
     ret = []
     for row in cur:
         ret.append(row)
@@ -33,9 +19,11 @@ def to_dict(cur, first=False):
 
 class BaseModel(RethinkModel):
 
+    _conn = db
+
     def __init__(self, **kwargs):
         if not kwargs.get('conn'):
-            kwargs['conn'] = conn
+            kwargs['conn'] = db
         super(BaseModel, self).__init__(**kwargs)
 
     @classmethod
@@ -66,7 +54,7 @@ class CurrentUser():
         return self.id
 
     def is_active(self):
-        return True
+        return True if self.id else False
 
     def is_anonymous(self):
         return False if self.id else True
@@ -100,8 +88,36 @@ class User(BaseModel):
             return False
 
         if bcrypt.checkpw(password, data['password']):
-            login_user(CurrentUser(data['id']))
-            session['user'] = data
+            cls.login(data['id'], data)
             return True
         else:
             return False
+
+    @classmethod
+    def register(cls, username, email, password):
+        user = User()
+        email = email.lower()
+        if user.get_by_email(email):
+            flash('Email is already taken')
+            return False
+        if user.get_by_username(username):
+            flash('Username is already taken')
+            return False
+
+        # Create user and login
+        u = User.create(email=email,
+                        username=username,
+                        password=bcrypt.hashpw(password, bcrypt.gensalt(10)),
+                        avatar=gravatar_url(email))
+
+        User.login(u.id, user.get_one(u.id, 'id'))
+
+    @classmethod
+    def login(cls, id, data=None):
+        login_user(CurrentUser(id), True)
+        session['user'] = data
+
+    @classmethod
+    def logout(cls):
+        logout_user()
+        session.pop('user', None)

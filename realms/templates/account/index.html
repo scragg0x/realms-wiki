@@ -3,18 +3,12 @@
 
     <h2>Account</h2>
 
-    <form method="POST" role="form" class="form-horizontal">
+    <form method="POST" role="form">
         <div class="form-group">
-            <label for="email" class="col-md-2 control-label">Email</label>
-            <div class="col-md-10">
-                <input id="email" type="text" class="form-control" value="{{ session['user']['email'] }}" />
-            </div>
+            <label for="email" class="control-label">Email</label>
+            <input id="email" type="text" class="form-control" value="{{ session['user']['email'] }}" />
         </div>
 
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" class="btn btn-primary" value="Save">
-            </div>
-        </div>
+        <input type="submit" class="btn btn-primary" value="Save">
     </form>
 {% endblock %}
