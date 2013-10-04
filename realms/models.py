@@ -110,7 +110,7 @@ class User(BaseModel):
                         password=bcrypt.hashpw(password, bcrypt.gensalt(10)),
                         avatar=gravatar_url(email))
 
-        User.login(u.id, user.get_one(u.id, 'id'))
+        User.login(u.id, to_dict(user.get_one(u.id, 'id')))
 
     @classmethod
     def login(cls, id, data=None):
