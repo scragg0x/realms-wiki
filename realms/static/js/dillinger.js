@@ -532,11 +532,11 @@ $(function(){
   function previewMd(){
 
     var unmd = editor.getSession().getValue()
-      , md = converter(unmd)
+      , md = converter(unmd);
 
     $preview
       .html('') // unnecessary?
-      .html(md)
+      .html(html_sanitize(md));
 
     refreshWordCount();
   }

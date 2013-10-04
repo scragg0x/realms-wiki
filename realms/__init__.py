@@ -11,10 +11,10 @@ from flask.ext.assets import Environment
 from recaptcha.client import captcha
 from werkzeug.routing import BaseConverter
 
-import config
 from session import RedisSessionInterface
+import config
 from wiki import Wiki
-from util import to_canonical, remove_ext, mkdir_safe
+from util import to_canonical, remove_ext, mkdir_safe, gravatar_url
 
 
 class RegexConverter(BaseConverter):
@@ -61,6 +61,7 @@ from models import Site, User, CurrentUser
 def load_user(user_id):
     return CurrentUser(user_id)
 
+
 w = Wiki(main_repo_dir)
 
 
@@ -97,9 +98,27 @@ def root():
     return render('home')
     #return redirect('/home')
 
+
 @app.route("/account/")
 def account():
     return render_template('account/index.html')
+
+
+@app.route("/_new/", methods=['GET', 'POST'])
+def new_wiki():
+    if request.method == 'POST':
+        # TODO validate wiki name
+        wiki_name = request.form['name']
+        s = Site()
+        if s.get_by_name(wiki_name):
+            flash("Site already exists")
+            return redirect(redirect_url())
+        else:
+            Wiki(repo_dir + "/" + wiki_name)
+            return redirect('http://%s.%s' % (wiki_name, config.hostname))
+    else:
+        return render_template('_new/index.html')
+
 
 @app.route("/logout/")
 def logout():
@@ -135,11 +154,13 @@ def register():
             flash('Username is already taken')
             return redirect('/register')
 
+        email = request.form['email'].lower()
         # Create user and login
-        u = User.create(email=request.form['email'].lower(),
+        u = User.create(email=email,
                         username=request.form['username'],
-                        password=bcrypt.generate_password_hash(request.form['password']))
-        login_user(u)
+                        password=bcrypt.generate_password_hash(request.form['password']),
+                        avatar=gravatar_url(email))
+        login_user(CurrentUser(u.id))
         return redirect("/")
     else:
         return render_template('account/register.html')

@@ -36,6 +36,9 @@ class BaseModel(RethinkModel):
 class Site(BaseModel):
     table = 'sites'
 
+    def get_by_name(self, name):
+        return to_dict(self.get_one(name, 'name'), True)
+
 
 class CurrentUser():
     id = None

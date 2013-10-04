@@ -1,10 +1,12 @@
 {% extends 'layout.html' %}
-{% block body %}
+{% block page_menu %}
+<div class="controls pull-right">
+    <a class="btn btn-default btn-sm" href="/edit/{{ name }}">Edit</a>
+    <a class="btn btn-default btn-sm" href="/history/{{ name }}">History</a>
+</div>
+{% endblock %}
 
-    <div class="controls pull-right">
-        <a class="btn btn-default btn-sm" href="/edit/{{ name }}">Edit</a>
-        <a class="btn btn-default btn-sm" href="/history/{{ name }}">History</a>
-    </div>
+{% block body %}
 
     <div id="page-content" style="display:none">
         {{ page.data|safe }}

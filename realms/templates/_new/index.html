@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+{% block body %}
+    <h2>Create New Site</h2>
+    <div class="row">
+      <div class='col-md-6'>
+          <form method="POST" role="form">
+            <div class="form-group">
+                <label for="wiki" class="control-label">Site Name</label>
+                <div class="input-group">
+                    <input id="wiki" name="name" type="text" class="form-control" />
+                    <span class="input-group-addon">.realms.io</span>
+                </div>
+            </div>
+
+            <input type="submit" class="btn btn-primary" value="Save">
+        </form>
+      </div>
+    </div>
+
+
+{% endblock %}

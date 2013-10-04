@@ -1,5 +1,6 @@
 import re
 import os
+import hashlib
 
 
 def mkdir_safe(path):
@@ -56,3 +57,7 @@ def to_canonical(s):
     s = re.sub(r"[^a-zA-Z0-9\-]", "", s)
     s = s[:64]
     return s
+
+
+def gravatar_url(email):
+    return "https://www.gravatar.com/avatar/" + hashlib.md5(email).hexdigest()
