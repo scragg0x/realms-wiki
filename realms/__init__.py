@@ -53,11 +53,11 @@ def init_db(dbname):
             rdb.table_create(tbl).run(db)
 
     if not 'name' in rdb.table('users').index_list().run(db):
-        rdb.table('sites').indexCreate('name').run(db)
+        rdb.table('sites').index_create('name').run(db)
 
     for i in ['username', 'email']:
         if not i in rdb.table('users').index_list().run(db):
-            rdb.table('users').indexCreate(i).run(db)
+            rdb.table('users').index_create(i).run(db)
 
     s = Site()
     if not s.get_by_name('_'):
