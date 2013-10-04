@@ -1,9 +1,25 @@
 import rethinkdb as rdb
+import bcrypt
+import redis
 from flask import session
 from flask.ext.login import login_user
 from rethinkORM import RethinkModel
-from realms import conn, bcrypt
+from realms import config
 
+# Default DB connection
+conn = rdb.connect(config.db['host'], config.db['port'], db=config.db['dbname'])
+
+# Default Cache connection
+cache = redis.StrictRedis(host=config.cache['host'], port=config.cache['port'])
+
+
+def init_db():
+    if not config.db['dbname'] in rdb.db_list().run(conn) and config.ENV is not 'PROD':
+        # Create default db and repo
+        print "Creating DB %s" % config.db['dbname']
+        rdb.db_create(config.db['dbname']).run(conn)
+        for tbl in ['sites', 'users', 'pages']:
+            rdb.table_create(tbl).run(conn)
 
 def to_dict(cur, first=False):
     ret = []
@@ -83,7 +99,7 @@ class User(BaseModel):
         if not data:
             return False
 
-        if bcrypt.check_password_hash(data['password'], password):
+        if bcrypt.checkpw(password, data['password']):
             login_user(CurrentUser(data['id']))
             session['user'] = data
             return True

@@ -1,7 +1,8 @@
 import time
 from functools import update_wrapper
 from flask import request, g
-from realms import app, cache
+from realms import app
+from models import cache
 
 
 class RateLimit(object):
