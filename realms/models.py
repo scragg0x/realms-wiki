@@ -1,13 +1,28 @@
+import json
+
 import rethinkdb as rdb
 import bcrypt
 from flask import session, flash
+
 from flask.ext.login import login_user, logout_user
+
 from rethinkORM import RethinkModel
+
 from util import gravatar_url
-from services import db
+from services import db, cache
 
 
-def to_dict(cur, first):
+def to_json(res, first=False):
+    """
+    Jsonify query result.
+    """
+    res = to_dict(res, first)
+    return json.dumps(res, separators=(',',':'))
+
+
+def to_dict(cur, first=False):
+    if not cur:
+        return None
     ret = []
     for row in cur:
         ret.append(row)
@@ -16,6 +31,33 @@ def to_dict(cur, first):
     else:
         return ret
 
+def cache_it(fn):
+    def wrap(*args, **kw):
+        key = "%s:%s" % (args[0].table, args[1])
+        data = cache.get(key)
+        # Assume strings are JSON encoded
+        try:
+            data = json.loads(data)
+        except TypeError:
+            pass
+        except ValueError:
+            pass
+
+        if data is not None:
+            return data
+        else:
+            data = fn(*args)
+            ret = data
+            if data is None:
+                data = ''
+            if not isinstance(data, basestring):
+                try:
+                    data = json.dumps(data, separators=(',', ':'))
+                except TypeError:
+                    pass
+            cache.set(key, data)
+            return ret
+    return wrap
 
 class BaseModel(RethinkModel):
 
@@ -30,9 +72,14 @@ class BaseModel(RethinkModel):
     def create(cls, **kwargs):
         return super(BaseModel, cls).create(**kwargs)
 
+    @cache_it
+    def get_by_id(self, id):
+        return to_dict(rdb.table(self.table).get(id).run(self._conn))
+
     def get_all(self, arg, index):
         return rdb.table(self.table).get_all(arg, index=index).run(self._conn)
 
+    #@cache_it
     def get_one(self, arg, index):
         return rdb.table(self.table).get_all(arg, index=index).limit(1).run(self._conn)
 
@@ -61,6 +108,13 @@ class CurrentUser():
 
     def is_authenticated(self):
         return True if self.id else False
+
+    @staticmethod
+    def get(key):
+        try:
+            return session['user'][key]
+        except KeyError:
+            return None
 
 
 class User(BaseModel):

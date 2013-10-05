@@ -162,7 +162,7 @@ def create_app(subdomain=None):
                 return redirect(redirect_url())
             else:
                 s = Site()
-                s.create(name=wiki_name, repo=wiki_name)
+                s.create(name=wiki_name, repo=wiki_name, founder=CurrentUser.get('id'))
                 instances.pop(wiki_name, None)
                 return redirect('http://%s.%s' % (wiki_name, config.hostname))
         else:
