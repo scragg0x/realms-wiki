@@ -1,6 +1,5 @@
 import os
 from lxml.html.clean import clean_html
-
 import ghdiff
 
 from gittle import Gittle
@@ -68,7 +67,8 @@ class Wiki():
         return True if s.get_by_name(name) else False
 
     def write_page(self, name, content, message=None, create=False, username=None, email=None):
-        content = clean_html(content)
+        # adding the div wrapper apparently fixes anomalies with the lxml parser with certain markdown
+        content = clean_html('<div>' + content + '</div>')
         filename = self.cname_to_filename(to_canonical(name))
         f = open(self.path + "/" + filename, 'w')
         f.write(content)

@@ -98,9 +98,15 @@
     </div>
 
     <script src="/static/js/jquery-1.10.2.min.js"></script>
+    <script src="/static/js/underscore.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
-    <script src="/static/js/marked.js"></script>
+    <!--<script src="/static/js/marked.js"></script>-->
+    <script src="/static/js/handlebars.js"></script>
+    <script src="/static/js/showdown/showdown.js"></script>
+    <script src="/static/js/html-sanitizer-minified.js"></script>
+    <script src="/static/js/showdown/wmd.js"></script>
     <script>
+        /*
         marked.setOptions({
             gfm: true,
             tables: true,
@@ -110,7 +116,32 @@
             smartypants: false,
             langPrefix: 'lang-'
           });
-        var converter = marked;
+        */
+        MDR = {
+            doc: null,
+            callback: WMD,
+            convert: function(md, sanitize){
+                this.doc = this.callback(md);
+                md = this.doc.html;
+                if (sanitize) {
+                    md = html_sanitize(md);
+                }
+                md = this.hook(md);
+                return md;
+            },
+            hook: function(md) {
+                if (!this.doc.metadata) {
+                    return md;
+                }
+                try {
+                    var template = Handlebars.compile(md);
+                    return template(this.doc.metadata);
+                } catch(e) {
+                    return md;
+                }
+            }
+        };
+
     </script>
     {% block js %}{% endblock %}
   </body>

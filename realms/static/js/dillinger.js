@@ -301,18 +301,6 @@ $(function(){
 
       initUi();
 
-      marked.setOptions({
-        gfm: true,
-        tables: true,
-        pedantic: false,
-        sanitize: false,
-        smartLists: true,
-        smartypants: false,
-        langPrefix: 'lang-'
-      });
-
-      converter = marked;
-
       bindPreview();
 
       bindNav();
@@ -498,19 +486,18 @@ $(function(){
    * @return {Void}
    */
   function fetchTheme(th, cb){
-    var name = th.split('/').pop()
+    var name = th.split('/').pop();
 
     asyncLoad("/static/js/ace/theme-"+ name +".js", function(){
+      editor.setTheme(th);
 
-      editor.setTheme(th)
+      cb && cb();
 
-      cb && cb()
+      updateBg(name);
 
-      updateBg(name)
+      updateUserProfile({theme: th});
 
-      updateUserProfile({theme: th})
-
-    }) // end asyncLoad
+    }); // end asyncLoad
 
   } // end fetchTheme(t)
 
@@ -532,11 +519,11 @@ $(function(){
   function previewMd(){
 
     var unmd = editor.getSession().getValue()
-      , md = converter(unmd);
+      , md = MDR.convert(unmd, true);
 
     $preview
       .html('') // unnecessary?
-      .html(html_sanitize(md));
+      .html(md);
 
     refreshWordCount();
   }

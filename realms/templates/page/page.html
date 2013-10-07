@@ -16,7 +16,7 @@
 {% block js %}
     <script>
         $(function(){
-            $("#page-content").html(converter({{ page.data|tojson|safe }})).show();
+            $("#page-content").html(MDR.convert({{ page.data|tojson|safe }})).show();
         });
     </script>
 {% endblock %}
