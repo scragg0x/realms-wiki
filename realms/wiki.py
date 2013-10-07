@@ -69,6 +69,7 @@ class Wiki():
     def write_page(self, name, content, message=None, create=False, username=None, email=None):
         # adding the div wrapper apparently fixes anomalies with the lxml parser with certain markdown
         content = clean_html('<div>' + content + '</div>')
+        content = content[5:-6]
         filename = self.cname_to_filename(to_canonical(name))
         f = open(self.path + "/" + filename, 'w')
         f.write(content)
