@@ -10,6 +10,7 @@
 
     <link href="/static/css/bootstrap/spacelab.css" rel="stylesheet">
     <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/js/highlight/styles/github.css" rel="stylesheet">
     <link href="/static/css/style.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -106,6 +107,7 @@
     <script src="/static/js/showdown/showdown.js"></script>
     <script src="/static/js/html-sanitizer-minified.js"></script>
     <script src="/static/js/showdown/wmd.js"></script>
+    <script src="/static/js/highlight/highlight.pack.js"></script>
     <script>
         /*
         marked.setOptions({
@@ -118,6 +120,11 @@
             langPrefix: 'lang-'
           });
         */
+
+
+        hljs.initHighlightingOnLoad();
+
+        // Markdown Renderer
         MDR = {
             doc: null,
             callback: WMD,

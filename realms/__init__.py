@@ -222,7 +222,7 @@ def create_app(subdomain=None):
         cname = to_canonical(name)
         if request.method == 'POST':
             edit_cname = to_canonical(request.form['name'])
-            if edit_cname != cname:
+            if edit_cname.lower() != cname.lower():
                 w.rename_page(cname, edit_cname)
             w.write_page(edit_cname, request.form['content'], message=request.form['message'],
                          username=CurrentUser.get('username'))

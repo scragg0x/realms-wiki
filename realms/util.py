@@ -3,6 +3,37 @@ import os
 import hashlib
 
 
+def escape_repl(m):
+    print "group 0"
+    print m.group(0)
+    print "group 1"
+    print m.group(1)
+    if m.group(1):
+        return "```" + escape_html(m.group(1)) + "```"
+
+
+def unescape_repl(m):
+    if m.group(1):
+        return "```" + unescape_html(m.group(1)) + "```"
+
+
+def escape_html(s):
+    s = s.replace("&", '&amp;')
+    s = s.replace("<", '&lt;')
+    s = s.replace(">", '&gt;')
+    s = s.replace('"', '&quot;')
+    s = s.replace("'", '&#39;')
+    return s
+
+
+def unescape_html(s):
+    s = s.replace('&amp;', "&")
+    s = s.replace('&lt;', "<")
+    s = s.replace('&gt;', ">")
+    s = s.replace('&quot;', '"')
+    s = s.replace('&#39;', "'")
+    return s
+
 def mkdir_safe(path):
     if path and not(os.path.exists(path)):
         os.makedirs(path)

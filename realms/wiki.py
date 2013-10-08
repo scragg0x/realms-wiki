@@ -1,12 +1,13 @@
 import os
 import re
-from lxml.html.clean import clean_html
+import lxml.html
+from lxml.html import clean
 import ghdiff
 
 from gittle import Gittle
 from dulwich.repo import NotGitRepository
 
-from util import to_canonical
+from util import to_canonical, escape_repl, unescape_repl
 from models import Site
 
 
@@ -68,11 +69,23 @@ class Wiki():
         return True if s.get_by_name(name) else False
 
     def write_page(self, name, content, message=None, create=False, username=None, email=None):
-        # adding the div wrapper apparently fixes anomalies with the lxml parser with certain markdown
-        content = clean_html('<div>' + content + '</div>')
+
+        # prevents p tag from being added, we remove this later
+        content = '<div>' + content + '</div>'
+        content = re.sub(r"```(.*?)```", escape_repl, content, flags=re.DOTALL)
+
+        tree = lxml.html.fromstring(content)
+
+        cleaner = clean.Cleaner(remove_unknown_tags=False)
+        tree = cleaner.clean_html(tree)
+
+        content = lxml.html.tostring(tree, encoding='utf-8', method='html')
+
+        # post processing to fix errors
         content = content[5:-6]
         content = re.sub(r"(\n&gt;)", "\n>", content)
         content = re.sub(r"(^&gt;)", ">", content)
+        content = re.sub(r"```(.*?)```", unescape_repl, content, flags=re.DOTALL)
 
         filename = self.cname_to_filename(to_canonical(name))
         f = open(self.path + "/" + filename, 'w')

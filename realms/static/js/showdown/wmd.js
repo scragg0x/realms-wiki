@@ -3,7 +3,15 @@
  * Copyright (c) 2010 Caolan McMahon
  */
 
-
+function escapeHtml(s) {
+    s = ('' + s); /* Coerce to string */
+    s = s.replace(/&/g, '&amp;');
+    s = s.replace(/</g, '&lt;');
+    s = s.replace(/>/g, '&gt;');
+    s = s.replace(/"/g, '&quot;');
+    s = s.replace(/'/g, '&#39;');
+    return s;
+}
 
 /**
  * Main function for converting markdown to HTML.
@@ -87,6 +95,34 @@ WMD.preprocessors = {
         }
         doc.markdown = lines.join('\n');
         return doc;
+    },
+
+    fencedCodeBlocksHighlightJS: function (doc) {
+        var re1 = /```([A-Za-z]+)\s*([\s\S]+?)```/; // with syntax highlighting
+        var re2 = /```\s*([\s\S]+?)```/; // without syntax highlighting
+        var block;
+        while (block = re1.exec(doc.markdown) || re2.exec(doc.markdown)) {
+            var pre;
+            if (block.length === 3) {
+                // we have a code format
+                pre = '<pre style="padding:0;"><code class="' + escapeHtml(block[1]) + '">';
+                if (block[1] in hljs.LANGUAGES) {
+                    pre += hljs.highlight(block[1], block[2]).value;
+                }
+                else {
+                    pre += escapeHtml(block[2]);
+                }
+                pre += '</code></pre>';
+            }
+            else {
+                // no syntax highlighting
+                pre = '<pre style="padding:0;"><code class="no-highlight">' +
+                    escapeHtml(block[1]) + '</code></pre>';
+            }
+            doc.markdown = doc.markdown.substr(0, block.index) +
+                pre + doc.markdown.substr(block.index + block[0].length);
+        }
+        return doc;
     }
 };
 
@@ -104,9 +140,11 @@ WMD.readOptions = function (options) {
     var obj = {
         preprocessors: [
             WMD.preprocessors.metadata,
-            WMD.preprocessors.underscores
+            WMD.preprocessors.underscores,
+            WMD.preprocessors.fencedCodeBlocksHighlightJS
         ],
-        postprocessors: []
+        postprocessors: [
+        ]
     };
     for (var k in options) {
         obj[k] = options[k];
