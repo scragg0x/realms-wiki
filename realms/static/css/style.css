@@ -11,6 +11,11 @@ body {
   padding-bottom: 10px;
 }
 
+.navbar-nav>li>a:hover {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
 #main-body {
   background-color: #fff;
   padding: 20px;

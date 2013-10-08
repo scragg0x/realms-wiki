@@ -31,6 +31,7 @@ def to_dict(cur, first=False):
     else:
         return ret
 
+
 def cache_it(fn):
     def wrap(*args, **kw):
         key = "%s:%s" % (args[0].table, args[1])
@@ -47,6 +48,7 @@ def cache_it(fn):
             return data
         else:
             data = fn(*args)
+            print data
             ret = data
             if data is None:
                 data = ''
@@ -58,6 +60,7 @@ def cache_it(fn):
             cache.set(key, data)
             return ret
     return wrap
+
 
 class BaseModel(RethinkModel):
 
@@ -74,7 +77,7 @@ class BaseModel(RethinkModel):
 
     @cache_it
     def get_by_id(self, id):
-        return to_dict(rdb.table(self.table).get(id).run(self._conn))
+        return rdb.table(self.table).get(id).run(self._conn)
 
     def get_all(self, arg, index):
         return rdb.table(self.table).get_all(arg, index=index).run(self._conn)
@@ -96,6 +99,12 @@ class CurrentUser():
 
     def __init__(self, id):
         self.id = id
+        if id:
+            user = User()
+            session['user'] = user.get_by_id(id)
+        #import sys
+        #sys.exit()
+        #session['user'] = to_dict(user.get_one(id, 'id'), True)
 
     def get_id(self):
         return self.id
@@ -142,7 +151,7 @@ class User(BaseModel):
             return False
 
         if bcrypt.checkpw(password, data['password']):
-            cls.login(data['id'], data)
+            cls.login(data['id'])
             return True
         else:
             return False
@@ -164,12 +173,11 @@ class User(BaseModel):
                         password=bcrypt.hashpw(password, bcrypt.gensalt(10)),
                         avatar=gravatar_url(email))
 
-        User.login(u.id, to_dict(user.get_one(u.id, 'id')))
+        User.login(u.id)
 
     @classmethod
     def login(cls, id, data=None):
         login_user(CurrentUser(id), True)
-        session['user'] = data
 
     @classmethod
     def logout(cls):

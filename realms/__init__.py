@@ -224,7 +224,8 @@ def create_app(subdomain=None):
             edit_cname = to_canonical(request.form['name'])
             if edit_cname != cname:
                 w.rename_page(cname, edit_cname)
-            w.write_page(edit_cname, request.form['content'], message=request.form['message'])
+            w.write_page(edit_cname, request.form['content'], message=request.form['message'],
+                         username=CurrentUser.get('username'))
             return redirect("/" + edit_cname)
         else:
             if data:

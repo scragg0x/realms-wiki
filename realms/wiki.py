@@ -1,4 +1,5 @@
 import os
+import re
 from lxml.html.clean import clean_html
 import ghdiff
 
@@ -70,6 +71,9 @@ class Wiki():
         # adding the div wrapper apparently fixes anomalies with the lxml parser with certain markdown
         content = clean_html('<div>' + content + '</div>')
         content = content[5:-6]
+        content = re.sub(r"(\n&gt;)", "\n>", content)
+        content = re.sub(r"(^&gt;)", ">", content)
+
         filename = self.cname_to_filename(to_canonical(name))
         f = open(self.path + "/" + filename, 'w')
         f.write(content)
@@ -83,8 +87,9 @@ class Wiki():
 
         if not username:
             username = self.default_committer_name
-            email = "%s@domain.com" % username
 
+        if not email:
+            email = "%s@realms.io" % username
 
         return self.repo.commit(name=username,
                                 email=email,
