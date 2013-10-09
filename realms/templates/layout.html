@@ -10,8 +10,9 @@
 
     <link href="/static/css/bootstrap/spacelab.css" rel="stylesheet">
     <link href="/static/css/font-awesome.min.css" rel="stylesheet">
-    <link href="/static/js/highlight/styles/github.css" rel="stylesheet">
+    <link href="/static/vendor/highlightjs/styles/github.css" rel="stylesheet">
     <link href="/static/css/style.css" rel="stylesheet">
+    {% block css %}{% endblock %}
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -99,53 +100,35 @@
       </div>
     </div>
 
-    <script src="/static/js/jquery-1.10.2.min.js"></script>
-    <script src="/static/js/underscore.js"></script>
-    <script src="/static/js/bootstrap.min.js"></script>
-    <!--<script src="/static/js/marked.js"></script>-->
-    <script src="/static/js/handlebars.js"></script>
-    <script src="/static/js/showdown/showdown.js"></script>
-    <script src="/static/js/html-sanitizer-minified.js"></script>
-    <script src="/static/js/showdown/wmd.js"></script>
-    <script src="/static/js/highlight/highlight.pack.js"></script>
+    {% assets "js_common" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
     <script>
-        /*
-        marked.setOptions({
-            gfm: true,
-            tables: true,
-            pedantic: false,
-            sanitize: false,
-            smartLists: true,
-            smartypants: false,
-            langPrefix: 'lang-'
-          });
-        */
-
-
         hljs.initHighlightingOnLoad();
 
         // Markdown Renderer
         MDR = {
             doc: null,
-            callback: WMD,
+            callback: WMD.convert,
             convert: function(md, sanitize){
                 this.doc = this.callback(md);
-                md = this.doc.html;
+                var html = this.doc.html;
                 if (sanitize) {
-                    md = html_sanitize(md);
+                    // Causes some problems with inline styles
+                    html = html_sanitize(html);
                 }
-                md = this.hook(md);
-                return md;
+                html = this.hook(html);
+                return html;
             },
-            hook: function(md) {
+            hook: function(html) {
                 if (!this.doc.metadata) {
-                    return md;
+                    return html;
                 }
                 try {
-                    var template = Handlebars.compile(md);
+                    var template = Handlebars.compile(html);
                     return template(this.doc.metadata);
                 } catch(e) {
-                    return md;
+                    return html;
                 }
             }
         };

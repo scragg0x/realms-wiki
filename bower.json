@@ -1,0 +1,16 @@
+{
+    "name": "realms",
+    "version": "0.1.1",
+    "dependencies": {
+        "components-bootstrap": "3.0.0",
+        "jquery": "1.9.1",
+        "components-underscore": "~1.5.1",
+        "requirejs": "~2.1.8",
+        "highlightjs": "~7.3.0",
+        "handlebars": "~1.0.0",
+        "components-font-awesome": "~3.2.1",
+        "showdown": "~0.3.1",
+        "keymaster": "madrobby/keymaster",
+        "ace": "~1.0.0"
+    }
+}

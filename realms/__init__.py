@@ -6,7 +6,7 @@ from threading import Lock
 import rethinkdb as rdb
 from flask import Flask, request, render_template, url_for, redirect, flash
 from flask.ext.login import LoginManager, login_required
-from flask.ext.assets import Environment
+from flask.ext.assets import Environment, Bundle
 from recaptcha.client import captcha
 from werkzeug.routing import BaseConverter
 
@@ -18,10 +18,18 @@ from models import Site, User, CurrentUser
 from ratelimit import get_view_rate_limit, ratelimiter
 from services import db
 
-
+# Flask instance container
 instances = {}
 
+# Flask extension objects
+login_manager = LoginManager()
+assets = Environment()
+
+
 class SubdomainDispatcher(object):
+    """
+    Application factory
+    """
     def __init__(self, domain, create_app):
         self.domain = domain
         self.create_app = create_app
@@ -44,6 +52,9 @@ class SubdomainDispatcher(object):
 
 
 def init_db(dbname):
+    """
+    Assures DB has minimal setup
+    """
     if not dbname in rdb.db_list().run(db):
         print "Creating DB %s" % dbname
         rdb.db_create(dbname).run(db)
@@ -65,6 +76,9 @@ def init_db(dbname):
 
 
 class RegexConverter(BaseConverter):
+    """
+    Enables Regex matching on endpoints
+    """
     def __init__(self, url_map, *items):
         super(RegexConverter, self).__init__(url_map)
         self.regex = items[0]
@@ -85,7 +99,17 @@ def validate_captcha():
     return response.is_valid
 
 
+def format_subdomain(s):
+    s = s.lower()
+    s = to_canonical(s)
+    if s in ['www']:
+        # Not allowed
+        s = ""
+    return s
+
+
 def make_app(subdomain):
+    subdomain = format_subdomain(subdomain)
     if subdomain and not Wiki.is_registered(subdomain):
         return redirect("http://%s/_new/?site=%s" % (config.hostname, subdomain))
     return create_app(subdomain)
@@ -100,7 +124,6 @@ def create_app(subdomain=None):
     app.session_interface = RedisSessionInterface()
     app.url_map.converters['regex'] = RegexConverter
 
-    login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'login'
 
@@ -108,9 +131,26 @@ def create_app(subdomain=None):
     def load_user(user_id):
         return CurrentUser(user_id)
 
-    assets = Environment(app)
-    assets.url = app.static_url_path
-    assets.directory = app.static_folder
+    assets.init_app(app)
+    if 'js_common' not in assets._named_bundles:
+        js = Bundle('vendor/jquery/jquery.js',
+                    'vendor/components-underscore/underscore.js',
+                    'vendor/components-bootstrap/js/bootstrap.js',
+                    'vendor/handlebars/handlebars.js',
+                    'vendor/showdown/src/showdown.js',
+                    'js/html-sanitizer-minified.js',
+                    'js/wmd.js',
+                    'vendor/highlightjs/highlight.pack.js',
+                    filters='uglifyjs', output='packed-common.js')
+        assets.register('js_common', js)
+
+    if 'js_editor' not in assets._named_bundles:
+        js = Bundle('js/ace/ace.js',
+                    'js/ace/mode-markdown.js',
+                    'vendor/keymaster/keymaster.js',
+                    'js/dillinger.js',
+                    filters='uglifyjs', output='packed-editor.js')
+        assets.register('js_editor', js)
 
     repo_dir = config.repos['dir']
     repo_name = subdomain if subdomain else "_"

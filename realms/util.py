@@ -34,6 +34,7 @@ def unescape_html(s):
     s = s.replace('&#39;', "'")
     return s
 
+
 def mkdir_safe(path):
     if path and not(os.path.exists(path)):
         os.makedirs(path)

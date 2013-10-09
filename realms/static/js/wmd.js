@@ -3,6 +3,10 @@
  * Copyright (c) 2010 Caolan McMahon
  */
 
+/*
+ *  Fork of https://github.com/caolan/wmd
+ */
+
 function escapeHtml(s) {
     s = ('' + s); /* Coerce to string */
     s = s.replace(/&/g, '&amp;');
@@ -22,7 +26,9 @@ function escapeHtml(s) {
  * @api public
  */
 
-var WMD = function (content, options) {
+var WMD = {};
+
+WMD.convert = function(content, options) {
     var doc = {raw: content, markdown: content};
     var opt = WMD.readOptions(options);
     WMD.preprocess(doc, opt);

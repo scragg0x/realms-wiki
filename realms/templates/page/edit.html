@@ -1,21 +1,23 @@
 {% extends 'layout.html' %}
 {% block js %}
-    <script src="/static/js/ace/ace.js"></script>
-    <script src="/static/js/ace/mode-markdown.js"></script>
-    <script src="/static/js/keymaster.min.js"></script>
-    <script src="/static/js/dillinger.js"></script>
+    {% assets "js_editor" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
 {% endblock %}
 {% block body %}
+{% block css %}
 <style>
-#main-body {
-    background: inherit;
-    border: inherit;
-    padding: 0;
-    -webkit-box-shadow: 0;
-    -moz-box-shadow: 0;
-    box-shadow: 0;
-}
+    #main-body {
+        background: inherit;
+        border: inherit;
+        padding: 0;
+        -webkit-box-shadow: 0;
+        -moz-box-shadow: 0;
+        box-shadow: 0;
+    }
 </style>
+{% endblock %}
+
 
     <div id="app-wrap" class="container-fluid">
         <div id="app-controls" class="row">
@@ -37,7 +39,7 @@
                         <li><a tabindex="-1" href="#" data-value="ace/theme/cobalt" class="">Cobalt</a></li>
                         <li><a tabindex="-1" href="#" data-value="ace/theme/crimson_editor" class="">Crimson Editor</a></li>
                         <li><a tabindex="-1" href="#" data-value="ace/theme/dawn" class="selected">Dawn</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/dawn" class="">Dreamweaver</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/dreamweaver" class="">Dreamweaver</a></li>
                         <li><a tabindex="-1" href="#" data-value="ace/theme/eclipse" class="">Eclipse</a></li>
                         <li><a tabindex="-1" href="#" data-value="ace/theme/idle_fingers" class="">idleFingers</a></li>
                         <li><a tabindex="-1" href="#" data-value="ace/theme/kr_theme" class="">krTheme</a></li>

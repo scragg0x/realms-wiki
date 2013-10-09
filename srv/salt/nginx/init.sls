@@ -7,5 +7,3 @@ nginx:
     - reload: True
     - require:
       - pkg: nginx
-
-/etc/
