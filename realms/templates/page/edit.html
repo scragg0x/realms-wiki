@@ -4,26 +4,6 @@
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     <script src="https://togetherjs.com/togetherjs-min.js"></script>
-    <script>
-        TogetherJSConfig_getUserName = function () {
-            return {{ session['user'].get('username')|tojson }};
-        };
-
-        TogetherJSConfig_getUserAvatar = function () {
-            return {{ session['user'].get('avatar')|tojson }};
-        };
-
-        TogetherJSConfig_getUserColor = function () {
-            return '#ff00ff';
-        };
-
-        TogetherJS.on("ready", function () {
-           $("#start-togetherjs").addClass('btn-danger').html($(this).data('end-togetherjs-html'));
-        });
-        TogetherJS.on("close", function () {
-            $("#start-togetherjs").removeClass('btn-danger').html('Start TogetherJS')
-        });
-    </script>
 {% endblock %}
 {% block body %}
 {% block css %}
