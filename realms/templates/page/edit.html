@@ -31,7 +31,12 @@
 
             <div class="col-xs-6">
                 <div class="pull-right">
-                    <a class="btn btn-success btn-sm" onclick="TogetherJS(this); return false;">Start TogetherJS</a>
+
+                    <button class="btn btn-success btn-sm" id="start-togetherjs" type="button"
+                     onclick="TogetherJS(this); return false"
+                     data-end-togetherjs-html="End TogetherJS">
+                      Start TogetherJS
+                    </button>
 
                     <a href="#" id="drop6" role="button" class="dropdown-toggle btn btn-default btn-sm" data-toggle="dropdown">Theme <b class="caret"></b></a>
                     <ul id="theme-list" class="dropdown-menu" role="menu" aria-labelledby="drop6">
