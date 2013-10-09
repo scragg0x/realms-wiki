@@ -3,6 +3,7 @@
     {% assets "js_editor" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
+    <script src="https://togetherjs.com/togetherjs-min.js"></script>
 {% endblock %}
 {% block body %}
 {% block css %}
@@ -30,6 +31,7 @@
 
             <div class="col-xs-6">
                 <div class="pull-right">
+                    <a class="btn btn-success btn-sm" onclick="TogetherJS(this); return false;">Start TogetherJS</a>
 
                     <a href="#" id="drop6" role="button" class="dropdown-toggle btn btn-default btn-sm" data-toggle="dropdown">Theme <b class="caret"></b></a>
                     <ul id="theme-list" class="dropdown-menu" role="menu" aria-labelledby="drop6">
