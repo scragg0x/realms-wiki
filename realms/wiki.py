@@ -76,7 +76,7 @@ class Wiki():
 
         tree = lxml.html.fromstring(content)
 
-        cleaner = clean.Cleaner(remove_unknown_tags=False)
+        cleaner = clean.Cleaner(remove_unknown_tags=False, style=False, safe_attrs_only=False)
         tree = cleaner.clean_html(tree)
 
         content = lxml.html.tostring(tree, encoding='utf-8', method='html')
