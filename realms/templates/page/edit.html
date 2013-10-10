@@ -14,10 +14,6 @@
             return {{ session['user'].get('avatar')|tojson }};
         };
 
-        TogetherJSConfig_getUserColor = function () {
-            return '#ff00ff';
-        };
-
         TogetherJSConfig_on_ready = function () {
            //$("#start-togetherjs").addClass('btn-danger').html($(this).data('end-togetherjs-html'));
            $("#start-togetherjs").addClass('btn-danger').html('End Collaboration');
