@@ -458,17 +458,7 @@ $(function(){
             .html('') // unnecessary?
             .html(md);
 
-        refreshWordCount();
-    }
-
-    function refreshWordCount(selectionCount){
-        var msg = "Words: ";
-        if (selectionCount !== undefined) {
-            msg += selectionCount + " of ";
-        }
-        if (profile.wordcount) {
-            $wordcounter.text(msg + countWords(getTextInElement($preview[0])));
-        }
+        //refreshWordCount();
     }
 
     /**

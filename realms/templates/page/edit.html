@@ -8,6 +8,7 @@
             $("#start-togetherjs").click(function(){
                 $(this).prop('disabled', true).html("Loading");
             });
+            MDR.sanitize = false;
         });
         TogetherJSConfig_toolName = "Collaboration";
         TogetherJSConfig_suppressJoinConfirmation = true;
@@ -21,10 +22,11 @@
 
         TogetherJSConfig_on_ready = function () {
             MDR.sanitize = true;
+            $("#preview").html('');
            $("#start-togetherjs").addClass('btn-danger').html('End Collaboration').prop('disabled', false);
         };
         TogetherJSConfig_on_close = function () {
-            MDR.sanitize = null;
+            MDR.sanitize = false;
             $("#start-togetherjs").removeClass('btn-danger').html('Collaborate').prop('disabled', false);
         };
 
@@ -50,7 +52,10 @@
     <div id="app-wrap" class="container-fluid">
         <div id="app-controls" class="row">
             <div class="col-xs-3">
-                <input id="page-name" type="text" class="form-control input-sm" name="name" placeholder="Name" value="{{- name -}}" />
+                <div class="input-group">
+                    <span class="input-group-addon btn-info input-sm">realms.io/</span>
+                    <input id="page-name" type="text" class="form-control input-sm" name="name" placeholder="Name" value="{{- name -}}" />
+                </div>
             </div>
             <div class="col-xs-3">
                 <input id="page-message" type="text" class="form-control input-sm" name="page-message" placeholder="Comment" value="" />

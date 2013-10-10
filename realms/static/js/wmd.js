@@ -32,7 +32,7 @@ WMD.convert = function(content, options) {
     var doc = {raw: content, markdown: content};
     var opt = WMD.readOptions(options);
     WMD.preprocess(doc, opt);
-    doc.html = WMD.processor(doc.markdown);
+    doc.html = WMD.processor(doc.markdown, true);
     WMD.postprocess(doc, opt);
     doc.toString = function () {
         return doc.html;
@@ -52,8 +52,8 @@ function gsub(str, re, fn, /*optional*/newstr) {
     }
     return newstr + str;
 }
-
-WMD.processor = new Showdown.converter().makeHtml;
+WMD.showdown = new Showdown.converter({extensions: ['table']});
+WMD.processor = WMD.showdown.makeHtml;
 
 WMD.preprocessors = {
 

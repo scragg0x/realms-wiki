@@ -102,7 +102,7 @@ def validate_captcha():
 def format_subdomain(s):
     s = s.lower()
     s = to_canonical(s)
-    if s in ['www']:
+    if s in ['www', 'api']:
         # Not allowed
         s = ""
     return s
@@ -145,6 +145,7 @@ def create_app(subdomain=None):
                        'vendor/components-bootstrap/js/bootstrap.js',
                        'vendor/handlebars/handlebars.js',
                        'vendor/showdown/src/showdown.js',
+                       'vendor/showdown/src/extensions/table.js',
                        'js/wmd.js',
                        filters='closure_js'),
                 'js/html-sanitizer-minified.js',
