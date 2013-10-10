@@ -4,6 +4,11 @@
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
         <script>
+        $(function(){
+            $("#start-togetherjs").click(function(){
+                $(this).prop('disabled', true).html("Loading");
+            });
+        });
         TogetherJSConfig_toolName = "Collaboration";
         TogetherJSConfig_suppressJoinConfirmation = true;
         TogetherJSConfig_getUserName = function () {
@@ -15,12 +20,12 @@
         };
 
         TogetherJSConfig_on_ready = function () {
-           //$("#start-togetherjs").addClass('btn-danger').html($(this).data('end-togetherjs-html'));
-           $("#start-togetherjs").addClass('btn-danger').html('End Collaboration');
-
+            MDR.sanitize = true;
+           $("#start-togetherjs").addClass('btn-danger').html('End Collaboration').prop('disabled', false);
         };
         TogetherJSConfig_on_close = function () {
-            $("#start-togetherjs").removeClass('btn-danger').html('Collaborate')
+            MDR.sanitize = null;
+            $("#start-togetherjs").removeClass('btn-danger').html('Collaborate').prop('disabled', false);
         };
 
     </script>

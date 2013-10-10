@@ -10,6 +10,7 @@ $(function(){
 
     var editor
         , autoInterval
+        , keyCheck // used to detect changes not made via keyup
         , profile =
         {
             theme: 'ace/theme/idle_fingers'
@@ -291,7 +292,6 @@ $(function(){
 
             // Immediately populate the preview <div>
             previewMd();
-
         });
 
 
@@ -331,8 +331,12 @@ $(function(){
      * @return {Void}
      */
     function saveFile(isManual){
-
-        updateUserProfile({currentMd: editor.getSession().getValue()})
+        if (!keyCheck && profile.currentMd != editor.getSession().getValue()) {
+            previewMd();
+            console.log(keyCheck);
+        }
+        keyCheck = false;
+        updateUserProfile({currentMd: editor.getSession().getValue()});
 
         if (isManual) {
             updateUserProfile({  currentMd: "" });
@@ -356,14 +360,13 @@ $(function(){
      */
     function autoSave(){
 
-        if(profile.autosave.enabled){
+        if(profile.autosave.enabled) {
             autoInterval = setInterval( function(){
                 // firefox barfs if I don't pass in anon func to setTimeout.
                 saveFile();
             }, profile.autosave.interval);
 
-        }
-        else{
+        } else {
             clearInterval( autoInterval )
         }
 
@@ -399,7 +402,7 @@ $(function(){
         // check for same theme
         var $target = $(e.target);
         if( $target.attr('data-value') === profile.theme) { return; }
-        else{
+        else {
             // add/remove class
             $theme.find('li > a.selected').removeClass('selected');
             $target.addClass('selected');
@@ -422,19 +425,14 @@ $(function(){
      */
     function fetchTheme(th, cb){
         var name = th.split('/').pop();
-
-        asyncLoad("/static/js/ace/theme-"+ name +".js", function(){
+        asyncLoad("/static/js/ace/theme-"+ name +".js", function() {
             editor.setTheme(th);
-
             cb && cb();
-
             updateBg(name);
-
             updateUserProfile({theme: th});
+        });
 
-        }); // end asyncLoad
-
-    } // end fetchTheme(t)
+    }
 
     /**
      * Change the body background color based on theme.
@@ -468,7 +466,7 @@ $(function(){
         if (selectionCount !== undefined) {
             msg += selectionCount + " of ";
         }
-        if(profile.wordcount){
+        if (profile.wordcount) {
             $wordcounter.text(msg + countWords(getTextInElement($preview[0])));
         }
     }
@@ -481,14 +479,13 @@ $(function(){
      */
     function updateFilename(str){
         // Check for string because it may be keyup event object
-        var f
+        var f;
         if(typeof str === 'string'){
-            f = str
-        }else
-        {
-            f = getCurrentFilenameFromField()
+            f = str;
+        } else {
+            f = getCurrentFilenameFromField();
         }
-        updateUserProfile( {current_filename: f })
+        updateUserProfile( { current_filename: f });
     }
 
 
@@ -532,23 +529,16 @@ $(function(){
         alert('Sad Panda - No localStorage for you!')
     }
 
-
-
     /**
      * Toggles the autosave feature.
      *
      * @return {Void}
      */
     function toggleAutoSave(){
-
         $autosave.html( profile.autosave.enabled ? '<i class="icon-remove"></i>&nbsp;Disable Autosave' : '<i class="icon-ok"></i>&nbsp;Enable Autosave' );
-
         updateUserProfile({autosave: {enabled: !profile.autosave.enabled }});
-
         autoSave();
-
     }
-
 
     /**
      * Bind keyup handler to the editor.
@@ -556,7 +546,10 @@ $(function(){
      * @return {Void}
      */
     function bindPreview(){
-        $('#editor').bind('keyup', previewMd);
+        $('#editor').bind('keyup', function() {
+            keyCheck = true;
+            previewMd();
+        });
     }
 
     /**

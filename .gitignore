@@ -2,7 +2,6 @@
 .idea
 .webassets-cache
 *.pyc
-packed-*.js
 config.py
 config.sls
 realms/static/vendor
