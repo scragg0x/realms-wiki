@@ -3,7 +3,33 @@
     {% assets "js_editor" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
+        <script>
+        TogetherJSConfig_toolName = "Collaboration";
+        TogetherJSConfig_suppressJoinConfirmation = true;
+        TogetherJSConfig_getUserName = function () {
+            return {{ session['user'].get('username')|tojson }};
+        };
+
+        TogetherJSConfig_getUserAvatar = function () {
+            return {{ session['user'].get('avatar')|tojson }};
+        };
+
+        TogetherJSConfig_getUserColor = function () {
+            return '#ff00ff';
+        };
+
+        TogetherJSConfig_on_ready = function () {
+           //$("#start-togetherjs").addClass('btn-danger').html($(this).data('end-togetherjs-html'));
+           $("#start-togetherjs").addClass('btn-danger').html('End Collaboration');
+
+        };
+        TogetherJSConfig_on_close = function () {
+            $("#start-togetherjs").removeClass('btn-danger').html('Collaborate')
+        };
+
+    </script>
     <script src="https://togetherjs.com/togetherjs-min.js"></script>
+
 {% endblock %}
 {% block body %}
 {% block css %}
@@ -33,9 +59,8 @@
                 <div class="pull-right">
 
                     <button class="btn btn-success btn-sm" id="start-togetherjs" type="button"
-                     onclick="TogetherJS(this); return false"
-                     data-end-togetherjs-html="End TogetherJS">
-                      Start TogetherJS
+                     onclick="TogetherJS(this); return false">
+                      Collaborate
                     </button>
 
                     <a href="#" id="drop6" role="button" class="dropdown-toggle btn btn-default btn-sm" data-toggle="dropdown">Theme <b class="caret"></b></a>
