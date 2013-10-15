@@ -4,6 +4,7 @@ import lxml.html
 from lxml.html import clean
 import ghdiff
 
+import gittle.utils
 from gittle import Gittle
 from dulwich.repo import NotGitRepository
 
@@ -68,6 +69,15 @@ class Wiki():
         s = Site()
         return True if s.get_by_name(name) else False
 
+    def revert_page(self, name, commit_sha, message, username):
+        page = self.get_page(name, commit_sha)
+        if not page:
+            # Page not found
+            return None
+        commit_info = gittle.utils.git.commit_info(self.repo[commit_sha])
+        message = commit_info['message']
+        return self.write_page(name, page['data'], message=message, username=username)
+
     def write_page(self, name, content, message=None, create=False, username=None, email=None):
 
         # prevents p tag from being added, we remove this later
@@ -76,13 +86,14 @@ class Wiki():
 
         tree = lxml.html.fromstring(content)
 
-        cleaner = clean.Cleaner(remove_unknown_tags=False, style=False, safe_attrs_only=False)
+        cleaner = clean.Cleaner(remove_unknown_tags=False, kill_tags=set(['style']), safe_attrs_only=False)
         tree = cleaner.clean_html(tree)
 
         content = lxml.html.tostring(tree, encoding='utf-8', method='html')
 
         # post processing to fix errors
         content = content[5:-6]
+        # FIXME this is for block quotes, doesn't work for double ">"
         content = re.sub(r"(\n&gt;)", "\n>", content)
         content = re.sub(r"(^&gt;)", ">", content)
         content = re.sub(r"```(.*?)```", unescape_repl, content, flags=re.DOTALL)
@@ -118,6 +129,7 @@ class Wiki():
                          files=[old_name])
 
     def get_page(self, name, sha='HEAD'):
+        commit = gittle.utils.git.commit_info(self.repo[sha])
         name = self.cname_to_filename(name)
         try:
             return self.repo.get_commit_files(sha, paths=[name]).get(name)
@@ -125,10 +137,9 @@ class Wiki():
             # HEAD doesn't exist yet
             return None
 
-    def compare(self, name, new_sha, old_sha):
+    def compare(self, name, old_sha, new_sha):
         old = self.get_page(name, sha=old_sha)
         new = self.get_page(name, sha=new_sha)
-
         return ghdiff.diff(old['data'], new['data'])
 
     def get_history(self, name):

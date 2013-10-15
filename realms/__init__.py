@@ -226,20 +226,30 @@ def create_app(subdomain=None):
         User.logout()
         return redirect(url_for('root'))
 
-    @app.route("/commit/<sha>/<name>")
+    @app.route("/_commit/<sha>/<name>")
     def commit_sha(name, sha):
         cname = to_canonical(name)
 
         data = w.get_page(cname, sha=sha)
         if data:
-            return render_template('page/page.html', page=data)
+            return render_template('page/page.html', name=name, page=data, commit=sha)
         else:
             return redirect('/create/'+cname)
 
-    @app.route("/compare/<name>/<regex('[^.]+'):fsha><regex('\.{2,3}'):dots><regex('.+'):lsha>")
+    @app.route("/_compare/<name>/<regex('[^.]+'):fsha><regex('\.{2,3}'):dots><regex('.+'):lsha>")
     def compare(name, fsha, dots, lsha):
         diff = w.compare(name, fsha, lsha)
-        return render_template('page/compare.html', name=name, diff=diff)
+        return render_template('page/compare.html', name=name, diff=diff, old=fsha, new=lsha)
+
+    @app.route("/_revert", methods=['POST'])
+    def revert():
+        if request.method == 'POST':
+            name = request.form.get('name')
+            commit = request.form.get('commit')
+            cname = to_canonical(name)
+            w.revert_page(name, commit, message="Reverting %s" % cname, username=CurrentUser.get('username'))
+            flash('Page reverted', 'success')
+            return redirect("/" + cname)
 
     @app.route("/register", methods=['GET', 'POST'])
     def register():
@@ -263,12 +273,12 @@ def create_app(subdomain=None):
         else:
             return render_template('account/login.html')
 
-    @app.route("/history/<name>")
+    @app.route("/_history/<name>")
     def history(name):
         history = w.get_history(name)
         return render_template('page/history.html', name=name, history=history)
 
-    @app.route("/edit/<name>", methods=['GET', 'POST'])
+    @app.route("/_edit/<name>", methods=['GET', 'POST'])
     @login_required
     def edit(name):
         data = w.get_page(name)
@@ -277,7 +287,8 @@ def create_app(subdomain=None):
             edit_cname = to_canonical(request.form['name'])
             if edit_cname.lower() != cname.lower():
                 w.rename_page(cname, edit_cname)
-            w.write_page(edit_cname, request.form['content'], message=request.form['message'],
+            w.write_page(edit_cname, request.form['content'],
+                         message=request.form['message'],
                          username=CurrentUser.get('username'))
             return redirect("/" + edit_cname)
         else:
@@ -288,13 +299,13 @@ def create_app(subdomain=None):
             else:
                 return redirect('/create/'+cname)
 
-    @app.route("/delete/<name>", methods=['POST'])
+    @app.route("/_delete/<name>", methods=['POST'])
     @login_required
     def delete(name):
         pass
 
-    @app.route("/create/", methods=['GET', 'POST'])
-    @app.route("/create/<name>", methods=['GET', 'POST'])
+    @app.route("/_create/", methods=['GET', 'POST'])
+    @app.route("/_create/<name>", methods=['GET', 'POST'])
     @login_required
     def create(name=None):
         cname = ""
@@ -304,11 +315,13 @@ def create_app(subdomain=None):
                 # Page exists, edit instead
                 return redirect("/edit/" + cname)
         if request.method == 'POST':
-            w.write_page(request.form['name'], request.form['content'],  message=request.form['message'], create=True)
+            w.write_page(request.form['name'], request.form['content'],
+                         message=request.form['message'],
+                         create=True,
+                         username=CurrentUser.get('username'))
             return redirect("/" + cname)
         else:
             return render_template('page/edit.html', name=cname, content="")
-
 
     @app.route("/<name>")
     def render(name):

@@ -21,7 +21,7 @@
                 <input type="checkbox" name="versions[]" value="{{ h.sha }}" />
             </td>
             <td>{{ h.author }}</td>
-            <td><a href="/commit/{{ h.sha }}/{{ name }}" class='label label-primary'>{{ h.sha|truncate(7, True, end="") }}</a> {{ h.message }} </td>
+            <td><a href="/_commit/{{ h.sha }}/{{ name }}" class='label label-primary'>View</a> {{ h.message }} </td>
             <td>{{ h.time|datetime }}</td>
         </tr>
     {% endfor %}
@@ -50,8 +50,9 @@ $(function(){
         $.each($cs, function(i, v){
             revs.push(v.value);
         });
-        revs = revs.join("...");
-        location.href = "/compare/{{ name }}/" + revs;
+        revs.reverse();
+        revs = revs.join("..");
+        location.href = "/_compare/{{ name }}/" + revs;
     });
 });
 </script>

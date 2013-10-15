@@ -2,15 +2,19 @@
 {% block body %}
 
     <h2>History for <strong>{{ name }}</strong></h2>
+    <div class="pull-right">
+        <a href="/_commit/{{ old }}/{{ name }}" class="btn btn-default btn-sm">View Old</a>
+        <a href="/_commit/{{ new }}/{{ name }}" class="btn btn-info btn-sm">View New</a>
+    </div>
     <p>
-        <a class="btn btn-default btn-sm" href="/history/{{ name }}">Back to History</a>
-        <a href="" class="btn btn-default btn-sm">Revert Changes</a>
+        <a class="btn btn-default btn-sm" href="/_history/{{ name }}">Back to History</a>
     </p>
+
 
     {{ diff|safe }}
     <p></p>
 
     <p>
-        <a class="btn btn-default btn-sm" href="/history/{{ name }}">Back to History</a>
+        <a class="btn btn-default btn-sm" href="/_history/{{ name }}">Back to History</a>
     </p>
 {% endblock %}

@@ -10,7 +10,6 @@ $(function(){
 
     var editor
         , autoInterval
-        , keyCheck // used to detect changes not made via keyup
         , profile =
         {
             theme: 'ace/theme/idle_fingers'
@@ -331,11 +330,6 @@ $(function(){
      * @return {Void}
      */
     function saveFile(isManual){
-        if (!keyCheck && profile.currentMd != editor.getSession().getValue()) {
-            previewMd();
-            console.log(keyCheck);
-        }
-        keyCheck = false;
         updateUserProfile({currentMd: editor.getSession().getValue()});
 
         if (isManual) {
@@ -536,8 +530,7 @@ $(function(){
      * @return {Void}
      */
     function bindPreview(){
-        $('#editor').bind('keyup', function() {
-            keyCheck = true;
+        editor.getSession().on('change', function(e) {
             previewMd();
         });
     }

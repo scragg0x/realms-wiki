@@ -102,9 +102,6 @@ class CurrentUser():
         if id:
             user = User()
             session['user'] = user.get_by_id(id)
-        #import sys
-        #sys.exit()
-        #session['user'] = to_dict(user.get_one(id, 'id'), True)
 
     def get_id(self):
         return self.id

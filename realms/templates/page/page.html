@@ -1,13 +1,21 @@
 {% extends 'layout.html' %}
 {% block page_menu %}
 <div class="controls pull-right">
-    <a class="btn btn-default btn-sm" href="/edit/{{ name }}">Edit</a>
-    <a class="btn btn-default btn-sm" href="/history/{{ name }}">History</a>
+    <a class="btn btn-default btn-sm" href="/_edit/{{ name }}">Edit</a>
+    <a class="btn btn-default btn-sm" href="/_history/{{ name }}">History</a>
 </div>
 {% endblock %}
 
 {% block body %}
-
+    {% if commit %}
+        <div id="page-action-bar">
+            <form method="POST" action="/_revert">
+                <input type="hidden" value="{{ name }}" name="name" />
+                <input type="hidden" value="{{ commit }}" name="commit" />
+                <input type="submit" class="btn btn-danger btn-sm" title="Revert back to this revision" value="Revert" />
+            </form>
+        </div>
+    {% endif %}
     <div id="page-content" style="display:none">
         {{ page.data }}
     </div>
