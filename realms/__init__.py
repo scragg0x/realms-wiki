@@ -279,7 +279,6 @@ def create_app(subdomain=None):
         return render_template('page/history.html', name=name, history=history)
 
     @app.route("/_edit/<name>", methods=['GET', 'POST'])
-    @login_required
     def edit(name):
         data = w.get_page(name)
         cname = to_canonical(name)
@@ -306,7 +305,6 @@ def create_app(subdomain=None):
 
     @app.route("/_create/", methods=['GET', 'POST'])
     @app.route("/_create/<name>", methods=['GET', 'POST'])
-    @login_required
     def create(name=None):
         cname = ""
         if name:
