@@ -12,6 +12,7 @@
         });
         TogetherJSConfig_toolName = "Collaboration";
         TogetherJSConfig_suppressJoinConfirmation = true;
+        {% if session.get('user') %}
         TogetherJSConfig_getUserName = function () {
             return {{ session['user'].get('username')|tojson }};
         };
@@ -19,6 +20,7 @@
         TogetherJSConfig_getUserAvatar = function () {
             return {{ session['user'].get('avatar')|tojson }};
         };
+        {% endif %}
 
         TogetherJSConfig_on_ready = function () {
             MDR.sanitize = true;
