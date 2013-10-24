@@ -4,12 +4,6 @@ deploy:
     - home: /home/deploy
     - fullname: Deploy
 
-scragg:
-  user.present:
-    - fullname: Matthew Scragg
-    - shell: /bin/bash
-    - home: /home/scragg
-
 sudo:
   pkg:
     - installed

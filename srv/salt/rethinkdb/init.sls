@@ -9,12 +9,6 @@ rethinkdb:
   pkg:
     - installed
 
-python-pip:
-  pkg.installed
-
-build-essential:
-  pkg.installed
-
 rethinkdb-pip:
   pip:
     - name: rethinkdb

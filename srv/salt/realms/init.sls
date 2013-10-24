@@ -1,17 +1,40 @@
-python-pkgs:
-  pkg.installed:
-    - pkgs:
-      - python-dev
-      - python-pip
-      - build-essential
+python-dev:
+  pkg.installed
 
+python-pip:
+  pkg.installed
 
-{% for pkg in ['closure', 'ghdiff', 'tornado', 'pyzmq', 'itsdangerous', 'boto', 'redis', 'simplejson', 'sockjs-tornado', 'flask', 'flask-bcrypt', 'flask-login', 'flask-assets', 'gittle', 'gevent', 'lxml', 'markdown2', 'recaptcha-client', 'RethinkORM' ] %}
-{{ pkg }}-pip:
-  pip:
-    - name: {{ pkg }}
-    - installed
+build-essential:
+  pkg.installed
+
+realms-repo:
+  git.latest:
+    - unless: test -e /vagrant
+    - name: git@github.com:scragg0x/realms.git
+    - target: /home/deploy
+    - rev: master
+    - user: deploy
+    - identity: /home/deploy/.ssh/id_rsa
+
+realms-link:
+  cmd.run:
+    - onlyif: test -e /vagrant
+    - name: ln -s /vagrant /home/deploy/realms
+
+/home/deploy/virtualenvs/realms:
+  file.directory:
+    - user: deploy
+    - group: deploy
+    - makedirs: True
+    - recurse:
+      - user
+      - group
     - require:
-      - pkg.installed: common-pkgs
-      - pkg.installed: rethinkdb
-{% endfor %}
+      - user.present: deploy
+  virtualenv.managed:
+    - name: /home/deploy/virtualenvs/realms
+    - requirements: /home/deploy/realms/requirements.txt
+    - watch:
+      - git: realms-repo
+    - require:
+      - file.directory: /home/deploy/virtualenvs/realms

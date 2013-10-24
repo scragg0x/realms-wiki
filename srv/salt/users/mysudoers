@@ -1,2 +1,1 @@
 deploy ALL=(ALL) NOPASSWD:ALL
-mrobinson ALL=(ALL) NOPASSWD:ALL

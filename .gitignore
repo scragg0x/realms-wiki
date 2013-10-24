@@ -1,4 +1,5 @@
 .vagrant
+.virtualenvs
 .idea
 .webassets-cache
 *.pyc

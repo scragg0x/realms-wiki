@@ -1,13 +1,8 @@
 import json
-
 import rethinkdb as rdb
 import bcrypt
 from flask import session, flash
-
 from flask.ext.login import login_user, logout_user
-
-from rethinkORM import RethinkModel
-
 from util import gravatar_url
 from services import db, cache
 
@@ -62,18 +57,17 @@ def cache_it(fn):
     return wrap
 
 
-class BaseModel(RethinkModel):
+class BaseModel():
 
+    table = None
     _conn = db
 
     def __init__(self, **kwargs):
         if not kwargs.get('conn'):
             kwargs['conn'] = db
-        super(BaseModel, self).__init__(**kwargs)
 
-    @classmethod
-    def create(cls, **kwargs):
-        return super(BaseModel, cls).create(**kwargs)
+    def create(self, **kwargs):
+        return rdb.table(self.table).insert(kwargs).run(self._conn)
 
     @cache_it
     def get_by_id(self, id):
@@ -134,11 +128,6 @@ class User(BaseModel):
 
     def login(self, login, password):
         pass
-
-    @classmethod
-    def get(cls, id):
-        print id
-        return cls(id=id)
 
     @classmethod
     def auth(cls, username, password):

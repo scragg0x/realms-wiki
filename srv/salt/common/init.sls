@@ -1,3 +1,10 @@
+extra-repos:
+  pkgrepo.managed:
+    - ppa: chris-lea/python-redis
+    - ppa: brianmercer/redis
+    - ppa: chris-lea/node.js
+    - ppa: nginx/stable
+
 common-pkgs:
   pkg.installed:
     - pkgs:
@@ -19,3 +26,5 @@ common-pkgs:
       - curl
       - libxml2-dev
       - libxslt-dev
+    - require:
+      - pkgrepo.managed: extra-repos

@@ -7,14 +7,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   	salt.minion_config = "srv/minion"
 	salt.run_highstate = true
   end
-  config.vm.provider :digital_ocean do |provider, override|
-    override.ssh.private_key_path = '~/.ssh/id_dsa'
-    override.vm.box = 'digital_ocean'
-    override.vm.box_url = "https://github.com/smdahlen/vagrant-digitalocean/raw/master/box/digital_ocean.box"
-
-    provider.client_id = ''
-    provider.api_key = ''
-  end
 end
 
 Vagrant::Config.run do |config|
