@@ -4,19 +4,21 @@ import time
 from threading import Lock
 
 import rethinkdb as rdb
-from flask import Flask, request, render_template, url_for, redirect, flash
+from flask import Flask, g, request, render_template, url_for, redirect, flash, session
+from flask.ctx import _AppCtxGlobals
 from flask.ext.login import LoginManager, login_required
 from flask.ext.assets import Environment, Bundle
-from recaptcha.client import captcha
 from werkzeug.routing import BaseConverter
+from werkzeug.utils import cached_property
 
-from session import RedisSessionInterface
 import config
-from wiki import Wiki
-from util import to_canonical, remove_ext, mkdir_safe, gravatar_url
+from realms.lib.ratelimit import get_view_rate_limit, ratelimiter
+from realms.lib.session import RedisSessionInterface
+from realms.lib.wiki import Wiki
+from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url
+from realms.lib.services import db
 from models import Site, User, CurrentUser
-from ratelimit import get_view_rate_limit, ratelimiter
-from services import db
+
 
 # Flask instance container
 instances = {}
@@ -24,6 +26,17 @@ instances = {}
 # Flask extension objects
 login_manager = LoginManager()
 assets = Environment()
+
+
+class AppCtxGlobals(_AppCtxGlobals):
+
+    @cached_property
+    def current_user(self):
+        return session.get('user') if session.get('user') else {'username': 'Anon'}
+
+
+class Application(Flask):
+    app_ctx_globals_class = AppCtxGlobals
 
 
 class SubdomainDispatcher(object):
@@ -90,19 +103,12 @@ def redirect_url(referrer=None):
     return request.args.get('next') or referrer or url_for('index')
 
 
-def validate_captcha():
-    response = captcha.submit(
-        request.form['recaptcha_challenge_field'],
-        request.form['recaptcha_response_field'],
-        config.flask['RECAPTCHA_PRIVATE_KEY'],
-        request.remote_addr)
-    return response.is_valid
-
-
 def format_subdomain(s):
+    if not config.repos['enable_subrepos']:
+        return ""
     s = s.lower()
     s = to_canonical(s)
-    if s in ['www', 'api']:
+    if s in config.repos['forbidden_subrepos']:
         # Not allowed
         s = ""
     return s
@@ -116,7 +122,7 @@ def make_app(subdomain):
 
 
 def create_app(subdomain=None):
-    app = Flask(__name__)
+    app = Application(__name__)
     app.config.update(config.flask)
     app.debug = (config.ENV is not 'PROD')
     app.secret_key = config.secret_key
@@ -199,7 +205,7 @@ def create_app(subdomain=None):
     def home():
         return redirect(url_for('root'))
 
-    @app.route("/account/")
+    @app.route("/_account/")
     @login_required
     def account():
         return render_template('account/index.html')
@@ -215,13 +221,13 @@ def create_app(subdomain=None):
                 return redirect(redirect_url())
             else:
                 s = Site()
-                s.create(name=wiki_name, repo=wiki_name, founder=CurrentUser.get('id'))
+                s.create(name=wiki_name, repo=wiki_name, founder=g.current_user.get('id'))
                 instances.pop(wiki_name, None)
                 return redirect('http://%s.%s' % (wiki_name, config.hostname))
         else:
             return render_template('_new/index.html')
 
-    @app.route("/logout/")
+    @app.route("/_logout/")
     def logout():
         User.logout()
         return redirect(url_for('root'))
@@ -234,7 +240,7 @@ def create_app(subdomain=None):
         if data:
             return render_template('page/page.html', name=name, page=data, commit=sha)
         else:
-            return redirect('/create/'+cname)
+            return redirect('/_create/'+cname)
 
     @app.route("/_compare/<name>/<regex('[^.]+'):fsha><regex('\.{2,3}'):dots><regex('.+'):lsha>")
     def compare(name, fsha, dots, lsha):
@@ -247,11 +253,11 @@ def create_app(subdomain=None):
             name = request.form.get('name')
             commit = request.form.get('commit')
             cname = to_canonical(name)
-            w.revert_page(name, commit, message="Reverting %s" % cname, username=CurrentUser.get('username'))
+            w.revert_page(name, commit, message="Reverting %s" % cname, username=g.current_user.get('username'))
             flash('Page reverted', 'success')
             return redirect("/" + cname)
 
-    @app.route("/register", methods=['GET', 'POST'])
+    @app.route("/_register", methods=['GET', 'POST'])
     def register():
         if request.method == 'POST':
             if User.register(request.form.get('username'), request.form.get('email'), request.form.get('password')):
@@ -262,14 +268,14 @@ def create_app(subdomain=None):
         else:
             return render_template('account/register.html')
 
-    @app.route("/login", methods=['GET', 'POST'])
+    @app.route("/_login", methods=['GET', 'POST'])
     def login():
         if request.method == 'POST':
             if User.auth(request.form['email'], request.form['password']):
                 return redirect(redirect_url(referrer=url_for('root')))
             else:
                 flash("Email or Password invalid")
-                return redirect("/login")
+                return redirect("/_login")
         else:
             return render_template('account/login.html')
 
@@ -288,7 +294,7 @@ def create_app(subdomain=None):
                 w.rename_page(cname, edit_cname)
             w.write_page(edit_cname, request.form['content'],
                          message=request.form['message'],
-                         username=CurrentUser.get('username'))
+                         username=g.current_user.get('username'))
             return redirect("/" + edit_cname)
         else:
             if data:
@@ -296,7 +302,7 @@ def create_app(subdomain=None):
                 content = data['data']
                 return render_template('page/edit.html', name=name, content=content)
             else:
-                return redirect('/create/'+cname)
+                return redirect('/_create/'+cname)
 
     @app.route("/_delete/<name>", methods=['POST'])
     @login_required
@@ -316,7 +322,7 @@ def create_app(subdomain=None):
             w.write_page(request.form['name'], request.form['content'],
                          message=request.form['message'],
                          create=True,
-                         username=CurrentUser.get('username'))
+                         username=g.current_user.get('username'))
             return redirect("/" + cname)
         else:
             return render_template('page/edit.html', name=cname, content="")
@@ -331,6 +337,6 @@ def create_app(subdomain=None):
         if data:
             return render_template('page/page.html', name=cname, page=data)
         else:
-            return redirect('/create/'+cname)
+            return redirect('/_create/'+cname)
 
     return app

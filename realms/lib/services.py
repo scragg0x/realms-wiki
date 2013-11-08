@@ -1,7 +1,6 @@
 import rethinkdb as rdb
 import redis
-
-import config
+from realms import config
 
 
 # Default DB connection

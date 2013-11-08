@@ -1,60 +1,9 @@
-import json
 import rethinkdb as rdb
 import bcrypt
 from flask import session, flash
 from flask.ext.login import login_user, logout_user
-from util import gravatar_url
-from services import db, cache
-
-
-def to_json(res, first=False):
-    """
-    Jsonify query result.
-    """
-    res = to_dict(res, first)
-    return json.dumps(res, separators=(',',':'))
-
-
-def to_dict(cur, first=False):
-    if not cur:
-        return None
-    ret = []
-    for row in cur:
-        ret.append(row)
-    if ret and first:
-        return ret[0]
-    else:
-        return ret
-
-
-def cache_it(fn):
-    def wrap(*args, **kw):
-        key = "%s:%s" % (args[0].table, args[1])
-        data = cache.get(key)
-        # Assume strings are JSON encoded
-        try:
-            data = json.loads(data)
-        except TypeError:
-            pass
-        except ValueError:
-            pass
-
-        if data is not None:
-            return data
-        else:
-            data = fn(*args)
-            print data
-            ret = data
-            if data is None:
-                data = ''
-            if not isinstance(data, basestring):
-                try:
-                    data = json.dumps(data, separators=(',', ':'))
-                except TypeError:
-                    pass
-            cache.set(key, data)
-            return ret
-    return wrap
+from realms.lib.util import gravatar_url, to_dict, cache_it
+from realms.lib.services import db
 
 
 class BaseModel():
@@ -162,7 +111,7 @@ class User(BaseModel):
         User.login(u.id)
 
     @classmethod
-    def login(cls, id, data=None):
+    def login(cls, id):
         login_user(CurrentUser(id), True)
 
     @classmethod

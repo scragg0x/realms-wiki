@@ -7,8 +7,8 @@ import ghdiff
 import gittle.utils
 from gittle import Gittle
 from dulwich.repo import NotGitRepository
-
-from util import to_canonical, escape_repl, unescape_repl
+from werkzeug.utils import escape, unescape
+from util import to_canonical
 from models import Site
 
 
@@ -80,6 +80,14 @@ class Wiki():
 
     def write_page(self, name, content, message=None, create=False, username=None, email=None):
 
+        def escape_repl(m):
+            if m.group(1):
+                return "```" + escape(m.group(1)) + "```"
+
+        def unescape_repl(m):
+            if m.group(1):
+                return "```" + unescape(m.group(1)) + "```"
+
         # prevents p tag from being added, we remove this later
         content = '<div>' + content + '</div>'
         content = re.sub(r"```(.*?)```", escape_repl, content, flags=re.DOTALL)
@@ -93,9 +101,11 @@ class Wiki():
 
         # post processing to fix errors
         content = content[5:-6]
+
         # FIXME this is for block quotes, doesn't work for double ">"
         content = re.sub(r"(\n&gt;)", "\n>", content)
         content = re.sub(r"(^&gt;)", ">", content)
+
         content = re.sub(r"```(.*?)```", unescape_repl, content, flags=re.DOTALL)
 
         filename = self.cname_to_filename(to_canonical(name))
@@ -129,7 +139,7 @@ class Wiki():
                          files=[old_name])
 
     def get_page(self, name, sha='HEAD'):
-        commit = gittle.utils.git.commit_info(self.repo[sha])
+        # commit = gittle.utils.git.commit_info(self.repo[sha])
         name = self.cname_to_filename(name)
         try:
             return self.repo.get_commit_files(sha, paths=[name]).get(name)
