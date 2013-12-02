@@ -1,40 +1,12 @@
-import rethinkdb as rdb
 import bcrypt
+from sqlalchemy import Column, Integer, String, Time
+from sqlalchemy.ext.declarative import declarative_base
 from flask import session, flash
 from flask.ext.login import login_user, logout_user
-from realms.lib.util import gravatar_url, to_dict, cache_it
+from realms.lib.util import gravatar_url, to_dict
 from realms.lib.services import db
 
-
-class BaseModel():
-
-    table = None
-    _conn = db
-
-    def __init__(self, **kwargs):
-        if not kwargs.get('conn'):
-            kwargs['conn'] = db
-
-    def create(self, **kwargs):
-        return rdb.table(self.table).insert(kwargs).run(self._conn)
-
-    @cache_it
-    def get_by_id(self, id):
-        return rdb.table(self.table).get(id).run(self._conn)
-
-    def get_all(self, arg, index):
-        return rdb.table(self.table).get_all(arg, index=index).run(self._conn)
-
-    #@cache_it
-    def get_one(self, arg, index):
-        return rdb.table(self.table).get_all(arg, index=index).limit(1).run(self._conn)
-
-
-class Site(BaseModel):
-    table = 'sites'
-
-    def get_by_name(self, name):
-        return to_dict(self.get_one(name, 'name'), True)
+Base = declarative_base()
 
 
 class CurrentUser():
@@ -66,8 +38,22 @@ class CurrentUser():
             return None
 
 
-class User(BaseModel):
-    table = 'users'
+class Site(Base):
+    __tablename__ = 'sites'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    pages = Column(Integer)
+    views = Column(Integer)
+    created = Column(Time)
+
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String(100))
+    email = Column(String(255))
+    password = Column(String(255))
+    joined = Column(Time)
 
     def get_by_email(self, email):
         return to_dict(self.get_one(email, 'email'), True)

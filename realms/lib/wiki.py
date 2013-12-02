@@ -1,15 +1,13 @@
 import os
 import re
 import lxml.html
-from lxml.html import clean
 import ghdiff
-
 import gittle.utils
 from gittle import Gittle
 from dulwich.repo import NotGitRepository
 from werkzeug.utils import escape, unescape
 from util import to_canonical
-from models import Site
+from realms.models import Site
 
 
 class MyGittle(Gittle):
@@ -94,7 +92,7 @@ class Wiki():
 
         tree = lxml.html.fromstring(content)
 
-        cleaner = clean.Cleaner(remove_unknown_tags=False, kill_tags=set(['style']), safe_attrs_only=False)
+        cleaner = lxml.html.Cleaner(remove_unknown_tags=False, kill_tags=set(['style']), safe_attrs_only=False)
         tree = cleaner.clean_html(tree)
 
         content = lxml.html.tostring(tree, encoding='utf-8', method='html')

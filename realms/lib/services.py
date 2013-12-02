@@ -1,10 +1,9 @@
-import rethinkdb as rdb
 import redis
 from realms import config
-
+from sqlalchemy import create_engine
 
 # Default DB connection
-db = rdb.connect(config.db['host'], config.db['port'], db=config.db['dbname'])
+db = create_engine(config.DB_URI, encoding='utf8', echo=True)
 
 # Default Cache connection
-cache = redis.StrictRedis(host=config.cache['host'], port=config.cache['port'])
+cache = redis.StrictRedis(host=config.REDIS_HOST, port=config.REDIS_PORT)

@@ -2,6 +2,8 @@ postgresql:
   pkg.installed:
     - name: postgresql-9.3
 
+libpq-dev:
+  pkg.installed
 
 createdb:
   cmd.run:

@@ -1,9 +1,10 @@
 from gevent import monkey, pywsgi
 monkey.patch_all()
-from realms import config, init_db, make_app, SubdomainDispatcher
+import logging
+from realms import app, config
 
 
 if __name__ == '__main__':
-    init_db(config.db['dbname'])
-    app = SubdomainDispatcher(config.domain, make_app)
-    pywsgi.WSGIServer(('', config.port), app).serve_forever()
+    print "Starting server"
+    app.logger.setLevel(logging.INFO)
+    pywsgi.WSGIServer(('', config.PORT), app).serve_forever()
