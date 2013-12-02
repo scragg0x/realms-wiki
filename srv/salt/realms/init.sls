@@ -14,6 +14,7 @@ virtualenvwrapper:
 
 bower:
   npm.installed:
+    - user: root
     - require:
       - pkg.installed: common-pkgs
 
@@ -25,4 +26,10 @@ realms-repo:
     - rev: master
     - user: deploy
     - identity: /home/deploy/.ssh/id_rsa
+
+/home/deploy/virtualenvs/realms:
+  virtualenv.managed:
+    - requirements: /home/deploy/realms/requirements.txt
+    - cwd: /home/deploy/realms
+    - runas: deploy
 

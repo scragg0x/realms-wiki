@@ -1,18 +1,26 @@
 redis-lea-repo:
   pkgrepo.managed:
-    - name: 'deb http://ppa.launchpad.net/chris-lea/redis-server/ubuntu precise main'
+    - ppa: chris-lea/redis-server
+    - required_in: redis-server
 
 nodejs-lea-repo:
   pkgrepo.managed:
-    - name: 'deb http://ppa.launchpad.net/chris-lea/node.js/ubuntu precise main'
+    - ppa: chris-lea/node.js
 
 python-redis-lea-repo:
   pkgrepo.managed:
-    - name: 'deb http://ppa.launchpad.net/chris-lea/python-redis/ubuntu precise main'
+    - ppa: chris-lea/python-redis
 
 nginx-stable-repo:
   pkgrepo.managed:
-    - name: 'deb http://ppa.launchpad.net/nginx/stable/ubuntu  precise main'
+    - ppa: nginx/stable
+    - required_in: nginx
+
+postgres-repo:
+  pkgrepo.managed:
+    - name: deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main
+    - key_url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    - required_in: postgresql
 
 common-pkgs:
   pkg.installed:
@@ -41,3 +49,4 @@ common-pkgs:
       - pkgrepo.managed: redis-lea-repo
       - pkgrepo.managed: python-redis-lea-repo
       - pkgrepo.managed: nginx-stable-repo
+      - pkgrepo.managed: postgres-repo

@@ -2,9 +2,8 @@ base:
   '*':
     - common
     - users
-    - nodejs
     - redis
     - nginx
-    - rethinkdb
+    - postgres
     - realms
     - supervisor

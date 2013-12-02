@@ -42,3 +42,5 @@ bashrc-append:
   file.append:
     - name: /home/deploy/.bashrc
     - text: . ~/.bash_profile
+    - user: deploy
+    - group: deploy
