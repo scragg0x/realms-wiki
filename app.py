@@ -1,7 +1,8 @@
 from gevent import monkey, pywsgi
+from realms import config, app
+
 monkey.patch_all()
 import logging
-from realms import app, config
 
 
 if __name__ == '__main__':

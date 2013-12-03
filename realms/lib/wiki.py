@@ -1,6 +1,7 @@
 import os
 import re
 import lxml.html
+from lxml.html.clean import Cleaner
 import ghdiff
 import gittle.utils
 from gittle import Gittle
@@ -92,7 +93,9 @@ class Wiki():
 
         tree = lxml.html.fromstring(content)
 
-        cleaner = lxml.html.Cleaner(remove_unknown_tags=False, kill_tags=set(['style']), safe_attrs_only=False)
+        cleaner = Cleaner(remove_unknown_tags=False,
+                          kill_tags=set(['style']),
+                          safe_attrs_only=False)
         tree = cleaner.clean_html(tree)
 
         content = lxml.html.tostring(tree, encoding='utf-8', method='html')

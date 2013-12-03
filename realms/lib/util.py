@@ -59,11 +59,12 @@ def to_dict(cur, first=False):
     else:
         return ret
 
+
 def validate_captcha():
     response = captcha.submit(
         request.form['recaptcha_challenge_field'],
         request.form['recaptcha_response_field'],
-        config.flask['RECAPTCHA_PRIVATE_KEY'],
+        config.RECAPTCHA_PRIVATE_KEY,
         request.remote_addr)
     return response.is_valid
 
@@ -125,4 +126,4 @@ def to_canonical(s):
 
 
 def gravatar_url(email):
-    return "https://www.gravatar.com/avatar/" + hashlib.md5(email).hexdigest()
+    return "//www.gravatar.com/avatar/" + hashlib.md5(email).hexdigest()

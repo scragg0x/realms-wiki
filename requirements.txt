@@ -2,6 +2,7 @@ Flask==0.10.1
 Flask-Assets==0.8
 Flask-Bcrypt==0.5.2
 Flask-Login==0.2.7
+Flask-Script==0.6.3
 beautifulsoup4==4.3.2
 boto==2.17.0
 closure==20121212
