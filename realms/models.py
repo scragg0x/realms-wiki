@@ -98,7 +98,7 @@ class User(Base):
 
     @classmethod
     def login(cls, id):
-        login_user(CurrentUser(id), True)
+        login_user(CurrentUser(id), remember=True)
 
     @classmethod
     def logout(cls):

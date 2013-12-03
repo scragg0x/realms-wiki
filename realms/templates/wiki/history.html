@@ -21,7 +21,7 @@
                 <input type="checkbox" name="versions[]" value="{{ h.sha }}" />
             </td>
             <td>{{ h.author }}</td>
-            <td><a href="/_commit/{{ h.sha }}/{{ name }}" class='label label-primary'>View</a> {{ h.message }} </td>
+            <td><a href="{{ url_for('wiki.commit', name=name, sha=h.sha) }}" class='label label-primary'>View</a> {{ h.message }} </td>
             <td>{{ h.time|datetime }}</td>
         </tr>
     {% endfor %}
@@ -52,7 +52,7 @@ $(function(){
         });
         revs.reverse();
         revs = revs.join("..");
-        location.href = "/_compare/{{ name }}/" + revs;
+        location.href = "{{ url_for('wiki.page') }}_compare/{{ name }}/" + revs;
     });
 });
 </script>

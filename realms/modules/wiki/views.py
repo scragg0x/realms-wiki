@@ -8,9 +8,9 @@ from realms.models import Site
 blueprint = Blueprint('wiki', __name__)
 
 
-@blueprint.route("/wiki/_new/", methods=['GET', 'POST'])
+@blueprint.route("/wiki/new/", methods=['GET', 'POST'])
 @login_required
-def new_wiki():
+def new():
     if request.method == 'POST':
         wiki_name = to_canonical(request.form['name'])
 
@@ -26,7 +26,7 @@ def new_wiki():
     
     
 @blueprint.route("/wiki/_commit/<sha>/<name>")
-def commit_sha(name, sha):
+def commit(name, sha):
     cname = to_canonical(name)
 
     data = g.current_wiki.get_page(cname, sha=sha)
@@ -55,7 +55,7 @@ def revert():
 @blueprint.route("/wiki/_history/<name>")
 def history(name):
     history = g.current_wiki.get_history(name)
-    return render_template('wiki/history.html', name=name, history=history)
+    return render_template('wiki/history.html', name=name, history=history, wiki_home=url_for('wiki.page'))
 
 
 @blueprint.route("/wiki/_edit/<name>", methods=['GET', 'POST'])

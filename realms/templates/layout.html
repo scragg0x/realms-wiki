@@ -8,10 +8,10 @@
 
     <title>Realms</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-    <link href="/static/css/bootstrap/spacelab.css" rel="stylesheet">
-    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
-    <link href="/static/vendor/highlightjs/styles/github.css" rel="stylesheet">
-    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap/spacelab.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/highlightjs/styles/github.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     {% block css %}{% endblock %}
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -43,14 +43,14 @@
                     <i class="icon-caret-down"></i></a>
                 <ul class="dropdown-menu">
                     <li class="dropdown-header">Page Options</li>
-                    <li><a href="/_create/">Create Page</a></li>
+                    <li><a href="{{ url_for('wiki.create') }}">Create Page</a></li>
                     {% if name %}
-                        <li><a href="/_edit/{{ name }}">Edit Page</a></li>
-                        <li><a href="/_history/{{ name }}">History</a></li>
+                        <li><a href="{{ url_for('wiki.edit', name=name) }}">Edit Page</a></li>
+                        <li><a href="{{ url_for('wiki.history', name=name) }}">History</a></li>
                     {% endif %}
                     <li class="divider"></li>
                     <li class="dropdown-header">Site Options</li>
-                    <li><a href="/_new/">Create New Wiki</a></li>
+                    <li><a href="{{ url_for('wiki.new') }}">Create New Site</a></li>
                 </ul>
             </li>
 
@@ -63,13 +63,13 @@
                 </span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="/account">Account</a></li>
-                    <li><a href="/logout">Logout</a></li>
+                    <li><a href="{{ url_for('account') }}">Account</a></li>
+                    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
                 </ul>
                 </li>
             {% else %}
-                <li><a href="/login"><i class="icon-user"></i> Login</a></li>
-                <li><a href="/register"><i class="icon-pencil"></i> Register</a></li>
+                <li><a href="{{ url_for('auth.login') }}"><i class="icon-user"></i> Login</a></li>
+                <li><a href="{{ url_for('auth.register') }}"><i class="icon-pencil"></i> Register</a></li>
             {% endif %}
           </ul>
         </div><!--/.nav-collapse -->

@@ -1,7 +1,7 @@
 {% macro recaptcha(config) -%}
 <script>
 var RecaptchaOptions = {
-    theme : '{{ config.RECAPTCHA_OPTIONS['theme'] }}'
+    theme : "{{ config.RECAPTCHA_OPTIONS['theme'] }}"
 };
 </script>
 <script src="http://www.google.com/recaptcha/api/challenge?k={{ config.RECAPTCHA_PUBLIC_KEY }}">

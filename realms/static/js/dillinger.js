@@ -1,6 +1,7 @@
 $(function(){
 
-    // Cache some shit
+    var url_prefix = "/wiki";
+
     var $theme = $('#theme-list')
         , $preview = $('#preview')
         , $autosave = $('#autosave')
@@ -261,22 +262,11 @@ $(function(){
 
     }
 
-    /**
-     * Initialize theme and other options of Ace editor.
-     *
-     * @return {Void}
-     */
     function initAce(){
-
         editor = ace.edit("editor");
-
+        editor.focus();
     }
 
-    /**
-     * Initialize various UI elements based on userprofile data.
-     *
-     * @return {Void}
-     */
     function initUi(){
         // Set proper theme value in theme dropdown
         fetchTheme(profile.theme, function(){
@@ -288,8 +278,6 @@ $(function(){
             editor.getSession().setMode('ace/mode/markdown');
 
             editor.getSession().setValue( profile.currentMd || editor.getSession().getValue());
-
-            // Immediately populate the preview <div>
             previewMd();
         });
 
@@ -309,26 +297,11 @@ $(function(){
     }
 
 
-    /// HANDLERS =================
-
-
-    /**
-     * Clear the markdown and text and the subsequent HTML preview.
-     *
-     * @return {Void}
-     */
     function clearSelection(){
         editor.getSession().setValue("");
         previewMd();
     }
 
-    // TODO: WEBSOCKET MESSAGE?
-    /**
-     * Save the markdown via localStorage - isManual is from a click or key event.
-     *
-     * @param {Boolean}
-     * @return {Void}
-     */
     function saveFile(isManual){
         updateUserProfile({currentMd: editor.getSession().getValue()});
 
@@ -341,17 +314,12 @@ $(function(){
                 content: editor.getSession().getValue()
             };
             $.post(window.location, data, function(){
-                location.href = "/" + data['name'];
+                location.href = url_prefix + '/' + data['name'];
             });
         }
 
     }
 
-    /**
-     * Enable autosave for a specific interval.
-     *
-     * @return {Void}
-     */
     function autoSave(){
 
         if(profile.autosave.enabled) {
@@ -371,11 +339,6 @@ $(function(){
     });
 
 
-    /**
-     * Clear out user profile data in localStorage.
-     *
-     * @return {Void}
-     */
     function resetProfile(){
         // For some reason, clear() is not working in Chrome.
         localStorage.clear();
@@ -387,11 +350,6 @@ $(function(){
         window.location.reload();
     }
 
-    /**
-     * Dropbown nav handler to update the current theme.
-     *
-     * @return {Void}
-     */
     function changeTheme(e){
         // check for same theme
         var $target = $(e.target);
@@ -409,14 +367,6 @@ $(function(){
         }
     }
 
-    // TODO: Maybe we just load them all once and stash in appcache?
-    /**
-     * Dynamically appends a script tag with the proper theme and then applies that theme.
-     *
-     * @param {String}  The theme name
-     * @param {Function}   Optional callback
-     * @return {Void}
-     */
     function fetchTheme(th, cb){
         var name = th.split('/').pop();
         asyncLoad("/static/js/ace/theme-"+ name +".js", function() {
@@ -428,21 +378,10 @@ $(function(){
 
     }
 
-    /**
-     * Change the body background color based on theme.
-     *
-     * @param {String}  The theme name
-     * @return {Void}
-     */
     function updateBg(name){
         // document.body.style.backgroundColor = bgColors[name]
     }
 
-    /**
-     * Clientside update showing rendered HTML of Markdown.
-     *
-     * @return {Void}
-     */
     function previewMd(){
 
         var unmd = editor.getSession().getValue()
@@ -455,12 +394,6 @@ $(function(){
         //refreshWordCount();
     }
 
-    /**
-     * Stash current file name in the user's profile.
-     *
-     * @param {String}  Optional string to force the value
-     * @return {Void}
-     */
     function updateFilename(str){
         // Check for string because it may be keyup event object
         var f;
@@ -503,43 +436,23 @@ $(function(){
 
     }
 
-    /**
-     * Show a sad panda because they are using a shitty browser.
-     *
-     * @return {Void}
-     */
     function sadPanda(){
         // TODO: ACTUALLY SHOW A SAD PANDA.
         alert('Sad Panda - No localStorage for you!')
     }
 
-    /**
-     * Toggles the autosave feature.
-     *
-     * @return {Void}
-     */
     function toggleAutoSave(){
         $autosave.html( profile.autosave.enabled ? '<i class="icon-remove"></i>&nbsp;Disable Autosave' : '<i class="icon-ok"></i>&nbsp;Enable Autosave' );
         updateUserProfile({autosave: {enabled: !profile.autosave.enabled }});
         autoSave();
     }
 
-    /**
-     * Bind keyup handler to the editor.
-     *
-     * @return {Void}
-     */
     function bindPreview(){
         editor.getSession().on('change', function(e) {
             previewMd();
         });
     }
 
-    /**
-     * Bind navigation elements.
-     *
-     * @return {Void}
-     */
     function bindNav(){
 
         $theme
@@ -575,16 +488,12 @@ $(function(){
 
     } // end bindNav()
 
-    /**
-     * Bind special keyboard handlers.
-     *
-     * @return {Void}
-     */
+
     function bindKeyboard(){
         // CMD+s TO SAVE DOC
         key('command+s, ctrl+s', function(e){
             saveFile(true);
-            e.preventDefault(); // so we don't save the webpage - native browser functionality
+            e.preventDefault(); // so we don't save the web page - native browser functionality
         });
 
         var saveCommand = {
@@ -605,14 +514,6 @@ $(function(){
 });
 
 
-
-/**
- * Get scrollHeight of preview div
- * (code adapted from https://github.com/anru/rsted/blob/master/static/scripts/editor.js)
- *
- * @param {Object} The jQuery object for the preview div
- * @return {Int} The scrollHeight of the preview area (in pixels)
- */
 function getScrollHeight($prevFrame) {
     // Different browsers attach the scrollHeight of a document to different
     // elements, so handle that here.
@@ -626,12 +527,6 @@ function getScrollHeight($prevFrame) {
     }
 }
 
-/**
- * Scroll preview to match cursor position in editor session
- * (code adapted from https://github.com/anru/rsted/blob/master/static/scripts/editor.js)
- *
- * @return {Void}
- */
 
 function syncPreview() {
     var $ed = window.ace.edit('editor');
