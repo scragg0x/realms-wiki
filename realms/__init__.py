@@ -3,7 +3,7 @@ import time
 import sys
 import os
 
-from flask import Flask, request, render_template, url_for, redirect, session
+from flask import Flask, request, render_template, url_for, redirect, session, g
 from flask.ctx import _AppCtxGlobals
 from flask.ext.script import Manager
 from flask.ext.login import LoginManager, login_required
@@ -17,27 +17,40 @@ from realms.lib.session import RedisSessionInterface
 from realms.lib.wiki import Wiki
 from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url
 from realms.lib.services import db
-from models import Site, User, CurrentUser
+from realms.models import User, CurrentUser
 
 
-wikis = {}
+sites = {}
+
+
+class Site(object):
+    wiki = None
 
 
 class AppCtxGlobals(_AppCtxGlobals):
 
     @cached_property
-    def current_wiki(self):
-        subdomain = format_subdomain(self.current_site)
+    def current_site(self):
+        subdomain = format_subdomain(self.current_subdomain)
         if not subdomain:
-            subdomain = "_"
+            subdomain = "www"
 
-        if not wikis.get(subdomain):
-            wikis[subdomain] = Wiki("%s/%s" % (config.REPO_DIR, subdomain))
+        if subdomain is "www" and self.current_subdomain:
+            # Invalid sub domain
+            return False
 
-        return wikis[subdomain]
+        if not sites.get(subdomain):
+            sites[subdomain] = Site()
+            sites[subdomain].wiki = Wiki("%s/%s" % (config.REPO_DIR, subdomain))
+
+        return sites[subdomain]
 
     @cached_property
-    def current_site(self):
+    def current_wiki(self):
+        return g.current_site.wiki
+
+    @cached_property
+    def current_subdomain(self):
         host = request.host.split(':')[0]
         return host[:-len(config.DOMAIN)].rstrip('.')
 
@@ -101,13 +114,6 @@ class Application(Flask):
                 manager.add_command(module_name, sources.commands.manager)
 
         print >> sys.stderr, ' * Ready in %.2fms' % (1000.0 * (time.time() - start_time))
-
-
-def init_db(dbname):
-    """
-    Assures DB has minimal setup
-    """
-    pass
 
 
 class RegexConverter(BaseConverter):
@@ -188,6 +194,12 @@ else:
         assets.register('js_editor', js)
 
 
+@app.before_request
+def check_subdomain():
+    if not g.current_site:
+        return redirect('http://%s' % config.SERVER_NAME)
+
+
 @app.after_request
 def inject_x_rate_headers(response):
     limit = get_view_rate_limit()
@@ -218,7 +230,6 @@ def page_error(e):
 @app.route("/")
 def root():
     return redirect(url_for(config.ROOT_ENDPOINT))
-
 
 
 @app.route("/_account/")

@@ -1,14 +1,14 @@
 from flask import g, render_template, request, redirect, Blueprint, flash, url_for
 from flask.ext.login import login_required
-from realms import app, redirect_url, config
+from realms import redirect_url, config
 from realms.lib.util import to_canonical, remove_ext
 from realms.lib.wiki import Wiki
 from realms.models import Site
 
-blueprint = Blueprint('wiki', __name__)
+blueprint = Blueprint('wiki', __name__, url_prefix='/wiki')
 
 
-@blueprint.route("/wiki/new/", methods=['GET', 'POST'])
+@blueprint.route("/new/", methods=['GET', 'POST'])
 @login_required
 def new():
     if request.method == 'POST':
@@ -25,7 +25,7 @@ def new():
         return render_template('wiki/new.html')
     
     
-@blueprint.route("/wiki/_commit/<sha>/<name>")
+@blueprint.route("/_commit/<sha>/<name>")
 def commit(name, sha):
     cname = to_canonical(name)
 
@@ -36,29 +36,30 @@ def commit(name, sha):
         return redirect(url_for('.create', name=cname))
 
 
-@blueprint.route("/wiki/_compare/<name>/<regex('[^.]+'):fsha><regex('\.{2,3}'):dots><regex('.+'):lsha>")
+@blueprint.route("/_compare/<name>/<regex('[^.]+'):fsha><regex('\.{2,3}'):dots><regex('.+'):lsha>")
 def compare(name, fsha, dots, lsha):
     diff = g.current_wiki.compare(name, fsha, lsha)
     return render_template('wiki/compare.html', name=name, diff=diff, old=fsha, new=lsha)
 
 
-@blueprint.route("/wiki/_revert", methods=['POST'])
+@blueprint.route("/_revert", methods=['POST'])
 def revert():
     if request.method == 'POST':
         name = request.form.get('name')
         commit = request.form.get('commit')
         cname = to_canonical(name)
-        g.current_wiki.revert_page(name, commit, message="Reverting %s" % cname, username=g.current_user.get('username'))
+        g.current_wiki.revert_page(name, commit, message="Reverting %s" % cname,
+                                   username=g.current_user.get('username'))
         flash('Page reverted', 'success')
         return redirect(url_for('.page', name=cname))
     
-@blueprint.route("/wiki/_history/<name>")
+@blueprint.route("/_history/<name>")
 def history(name):
     history = g.current_wiki.get_history(name)
     return render_template('wiki/history.html', name=name, history=history, wiki_home=url_for('wiki.page'))
 
 
-@blueprint.route("/wiki/_edit/<name>", methods=['GET', 'POST'])
+@blueprint.route("/_edit/<name>", methods=['GET', 'POST'])
 def edit(name):
     data = g.current_wiki.get_page(name)
     cname = to_canonical(name)
@@ -80,14 +81,14 @@ def edit(name):
             return redirect(url_for('.create', name=cname))
 
 
-@blueprint.route("/wiki/_delete/<name>", methods=['POST'])
+@blueprint.route("/_delete/<name>", methods=['POST'])
 @login_required
 def delete(name):
     pass
 
 
-@blueprint.route("/wiki/_create/", defaults={'name': None}, methods=['GET', 'POST'])
-@blueprint.route("/wiki/_create/<name>", methods=['GET', 'POST'])
+@blueprint.route("/_create/", defaults={'name': None}, methods=['GET', 'POST'])
+@blueprint.route("/_create/<name>", methods=['GET', 'POST'])
 def create(name):
     cname = ""
     if name:
@@ -107,8 +108,8 @@ def create(name):
         return render_template('wiki/edit.html', name=cname, content="")
 
 
-@blueprint.route("/wiki/", defaults={'name': 'home'})
-@blueprint.route("/wiki/<name>")
+@blueprint.route("/", defaults={'name': 'home'})
+@blueprint.route("/<name>")
 def page(name):
     cname = to_canonical(name)
     if cname != name:

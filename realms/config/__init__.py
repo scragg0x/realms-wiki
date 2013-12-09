@@ -4,7 +4,6 @@ HOSTNAME = socket.gethostname()
 
 DOMAIN = 'realms.dev'
 ENV = 'DEV'
-PORT = 10000
 
 DB_URI = 'postgresql://realms:dbpassword@localhost:5432/realms'
 
@@ -32,7 +31,10 @@ MODULES = [
 ]
 
 if ENV is 'PROD':
-    pass
+    SERVER_NAME = 'realms.io'
+    PORT = 80
 else:
     DEBUG = True
     ASSETS_DEBUG = True
+    SERVER_NAME = 'realms.dev:8000'
+    PORT = 8000
