@@ -1,30 +1,10 @@
 from flask import g, render_template, request, redirect, Blueprint, flash, url_for
 from flask.ext.login import login_required
-from realms import redirect_url, config
 from realms.lib.util import to_canonical, remove_ext
-from realms.lib.wiki import Wiki
-from realms.models import Site
 
 blueprint = Blueprint('wiki', __name__, url_prefix='/wiki')
 
 
-@blueprint.route("/new/", methods=['GET', 'POST'])
-@login_required
-def new():
-    if request.method == 'POST':
-        wiki_name = to_canonical(request.form['name'])
-
-        if Wiki.is_registered(wiki_name):
-            flash("Site already exists")
-            return redirect(redirect_url())
-        else:
-            s = Site()
-            s.create(name=wiki_name, repo=wiki_name, founder=g.current_user.get('id'))
-            return redirect('http://%s.%s' % (wiki_name, config.HOSTNAME))
-    else:
-        return render_template('wiki/new.html')
-    
-    
 @blueprint.route("/_commit/<sha>/<name>")
 def commit(name, sha):
     cname = to_canonical(name)

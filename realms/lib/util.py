@@ -10,6 +10,34 @@ from realms import config
 from realms.lib.services import cache
 
 
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
+
+
+def to_json(data):
+    return json.dumps(to_dict(data), separators=(',', ':'))
+
+
+def to_dict(data):
+
+    if not data:
+        return AttrDict()
+
+    def row2dict(row):
+        d = AttrDict()
+        for column in row.__table__.columns:
+            d[column.name] = getattr(row, column.name)
+
+        return d
+
+    if isinstance(data, list):
+        return [row2dict(x) for x in data]
+    else:
+        return row2dict(data)
+
+
 def cache_it(fn):
     def wrap(*args, **kw):
         key = "%s:%s" % (args[0].table, args[1])
@@ -38,26 +66,6 @@ def cache_it(fn):
             cache.set(key, data)
             return ret
     return wrap
-
-
-def to_json(res, first=False):
-    """
-    Jsonify query result.
-    """
-    res = to_dict(res, first)
-    return json.dumps(res, separators=(',', ':'))
-
-
-def to_dict(cur, first=False):
-    if not cur:
-        return None
-    ret = []
-    for row in cur:
-        ret.append(row)
-    if ret and first:
-        return ret[0]
-    else:
-        return ret
 
 
 def validate_captcha():

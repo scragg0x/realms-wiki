@@ -1,30 +1,44 @@
+# Monkey patch stdlib.
+import gevent.monkey
+gevent.monkey.patch_all(aggressive=False)
+
+# Set default encoding to UTF-8
+import sys
+
+reload(sys)
+# noinspection PyUnresolvedReferences
+sys.setdefaultencoding('utf-8')
+
+# Silence Sentry and Requests.
 import logging
+logging.getLogger().setLevel(logging.INFO)
+logging.getLogger('raven').setLevel(logging.WARNING)
+logging.getLogger('requests').setLevel(logging.WARNING)
+
 import time
 import sys
 import os
-
-from flask import Flask, request, render_template, url_for, redirect, session, g
+import httplib
+import traceback
+from flask import Flask, request, render_template, url_for, redirect, session, flash, g
 from flask.ctx import _AppCtxGlobals
 from flask.ext.script import Manager
 from flask.ext.login import LoginManager, login_required
 from flask.ext.assets import Environment, Bundle
 from werkzeug.routing import BaseConverter
 from werkzeug.utils import cached_property
+from werkzeug.exceptions import HTTPException
 
 from realms import config
+from realms.lib.services import db
 from realms.lib.ratelimit import get_view_rate_limit, ratelimiter
 from realms.lib.session import RedisSessionInterface
 from realms.lib.wiki import Wiki
-from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url
-from realms.lib.services import db
-from realms.models import User, CurrentUser
+from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
+from realms.models import User, CurrentUser, Site
 
 
 sites = {}
-
-
-class Site(object):
-    wiki = None
 
 
 class AppCtxGlobals(_AppCtxGlobals):
@@ -40,7 +54,7 @@ class AppCtxGlobals(_AppCtxGlobals):
             return False
 
         if not sites.get(subdomain):
-            sites[subdomain] = Site()
+            sites[subdomain] = to_dict(Site.get_by_name(subdomain))
             sites[subdomain].wiki = Wiki("%s/%s" % (config.REPO_DIR, subdomain))
 
         return sites[subdomain]
@@ -149,9 +163,11 @@ app.url_map.converters['regex'] = RegexConverter
 app.url_map.strict_slashes = False
 app.debug = True
 
+# Flask-SQLAlchemy
+db.init_app(app)
+
 manager = Manager(app)
 
-# Flask extension objects
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
@@ -160,6 +176,38 @@ login_manager.login_view = 'auth.login'
 @login_manager.user_loader
 def load_user(user_id):
     return CurrentUser(user_id)
+
+
+def error_handler(e):
+    try:
+        if isinstance(e, HTTPException):
+            status_code = e.code
+            message = e.description if e.description != type(e).description else None
+            tb = None
+        else:
+            status_code = httplib.INTERNAL_SERVER_ERROR
+            message = None
+            tb = traceback.format_exc() if g.current_user.staff else None
+
+        if request.is_xhr or request.accept_mimetypes.best in ['application/json', 'text/javascript']:
+            response = {
+                'message': message,
+                'traceback': tb,
+            }
+        else:
+            response = render_template('errors/error.html',
+                                       title=httplib.responses[status_code],
+                                       status_code=status_code,
+                                       message=message,
+                                       traceback=tb)
+    except HTTPException as e2:
+        return error_handler(e2)
+
+    return response, status_code
+
+for status_code in httplib.responses:
+    if status_code >= 400:
+        app.register_error_handler(status_code, error_handler)
 
 assets = Environment()
 assets.init_app(app)
@@ -221,15 +269,24 @@ def page_not_found(e):
     return render_template('errors/404.html'), 404
 
 
-@app.errorhandler(500)
-def page_error(e):
-    logging.exception(e)
-    return render_template('errors/500.html'), 500
-
-
 @app.route("/")
 def root():
     return redirect(url_for(config.ROOT_ENDPOINT))
+
+@app.route("/new/", methods=['GET', 'POST'])
+@login_required
+def new():
+    if request.method == 'POST':
+        site_name = to_canonical(request.form['name'])
+
+        if Site.get_by_name(site_name):
+            flash("Site already exists")
+            return redirect(redirect_url())
+        else:
+            Site.create(name=site_name, founder=g.current_user.id)
+            return redirect('http://%s.%s' % (site_name, config.HOSTNAME))
+    else:
+        return render_template('wiki/new.html')
 
 
 @app.route("/_account/")
@@ -239,6 +296,4 @@ def account():
 
 if 'devserver' not in sys.argv or os.environ.get('WERKZEUG_RUN_MAIN'):
     app.discover()
-
-print app.url_map
 

@@ -48,9 +48,6 @@
                         <li><a href="{{ url_for('wiki.edit', name=name) }}">Edit Page</a></li>
                         <li><a href="{{ url_for('wiki.history', name=name) }}">History</a></li>
                     {% endif %}
-                    <li class="divider"></li>
-                    <li class="dropdown-header">Site Options</li>
-                    <li><a href="{{ url_for('wiki.new') }}">Create New Site</a></li>
                 </ul>
             </li>
 

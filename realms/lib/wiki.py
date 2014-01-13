@@ -63,11 +63,6 @@ class Wiki():
 
         self.path = path
 
-    @staticmethod
-    def is_registered(name):
-        s = Site()
-        return True if s.get_by_name(name) else False
-
     def revert_page(self, name, commit_sha, message, username):
         page = self.get_page(name, commit_sha)
         if not page:

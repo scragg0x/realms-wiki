@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block title %}{{ title|escape }}{% endblock %}
+{% block scripts %}
+  {% if traceback %}
+  <link rel="stylesheet" href="{{ static_url('vendor/highlightjs/default.css') }}" />
+  <script src="{{ static_url('vendor/highlightjs/highlight.pack.js') }}"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  {% endif %}
+{% endblock %}
+{% block content %}
+  <div class="page-header"><h1>{{ title }} <small>{{ status_code }}</small></h1></div>
+  {% if message %}<div class="alert alert-error">{{ message|escape }}</div>{% endif %}
+  {% if traceback %}<pre><code>{{ traceback|escape }}</code></pre>{% endif %}
+  <a href="{{ url_for('home.index') }}" class="btn btn-danger btn-large">&larr; Back to Safety</a>
+  <hr />
+  <div class="help-block">Think you know what happened? Please <a href="mailto:support@realms.io">email</a> us.</div>
+{% endblock %}
