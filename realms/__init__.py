@@ -213,35 +213,30 @@ for status_code in httplib.responses:
 
 assets = Environment()
 assets.init_app(app)
-if config.ENV is 'PROD':
-    if 'js_common' not in assets._named_bundles:
-        assets.register('js_common', Bundle('packed-common.js'))
-    if 'js_editor' not in assets._named_bundles:
-        assets.register('js_editor', Bundle('packed-editor.js'))
-else:
-    if 'js_common' not in assets._named_bundles:
-        js = Bundle(
-            Bundle('vendor/jquery/jquery.js',
-                   'vendor/components-underscore/underscore.js',
-                   'vendor/components-bootstrap/js/bootstrap.js',
-                   'vendor/handlebars/handlebars.js',
-                   'vendor/showdown/src/showdown.js',
-                   'vendor/showdown/src/extensions/table.js',
-                   'js/wmd.js',
-                   filters='closure_js'),
-            'js/html-sanitizer-minified.js',
-            'vendor/highlightjs/highlight.pack.js',
-            Bundle('js/main.js', filters='closure_js'),
-            output='packed-common.js')
-        assets.register('js_common', js)
 
-    if 'js_editor' not in assets._named_bundles:
-        js = Bundle('js/ace/ace.js',
-                    'js/ace/mode-markdown.js',
-                    'vendor/keymaster/keymaster.js',
-                    'js/dillinger.js',
-                    filters='closure_js', output='packed-editor.js')
-        assets.register('js_editor', js)
+
+js = Bundle(
+    Bundle('vendor/jquery/jquery.js',
+           'vendor/components-underscore/underscore.js',
+           'vendor/components-bootstrap/js/bootstrap.js',
+           'vendor/handlebars/handlebars.js',
+           'vendor/showdown/src/showdown.js',
+           'vendor/showdown/src/extensions/table.js',
+           'js/wmd.js',
+           filters='closure_js'),
+    'js/html-sanitizer-minified.js',
+    'vendor/highlightjs/highlight.pack.js',
+    Bundle('js/main.js', filters='closure_js'),
+    output='packed-common.js')
+assets.register('js_common', js)
+
+js = Bundle('js/ace/ace.js',
+            'js/ace/mode-markdown.js',
+            'vendor/keymaster/keymaster.js',
+            'js/dillinger.js',
+            filters='closure_js', output='packed-editor.js')
+
+assets.register('js_editor', js)
 
 
 @app.before_request

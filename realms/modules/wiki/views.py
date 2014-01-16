@@ -47,11 +47,11 @@ def edit(name):
         edit_cname = to_canonical(request.form['name'])
         if edit_cname.lower() != cname.lower():
             g.current_wiki.rename_page(cname, edit_cname)
+
         g.current_wiki.write_page(edit_cname,
                                   request.form['content'],
                                   message=request.form['message'],
                                   username=g.current_user.get('username'))
-        return redirect(url_for('wiki.page', name=edit_cname))
     else:
         if data:
             name = remove_ext(data['name'])
@@ -70,12 +70,7 @@ def delete(name):
 @blueprint.route("/wiki/_create/", defaults={'name': None}, methods=['GET', 'POST'])
 @blueprint.route("/wiki/_create/<name>", methods=['GET', 'POST'])
 def create(name):
-    cname = ""
-    if name:
-        cname = to_canonical(name)
-        if g.current_wiki.get_page(cname):
-            # Page exists, edit instead
-            return redirect(url_for('wiki.edit', name=cname))
+
 
     if request.method == 'POST':
         g.current_wiki.write_page(request.form['name'],
@@ -83,8 +78,12 @@ def create(name):
                                   message=request.form['message'],
                                   create=True,
                                   username=g.current_user.get('username'))
-        return redirect(url_for('wiki.page', name=cname))
     else:
+        cname = to_canonical(name) if name else ""
+        if cname and g.current_wiki.get_page(cname):
+            # Page exists, edit instead
+            return redirect(url_for('wiki.edit', name=cname))
+
         return render_template('wiki/edit.html', name=cname, content="")
 
 
