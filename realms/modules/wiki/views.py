@@ -70,8 +70,6 @@ def delete(name):
 @blueprint.route("/wiki/_create/", defaults={'name': None}, methods=['GET', 'POST'])
 @blueprint.route("/wiki/_create/<name>", methods=['GET', 'POST'])
 def create(name):
-
-
     if request.method == 'POST':
         g.current_wiki.write_page(request.form['name'],
                                   request.form['content'],

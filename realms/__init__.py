@@ -17,7 +17,7 @@ logging.getLogger('requests').setLevel(logging.WARNING)
 
 import time
 import sys
-import os
+import json
 import httplib
 import traceback
 from flask import Flask, request, render_template, url_for, redirect, session, flash, g
@@ -128,6 +128,19 @@ class Application(Flask):
                 manager.add_command(module_name, sources.commands.manager)
 
         print >> sys.stderr, ' * Ready in %.2fms' % (1000.0 * (time.time() - start_time))
+
+    def make_response(self, rv):
+        if rv is None:
+            rv = '', httplib.NO_CONTENT
+        elif not isinstance(rv, tuple):
+            rv = rv,
+
+        rv = list(rv)
+
+        if isinstance(rv[0], (list, dict)):
+            rv[0] = self.response_class(json.dumps(rv[0]), mimetype='application/json')
+
+        return super(Application, self).make_response(tuple(rv))
 
 
 class RegexConverter(BaseConverter):
