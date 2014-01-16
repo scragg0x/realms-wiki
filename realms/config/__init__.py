@@ -2,7 +2,10 @@ import socket
 
 HOSTNAME = socket.gethostname()
 
-ENV = 'DEV'
+if HOSTNAME.startswith('lsn-'):
+    ENV = 'PROD'
+else:
+    ENV = 'DEV'
 
 SQLALCHEMY_DATABASE_URI = 'postgresql://deploy:dbpassword@localhost:5432/realms'
 
