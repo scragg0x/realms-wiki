@@ -22,7 +22,7 @@ import httplib
 import traceback
 from flask import Flask, request, render_template, url_for, redirect, session, flash, g
 from flask.ctx import _AppCtxGlobals
-from flask.ext.script import Manager
+from flask.ext.script import Manager, Server
 from flask.ext.login import LoginManager, login_required
 from flask.ext.assets import Environment, Bundle
 from werkzeug.routing import BaseConverter
@@ -167,6 +167,8 @@ app.debug = True
 db.init_app(app)
 
 manager = Manager(app)
+manager.add_command("runserver", Server(host="0.0.0.0", port=10000))
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)

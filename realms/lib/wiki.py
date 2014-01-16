@@ -8,7 +8,6 @@ from gittle import Gittle
 from dulwich.repo import NotGitRepository
 from werkzeug.utils import escape, unescape
 from util import to_canonical
-from realms.models import Site
 
 
 class MyGittle(Gittle):
