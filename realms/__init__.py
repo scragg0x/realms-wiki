@@ -247,7 +247,7 @@ else:
 @app.before_request
 def check_subdomain():
     if not g.current_site:
-        return redirect('http://%s' % config.SERVER_NAME)
+        return redirect('http://%s' % config.DOMAIN)
 
 
 @app.after_request
@@ -296,6 +296,5 @@ def new():
 def account():
     return render_template('account/index.html')
 
-if 'devserver' not in sys.argv or os.environ.get('WERKZEUG_RUN_MAIN'):
-    app.discover()
+app.discover()
 
