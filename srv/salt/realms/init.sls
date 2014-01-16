@@ -31,5 +31,5 @@ realms-repo:
   virtualenv.managed:
     - requirements: /home/deploy/realms/requirements.txt
     - cwd: /home/deploy/realms
-    - runas: deploy
+    - user: deploy
 
