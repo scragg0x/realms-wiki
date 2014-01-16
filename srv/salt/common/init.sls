@@ -44,6 +44,7 @@ common-pkgs:
       - libxml2-dev
       - libxslt1-dev
       - nodejs
+      - supervisor
     - require:
       - pkgrepo.managed: nodejs-lea-repo
       - pkgrepo.managed: redis-lea-repo
