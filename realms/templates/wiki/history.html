@@ -52,7 +52,7 @@ $(function(){
         });
         revs.reverse();
         revs = revs.join("..");
-        location.href = "{{ url_for('wiki.page') }}_compare/{{ name }}/" + revs;
+        location.href = "{{ url_for('wiki.page') }}/_compare/{{ name }}/" + revs;
     });
 });
 </script>
