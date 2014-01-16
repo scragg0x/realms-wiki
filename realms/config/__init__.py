@@ -29,12 +29,10 @@ MODULES = [
 ]
 
 if ENV is 'PROD':
-    #SERVER_NAME = 'realms.io'
     PORT = 80
     DOMAIN = 'realms.io'
 else:
     DEBUG = True
     ASSETS_DEBUG = True
-    #SERVER_NAME = 'realms.dev:8000'
     DOMAIN = 'realms.dev'
     PORT = 8000
