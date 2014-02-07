@@ -1,4 +1,4 @@
-$(function(){
+$(function () {
 
     var url_prefix = "/wiki";
 
@@ -13,14 +13,9 @@ $(function(){
         , autoInterval
         , profile =
         {
-            theme: 'ace/theme/idle_fingers'
-            , currentMd: ''
-            , autosave:
-        {
-            enabled: true
-            , interval: 3000 // might be too aggressive; don't want to block UI for large saves.
-        }
-            , current_filename : $pagename.val()
+            theme: 'ace/theme/idle_fingers', currentMd: '', autosave: {
+            enabled: true, interval: 3000 // might be too aggressive; don't want to block UI for large saves.
+        }, current_filename: $pagename.val()
         };
 
     // Feature detect ish
@@ -39,21 +34,21 @@ $(function(){
      * @param {Function} Optional callback to be executed after the script loads.
      * @return {void}
      */
-    function asyncLoad(filename,cb){
-        (function(d,t){
+    function asyncLoad(filename, cb) {
+        (function (d, t) {
 
             var leScript = d.createElement(t)
                 , scripts = d.getElementsByTagName(t)[0];
 
             leScript.async = 1;
             leScript.src = filename;
-            scripts.parentNode.insertBefore(leScript,scripts);
+            scripts.parentNode.insertBefore(leScript, scripts);
 
-            leScript.onload = function(){
+            leScript.onload = function () {
                 cb && cb();
             }
 
-        }(document,'script'));
+        }(document, 'script'));
     }
 
     /**
@@ -61,10 +56,15 @@ $(function(){
      *
      * @return {Boolean}
      */
-    function hasLocalStorage(){
+    function hasLocalStorage() {
         // http://mathiasbynens.be/notes/localstorage-pattern
         var storage;
-        try{ if(localStorage.getItem) {storage = localStorage} }catch(e){}
+        try {
+            if (localStorage.getItem) {
+                storage = localStorage
+            }
+        } catch (e) {
+        }
         return storage;
     }
 
@@ -73,16 +73,16 @@ $(function(){
      *
      * @return {Void}
      */
-    function getUserProfile(){
+    function getUserProfile() {
 
         var p;
 
-        try{
-            p = JSON.parse( localStorage.profile );
+        try {
+            p = JSON.parse(localStorage.profile);
             // Need to merge in any undefined/new properties from last release
             // Meaning, if we add new features they may not have them in profile
             p = $.extend(true, profile, p);
-        }catch(e){
+        } catch (e) {
             p = profile
         }
 
@@ -98,9 +98,9 @@ $(function(){
      * @param {Object}  An object containg proper keys and values to be JSON.stringify'd
      * @return {Void}
      */
-    function updateUserProfile(obj){
+    function updateUserProfile(obj) {
         localStorage.clear();
-        localStorage.profile = JSON.stringify( $.extend(true, profile, obj) );
+        localStorage.profile = JSON.stringify($.extend(true, profile, obj));
     }
 
     /**
@@ -111,7 +111,9 @@ $(function(){
      * @param {String}  The property to test
      * @return {Boolean}
      */
-    function prefixed(prop){ return testPropsAll(prop, 'pfx') }
+    function prefixed(prop) {
+        return testPropsAll(prop, 'pfx')
+    }
 
     /**
      * A generic CSS / DOM property test; if a browser supports
@@ -122,11 +124,11 @@ $(function(){
      * @param  {String}  A prefix
      * @return {Boolean}
      */
-    function testProps( props, prefixed ) {
+    function testProps(props, prefixed) {
 
-        for ( var i in props ) {
+        for (var i in props) {
 
-            if( dillingerStyle[ props[i] ] !== undefined ) {
+            if (dillingerStyle[ props[i] ] !== undefined) {
                 return prefixed === 'pfx' ? props[i] : true;
             }
 
@@ -144,10 +146,10 @@ $(function(){
      * @param  {String}  The prefix string
      * @return {Boolean}
      */
-    function testPropsAll( prop, prefixed ) {
+    function testPropsAll(prop, prefixed) {
 
-        var ucProp  = prop.charAt(0).toUpperCase() + prop.substr(1)
-            , props   = (prop + ' ' + domPrefixes.join(ucProp + ' ') + ucProp).split(' ');
+        var ucProp = prop.charAt(0).toUpperCase() + prop.substr(1)
+            , props = (prop + ' ' + domPrefixes.join(ucProp + ' ') + ucProp).split(' ');
 
         return testProps(props, prefixed);
     }
@@ -157,21 +159,16 @@ $(function(){
      *
      * @return {String}
      */
-    function normalizeTransitionEnd()
-    {
+    function normalizeTransitionEnd() {
 
         var transEndEventNames =
         {
-            'WebkitTransition' : 'webkitTransitionEnd'
-            , 'MozTransition'    : 'transitionend'
-            , 'OTransition'      : 'oTransitionEnd'
-            , 'msTransition'     : 'msTransitionEnd' // maybe?
-            , 'transition'       : 'transitionend'
+            'WebkitTransition': 'webkitTransitionEnd', 'MozTransition': 'transitionend', 'OTransition': 'oTransitionEnd', 'msTransition': 'msTransitionEnd' // maybe?
+            , 'transition': 'transitionend'
         };
 
         return transEndEventNames[ prefixed('transition') ];
     }
-
 
 
     /**
@@ -179,7 +176,7 @@ $(function(){
      *
      * @return {String}
      */
-    function getCurrentFilenameFromField(){
+    function getCurrentFilenameFromField() {
         return $('#filename > span[contenteditable="true"]').text()
     }
 
@@ -190,8 +187,8 @@ $(function(){
      * @param {String}  Optional string to force set the value.
      * @return {String}
      */
-    function setCurrentFilenameField(str){
-        $('#filename > span[contenteditable="true"]').text( str || profile.current_filename || "Untitled Document")
+    function setCurrentFilenameField(str) {
+        $('#filename > span[contenteditable="true"]').text(str || profile.current_filename || "Untitled Document")
     }
 
     /**
@@ -236,10 +233,12 @@ $(function(){
      *
      * @return {Void}
      */
-    function init(){
+    function init() {
 
-        if( !hasLocalStorage() ) { sadPanda() }
-        else{
+        if (!hasLocalStorage()) {
+            sadPanda()
+        }
+        else {
 
             // Attach to jQuery support object for later use.
             $.support.transitionEnd = normalizeTransitionEnd();
@@ -262,29 +261,29 @@ $(function(){
 
     }
 
-    function initAce(){
+    function initAce() {
         editor = ace.edit("editor");
         editor.focus();
     }
 
-    function initUi(){
+    function initUi() {
         // Set proper theme value in theme dropdown
-        fetchTheme(profile.theme, function(){
-            $theme.find('li > a[data-value="'+profile.theme+'"]').addClass('selected');
+        fetchTheme(profile.theme, function () {
+            $theme.find('li > a[data-value="' + profile.theme + '"]').addClass('selected');
 
             editor.getSession().setUseWrapMode(true);
             editor.setShowPrintMargin(false);
 
             editor.getSession().setMode('ace/mode/markdown');
 
-            editor.getSession().setValue( profile.currentMd || editor.getSession().getValue());
+            editor.getSession().setValue(profile.currentMd || editor.getSession().getValue());
             previewMd();
         });
 
 
         // Set text for dis/enable autosave / word counter
-        $autosave.html( profile.autosave.enabled ? '<i class="icon-remove"></i>&nbsp;Disable Autosave' : '<i class="icon-ok"></i>&nbsp;Enable Autosave' );
-        $wordcount.html( !profile.wordcount ? '<i class="icon-remove"></i>&nbsp;Disabled Word Count' : '<i class="icon-ok"></i>&nbsp;Enabled Word Count' );
+        $autosave.html(profile.autosave.enabled ? '<i class="icon-remove"></i>&nbsp;Disable Autosave' : '<i class="icon-ok"></i>&nbsp;Enable Autosave');
+        $wordcount.html(!profile.wordcount ? '<i class="icon-remove"></i>&nbsp;Disabled Word Count' : '<i class="icon-ok"></i>&nbsp;Enabled Word Count');
 
         setCurrentFilenameField();
 
@@ -297,12 +296,12 @@ $(function(){
     }
 
 
-    function clearSelection(){
+    function clearSelection() {
         editor.getSession().setValue("");
         previewMd();
     }
 
-    function saveFile(isManual){
+    function saveFile(isManual) {
         updateUserProfile({currentMd: editor.getSession().getValue()});
 
         if (isManual) {
@@ -313,47 +312,50 @@ $(function(){
                 message: $("#page-message").val(),
                 content: editor.getSession().getValue()
             };
-            $.post(window.location, data, function(){
+            $.post(window.location, data, function () {
                 location.href = url_prefix + '/' + data['name'];
             });
         }
 
     }
 
-    function autoSave(){
+    function autoSave() {
 
-        if(profile.autosave.enabled) {
-            autoInterval = setInterval( function(){
+        if (profile.autosave.enabled) {
+            autoInterval = setInterval(function () {
                 // firefox barfs if I don't pass in anon func to setTimeout.
                 saveFile();
             }, profile.autosave.interval);
 
         } else {
-            clearInterval( autoInterval )
+            clearInterval(autoInterval)
         }
 
     }
 
-    $("#save-native").on('click', function() {
+    $("#save-native").on('click', function () {
         saveFile(true);
     });
 
 
-    function resetProfile(){
+    function resetProfile() {
         // For some reason, clear() is not working in Chrome.
         localStorage.clear();
         // Let's turn off autosave
         profile.autosave.enabled = false
             // Delete the property altogether --> need ; for JSHint bug.
-        ; delete localStorage.profile;
+        ;
+        delete localStorage.profile;
         // Now reload the page to start fresh
         window.location.reload();
     }
 
-    function changeTheme(e){
+    function changeTheme(e) {
         // check for same theme
         var $target = $(e.target);
-        if( $target.attr('data-value') === profile.theme) { return; }
+        if ($target.attr('data-value') === profile.theme) {
+            return;
+        }
         else {
             // add/remove class
             $theme.find('li > a.selected').removeClass('selected');
@@ -361,15 +363,15 @@ $(function(){
             // grabnew theme
             var newTheme = $target.attr('data-value');
             $(e.target).blur();
-            fetchTheme(newTheme, function(){
+            fetchTheme(newTheme, function () {
 
             });
         }
     }
 
-    function fetchTheme(th, cb){
+    function fetchTheme(th, cb) {
         var name = th.split('/').pop();
-        asyncLoad("/static/js/ace/theme-"+ name +".js", function() {
+        asyncLoad("/static/js/ace/theme-" + name + ".js", function () {
             editor.setTheme(th);
             cb && cb();
             updateBg(name);
@@ -378,15 +380,14 @@ $(function(){
 
     }
 
-    function updateBg(name){
+    function updateBg(name) {
         // document.body.style.backgroundColor = bgColors[name]
     }
 
-    function previewMd(){
+    function previewMd() {
 
         var unmd = editor.getSession().getValue()
             , md = MDR.convert(unmd, true);
-
         $preview
             .html('') // unnecessary?
             .html(md);
@@ -394,32 +395,32 @@ $(function(){
         //refreshWordCount();
     }
 
-    function updateFilename(str){
+    function updateFilename(str) {
         // Check for string because it may be keyup event object
         var f;
-        if(typeof str === 'string'){
+        if (typeof str === 'string') {
             f = str;
         } else {
             f = getCurrentFilenameFromField();
         }
-        updateUserProfile( { current_filename: f });
+        updateUserProfile({ current_filename: f });
     }
 
 
-    function showHtml(){
+    function showHtml() {
 
         // TODO: UPDATE TO SUPPORT FILENAME NOT JUST A RANDOM FILENAME
 
         var unmd = editor.getSession().getValue();
 
-        function _doneHandler(jqXHR, data, response){
+        function _doneHandler(jqXHR, data, response) {
             // console.dir(resp)
             var resp = JSON.parse(response.responseText);
             $('#myModalBody').text(resp.data);
             $('#myModal').modal();
         }
 
-        function _failHandler(){
+        function _failHandler() {
             alert("Roh-roh. Something went wrong. :(");
         }
 
@@ -436,52 +437,52 @@ $(function(){
 
     }
 
-    function sadPanda(){
+    function sadPanda() {
         // TODO: ACTUALLY SHOW A SAD PANDA.
         alert('Sad Panda - No localStorage for you!')
     }
 
-    function toggleAutoSave(){
-        $autosave.html( profile.autosave.enabled ? '<i class="icon-remove"></i>&nbsp;Disable Autosave' : '<i class="icon-ok"></i>&nbsp;Enable Autosave' );
+    function toggleAutoSave() {
+        $autosave.html(profile.autosave.enabled ? '<i class="icon-remove"></i>&nbsp;Disable Autosave' : '<i class="icon-ok"></i>&nbsp;Enable Autosave');
         updateUserProfile({autosave: {enabled: !profile.autosave.enabled }});
         autoSave();
     }
 
-    function bindPreview(){
-        editor.getSession().on('change', function(e) {
+    function bindPreview() {
+        editor.getSession().on('change', function (e) {
             previewMd();
         });
     }
 
-    function bindNav(){
+    function bindNav() {
 
         $theme
             .find('li > a')
-            .bind('click', function(e){
+            .bind('click', function (e) {
                 changeTheme(e);
                 return false;
             });
 
         $('#clear')
-            .on('click', function(){
+            .on('click', function () {
                 clearSelection();
                 return false;
             });
 
         $("#autosave")
-            .on('click', function(){
+            .on('click', function () {
                 toggleAutoSave();
                 return false;
             });
 
         $('#reset')
-            .on('click', function(){
+            .on('click', function () {
                 resetProfile();
                 return false;
             });
 
         $('#cheat').
-            on('click', function(){
+            on('click', function () {
                 window.open("https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet", "_blank");
                 return false;
             });
@@ -489,9 +490,9 @@ $(function(){
     } // end bindNav()
 
 
-    function bindKeyboard(){
+    function bindKeyboard() {
         // CMD+s TO SAVE DOC
-        key('command+s, ctrl+s', function(e){
+        key('command+s, ctrl+s', function (e) {
             saveFile(true);
             e.preventDefault(); // so we don't save the web page - native browser functionality
         });
@@ -502,7 +503,7 @@ $(function(){
                 mac: "Command-S",
                 win: "Ctrl-S"
             },
-            exec: function(){
+            exec: function () {
                 saveFile(true);
             }
         };
@@ -545,12 +546,12 @@ function syncPreview() {
     $prev.scrollTop(scrollFactor * previewScrollRange);
 }
 
-window.onload = function(){
+window.onload = function () {
     var $loading = $('#loading');
 
-    if ($.support.transition){
+    if ($.support.transition) {
         $loading
-            .bind( $.support.transitionEnd, function(){
+            .bind($.support.transitionEnd, function () {
                 $('#main').removeClass('bye');
                 $loading.remove();
             })

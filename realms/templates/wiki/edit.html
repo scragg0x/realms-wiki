@@ -1,14 +1,10 @@
 {% extends 'layout.html' %}
 {% block js %}
-    {% assets "js_editor" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
         <script>
         $(function(){
             $("#start-togetherjs").click(function(){
                 $(this).prop('disabled', true).html("Loading");
             });
-            MDR.sanitize = false;
         });
         TogetherJSConfig_toolName = "Collaboration";
         TogetherJSConfig_suppressJoinConfirmation = true;

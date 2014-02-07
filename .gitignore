@@ -6,3 +6,4 @@
 config.py
 config.sls
 realms/static/vendor
+realms/static/assets/*

@@ -5,7 +5,7 @@ hljs.initHighlightingOnLoad();
 MDR = {
     doc: null,
     callback: WMD.convert,
-    sanitize: null, // Override
+    sanitize: true, // Override
     convert: function(md, sanitize){
         if (this.sanitize !== null) {
             sanitize = this.sanitize;
@@ -14,7 +14,13 @@ MDR = {
         var html = this.doc.html;
         if (sanitize) {
             // Causes some problems with inline styles
-            html = html_sanitize(html);
+            html = html_sanitize(html, function(url) {
+                if(/^https?:\/\//.test(url)) {
+                    return url
+                }
+            }, function(id){
+                return id;
+            });
         }
         html = this.hook(html);
         return html;

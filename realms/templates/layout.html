@@ -97,9 +97,11 @@
       </div>
     </div>
 
-    {% assets "js_common" %}
+    {% for bundle in bundles %}
+      {% assets bundle %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
+      {% endassets %}
+    {% endfor %}
     {% block js %}{% endblock %}
   </body>
 </html>

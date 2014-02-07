@@ -18,18 +18,27 @@ bower:
     - require:
       - pkg.installed: common-pkgs
 
-realms-repo:
-  git.latest:
-    - unless: test -e /vagrant
-    - name: git@github.com:scragg0x/realms.git
-    - target: /home/deploy
-    - rev: master
-    - user: deploy
-    - identity: /home/deploy/.ssh/id_rsa
+uglify-js:
+  npm.installed:
+    - user: root
+    - require:
+      - pkg.installed: common-pkgs
 
-/home/deploy/virtualenvs/realms:
+create_virtualenv:
   virtualenv.managed:
+    - name: /home/deploy/virtualenvs/realms
     - requirements: /home/deploy/realms/requirements.txt
     - cwd: /home/deploy/realms
-    - user: deploy
+    - user: root
 
+vagrant_ownership:
+  cmd.run:
+    - name: chown -R vagrant.vagrant /home/deploy
+    - onlyif: test -d /vagrant
+    - user: root
+
+deploy_ownership:
+  cmd.run:
+    - name: chown -R vagrant.vagrant /home/deploy
+    - unless: test -d /vagrant
+    - user: root

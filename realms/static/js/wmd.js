@@ -51,7 +51,8 @@ function gsub(str, re, fn, /*optional*/newstr) {
         return gsub(remaining, re, fn, newstr);
     }
     return newstr + str;
-}
+};
+
 WMD.showdown = new Showdown.converter({extensions: ['table']});
 WMD.processor = WMD.showdown.makeHtml;
 

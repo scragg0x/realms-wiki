@@ -224,33 +224,25 @@ for status_code in httplib.responses:
     if status_code >= 400:
         app.register_error_handler(status_code, error_handler)
 
-assets = Environment()
+from realms.lib.assets import assets, register
 assets.init_app(app)
+assets.app = app
 
+app.jinja_env.globals['bundles'] = assets
 
-js = Bundle(
-    Bundle('vendor/jquery/jquery.js',
-           'vendor/components-underscore/underscore.js',
-           'vendor/components-bootstrap/js/bootstrap.js',
-           'vendor/handlebars/handlebars.js',
-           'vendor/showdown/src/showdown.js',
-           'vendor/showdown/src/extensions/table.js',
-           'js/wmd.js',
-           filters='closure_js'),
-    'js/html-sanitizer-minified.js',
+register(
+    'vendor/jquery/jquery.js',
+    'vendor/components-underscore/underscore.js',
+    'vendor/components-bootstrap/js/bootstrap.js',
+    'vendor/handlebars/handlebars.js',
+    'vendor/showdown/src/showdown.js',
+    'vendor/marked/lib/marked.js',
+    'vendor/showdown/src/extensions/table.js',
+    'js/wmd.js',
+    'js/html-sanitizer-minified.js',  # don't minify
     'vendor/highlightjs/highlight.pack.js',
-    Bundle('js/main.js', filters='closure_js'),
-    output='packed-common.js')
-assets.register('js_common', js)
-
-js = Bundle('js/ace/ace.js',
-            'js/ace/mode-markdown.js',
-            'vendor/keymaster/keymaster.js',
-            'js/dillinger.js',
-            filters='closure_js', output='packed-editor.js')
-
-assets.register('js_editor', js)
-
+    'js/main.js'
+)
 
 @app.before_request
 def check_subdomain():
