@@ -16,13 +16,13 @@ bower:
   npm.installed:
     - user: root
     - require:
-      - pkg.installed: common-pkgs
+      - pkg: common-pkgs
 
 uglify-js:
   npm.installed:
     - user: root
     - require:
-      - pkg.installed: common-pkgs
+      - pkg: common-pkgs
 
 create_virtualenv:
   virtualenv.managed:

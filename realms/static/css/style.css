@@ -1,30 +1,39 @@
 body {
-  padding-top: 43px;
-  background-color:#eee;
 }
 
 .navbar {
-  min-height: inherit;
-}
-.navbar .container a {
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-
-.navbar-nav>li>a:hover {
-  padding-top: 10px;
-  padding-bottom: 10px;
+  height: 50px !important;
+  min-height: 49px !important;
+  font-size: 0.85em;
+  background: #242628;
+  margin-bottom: 10px;
 }
 
-#main-body {
-  background-color: #fff;
-  padding: 20px;
-  margin: 0 -20px;
-  -webkit-border-radius: 0 0 6px 6px;
-  border-radius: 0 0 6px 6px;
-  -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-  box-shadow: 0 1px 2px rgba(0,0,0,.15);
-  padding-top: 10px;
+.navbar .nav li a, .navbar .nav li button, .navbar-brand {
+  display: block;
+  height: 49px;
+  padding: 15px 15px;
+  border-bottom: none;
+  color: #7d878a;
+  text-transform: uppercase;
+}
+
+.navbar .nav li a:hover, .navbar-brand:hover {
+    color: #FFF !important;
+}
+
+.navbar .nav li {
+  font-size: 1em;
+  position: relative;
+  border-right: #35393b 1px solid;
+}
+
+.navbar-brand {
+  color: white;
+}
+
+.navbar {
+  border-radius: 0;
 }
 
 .checkbox-cell {
@@ -34,9 +43,9 @@ body {
 
 #app-wrap {
   top: 60px;
-  left: 10px;
+  left: -5px;
   bottom: 0;
-  right: 10px;
+  right: -5px;
   position: fixed;
 }
 
@@ -45,15 +54,22 @@ body {
 }
 
 #preview {
+  /*
   position: absolute;
   margin-left: 5px;
-  padding: 20px;
   left: 50%;
   bottom: 10px;
   right: 10px;
   top: 50px;
   overflow: auto;
-  background: rgba(255,255,255,0.9);
+  */
+  position: absolute;
+  height: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20px;
   border: 1px solid #EEE;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -73,6 +89,14 @@ body {
 
 #editor {
   position: absolute;
+  height: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  /*
+  position: absolute;
   margin-right: 5px;
   top: 50px;
   left: 10px;
@@ -91,6 +115,15 @@ body {
   box-flex: 1;
   -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
   box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  */
+  font-family: Inconsolata, monospace;
+  font-size: 1.2em;
+  line-height: 1.3em;
+}
+
+.ace_gutter-cell {
+    font-size: 1em;
+    line-height: 1em;
 }
 
 #page-action-bar {
@@ -120,4 +153,20 @@ body {
 .navbar-nav>li.user-avatar a {
     padding-top: 9px;
     padding-bottom: 9px;
+}
+
+.floating-header {
+    position: absolute;
+    right: 12px;
+    bottom: -39px;
+    z-index: 400;
+    /* height: 20px; */
+    padding: 1px;
+    text-transform: uppercase;
+    color: #aaa9a2;
+    background-color: #000;
+    border: 1px solid #000;
+    /* background-image: -webkit-linear-gradient(top, #fff 0%,#fff 25%,rgba(255,255,255,0.9) 100%); */
+    /* background-image: linear-gradient(to bottom,#fff 0%,#fff 25%,rgba(255,255,255,0.9) 100%); */
+    font-size: 10px;
 }

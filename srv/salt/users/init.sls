@@ -29,7 +29,7 @@ sudo:
     - user: deploy
     - group: deploy
     - require:
-      - file.directory: /home/deploy
+      - file: /home/deploy
 
 /home/deploy/.bashrc:
   file.copy:

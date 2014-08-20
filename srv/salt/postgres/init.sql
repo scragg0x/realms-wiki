@@ -1,2 +1,0 @@
-CREATE USER deploy WITH PASSWORD 'dbpassword';
-GRANT ALL PRIVILEGES ON DATABASE "realms" to deploy;

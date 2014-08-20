@@ -1,6 +1,6 @@
 $(function () {
 
-    var url_prefix = "/wiki";
+    var url_prefix = "";
 
     var $theme = $('#theme-list')
         , $preview = $('#preview')

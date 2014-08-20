@@ -3,11 +3,7 @@ import os
 import hashlib
 import json
 
-from flask import request
-from recaptcha.client import captcha
-
-from realms import config
-from realms.lib.services import cache
+from realms.lib.services import db
 
 
 class AttrDict(dict):
@@ -41,7 +37,7 @@ def to_dict(data):
 def cache_it(fn):
     def wrap(*args, **kw):
         key = "%s:%s" % (args[0].table, args[1])
-        data = cache.get(key)
+        data = db.get(key)
         # Assume strings are JSON encoded
         try:
             data = json.loads(data)
@@ -63,18 +59,9 @@ def cache_it(fn):
                     data = json.dumps(data, separators=(',', ':'))
                 except TypeError:
                     pass
-            cache.set(key, data)
+            db.set(key, data)
             return ret
     return wrap
-
-
-def validate_captcha():
-    response = captcha.submit(
-        request.form['recaptcha_challenge_field'],
-        request.form['recaptcha_response_field'],
-        config.RECAPTCHA_PRIVATE_KEY,
-        request.remote_addr)
-    return response.is_valid
 
 
 def mkdir_safe(path):

@@ -44,7 +44,6 @@ $(function(){
 
     $(".compare-revisions").click(function(){
         var $cs = $('.revision-tbl').find(':checkbox:checked');
-        console.log($cs.length);
         if ($cs.length != 2) return;
         var revs = [];
         $.each($cs, function(i, v){
@@ -52,7 +51,7 @@ $(function(){
         });
         revs.reverse();
         revs = revs.join("..");
-        location.href = "{{ url_for('wiki.page') }}/_compare/{{ name }}/" + revs;
+        location.href = "{{ config.BASE_URL }}/_compare/{{ name }}/" + revs;
     });
 });
 </script>

@@ -1,11 +1,10 @@
+bcrypt
 Flask
-Flask-Assets
-Flask-Bcrypt
 Flask-Login
+Flask-Assets
 Flask-Script
-Flask-SQLAlchemy
+Flask-WTF
 beautifulsoup4
-boto
 closure==20121212
 gevent
 ghdiff
@@ -13,10 +12,5 @@ gittle
 itsdangerous
 lxml
 markdown2
-pyzmq
-recaptcha
-recaptcha-client
 redis
 simplejson
-SQLAlchemy
-psycopg2

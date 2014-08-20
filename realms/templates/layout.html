@@ -8,7 +8,7 @@
 
     <title>Realms</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-    <link href="{{ url_for('static', filename='css/bootstrap/spacelab.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap/flatly.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='vendor/highlightjs/styles/github.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
@@ -24,7 +24,7 @@
   <body>
 
     <!-- Fixed navbar -->
-    <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar navbar-inverse">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -36,21 +36,13 @@
         </div>
         <div class="navbar-collapse collapse navbar-inverse-collapse">
           <ul class="nav navbar-nav">
+            <li><a href="{{ url_for('wiki.create') }}">New</a></li>
+            {% if name %}
+              <li><a href="{{ url_for('wiki.edit', name=name) }}">Edit</a></li>
+              <li><a href="{{ url_for('wiki.history', name=name) }}">History</a></li>
+            {% endif %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" role="menu" data-toggle="dropdown">Write
-                    <i class="icon-caret-down"></i></a>
-                <ul class="dropdown-menu">
-                    <li class="dropdown-header">Page Options</li>
-                    <li><a href="{{ url_for('wiki.create') }}">Create Page</a></li>
-                    {% if name %}
-                        <li><a href="{{ url_for('wiki.edit', name=name) }}">Edit Page</a></li>
-                        <li><a href="{{ url_for('wiki.history', name=name) }}">History</a></li>
-                    {% endif %}
-                </ul>
-            </li>
-
             {% if session.get('user') %}
               <li class="dropdown user-avatar">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -65,8 +57,8 @@
                 </ul>
                 </li>
             {% else %}
-                <li><a href="{{ url_for('auth.login') }}"><i class="icon-user"></i> Login</a></li>
-                <li><a href="{{ url_for('auth.register') }}"><i class="icon-pencil"></i> Register</a></li>
+                <li><a href="{{ url_for('auth.login') }}"><i class="icon-user"></i> &nbsp;Login</a></li>
+                <li><a href="{{ url_for('auth.register') }}"><i class="icon-pencil"></i> &nbsp;Register</a></li>
             {% endif %}
           </ul>
         </div><!--/.nav-collapse -->
@@ -96,8 +88,7 @@
     {% block body %}{% endblock %}
       </div>
     </div>
-
-    {% for bundle in bundles %}
+    {% for bundle in g.assets %}
       {% assets bundle %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
       {% endassets %}

@@ -1,11 +1,11 @@
 from flask import g, render_template, request, redirect, Blueprint, flash, url_for
-from flask.ext.login import login_required
 from realms.lib.util import to_canonical, remove_ext
+from realms import config
 
-blueprint = Blueprint('wiki', __name__)
+blueprint = Blueprint('wiki', __name__, url_prefix=config.RELATIVE_PATH)
 
 
-@blueprint.route("/wiki/_commit/<sha>/<name>")
+@blueprint.route("/_commit/<sha>/<name>")
 def commit(name, sha):
     cname = to_canonical(name)
 
@@ -16,13 +16,13 @@ def commit(name, sha):
         return redirect(url_for('wiki.create', name=cname))
 
 
-@blueprint.route("/wiki/_compare/<name>/<regex('[^.]+'):fsha><regex('\.{2,3}'):dots><regex('.+'):lsha>")
+@blueprint.route("/_compare/<name>/<regex('[^.]+'):fsha><regex('\.{2,3}'):dots><regex('.+'):lsha>")
 def compare(name, fsha, dots, lsha):
     diff = g.current_wiki.compare(name, fsha, lsha)
     return render_template('wiki/compare.html', name=name, diff=diff, old=fsha, new=lsha)
 
 
-@blueprint.route("/wiki/_revert", methods=['POST'])
+@blueprint.route("/_revert", methods=['POST'])
 def revert():
     if request.method == 'POST':
         name = request.form.get('name')
@@ -32,14 +32,15 @@ def revert():
                                    username=g.current_user.get('username'))
         flash('Page reverted', 'success')
         return redirect(url_for('wiki.page', name=cname))
-    
-@blueprint.route("/wiki/_history/<name>")
+
+
+@blueprint.route("/_history/<name>")
 def history(name):
     history = g.current_wiki.get_history(name)
     return render_template('wiki/history.html', name=name, history=history, wiki_home=url_for('wiki.page'))
 
 
-@blueprint.route("/wiki/_edit/<name>", methods=['GET', 'POST'])
+@blueprint.route("/_edit/<name>", methods=['GET', 'POST'])
 def edit(name):
     data = g.current_wiki.get_page(name)
     cname = to_canonical(name)
@@ -56,19 +57,19 @@ def edit(name):
         if data:
             name = remove_ext(data['name'])
             content = data['data']
+            g.assets.append('editor')
             return render_template('wiki/edit.html', name=name, content=content)
         else:
             return redirect(url_for('wiki.create', name=cname))
 
 
-@blueprint.route("/wiki/_delete/<name>", methods=['POST'])
-@login_required
+@blueprint.route("/_delete/<name>", methods=['POST'])
 def delete(name):
     pass
 
 
-@blueprint.route("/wiki/_create/", defaults={'name': None}, methods=['GET', 'POST'])
-@blueprint.route("/wiki/_create/<name>", methods=['GET', 'POST'])
+@blueprint.route("/_create/", defaults={'name': None}, methods=['GET', 'POST'])
+@blueprint.route("/_create/<name>", methods=['GET', 'POST'])
 def create(name):
     if request.method == 'POST':
         g.current_wiki.write_page(request.form['name'],
@@ -82,11 +83,12 @@ def create(name):
             # Page exists, edit instead
             return redirect(url_for('wiki.edit', name=cname))
 
+        g.assets.append('editor')
         return render_template('wiki/edit.html', name=cname, content="")
 
 
-@blueprint.route("/wiki", defaults={'name': 'home'})
-@blueprint.route("/wiki/<name>")
+@blueprint.route("/", defaults={'name': 'home'})
+@blueprint.route("/<name>")
 def page(name):
     cname = to_canonical(name)
     if cname != name:

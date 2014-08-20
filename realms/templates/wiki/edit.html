@@ -19,8 +19,8 @@
         {% endif %}
 
         TogetherJSConfig_on_ready = function () {
-            MDR.sanitize = true;
-            $("#preview").html('');
+           MDR.sanitize = true;
+           $("#preview").html('');
            $("#start-togetherjs").addClass('btn-danger').html('End Collaboration').prop('disabled', false);
         };
         TogetherJSConfig_on_close = function () {
@@ -47,13 +47,10 @@
 {% endblock %}
 
 
-    <div id="app-wrap" class="container-fluid">
+    <div id="app-wrap">
         <div id="app-controls" class="row">
             <div class="col-xs-3">
-                <div class="input-group">
-                    <span class="input-group-addon btn-info input-sm">realms.io/wiki/</span>
-                    <input id="page-name" type="text" class="form-control input-sm" name="name" placeholder="Name" value="{{- name -}}" />
-                </div>
+                <input id="page-name" type="text" class="form-control input-sm" name="name" placeholder="Name" value="{{- name -}}" />
             </div>
             <div class="col-xs-3">
                 <input id="page-message" type="text" class="form-control input-sm" name="page-message" placeholder="Comment" value="" />
@@ -69,38 +66,47 @@
 
                     <a href="#" id="drop6" role="button" class="dropdown-toggle btn btn-default btn-sm" data-toggle="dropdown">Theme <b class="caret"></b></a>
                     <ul id="theme-list" class="dropdown-menu" role="menu" aria-labelledby="drop6">
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/chrome" class="">Chrome</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/clouds" class="">Clouds</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/clouds_midnight" class="">Clouds Midnight</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/cobalt" class="">Cobalt</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/crimson_editor" class="">Crimson Editor</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/chrome" >Chrome</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/clouds" >Clouds</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/clouds_midnight" >Clouds Midnight</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/cobalt" >Cobalt</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/crimson_editor" >Crimson Editor</a></li>
                         <li><a tabindex="-1" href="#" data-value="ace/theme/dawn" class="selected">Dawn</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/dreamweaver" class="">Dreamweaver</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/eclipse" class="">Eclipse</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/idle_fingers" class="">idleFingers</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/kr_theme" class="">krTheme</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore" class="">Merbivore</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore_soft" class="">Merbivore Soft</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/mono_industrial" class="">Mono Industrial</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/monokai" class="">Monokai</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/dreamweaver" >Dreamweaver</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/eclipse" >Eclipse</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/idle_fingers" >idleFingers</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/kr_theme" >krTheme</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore" >Merbivore</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore_soft" >Merbivore Soft</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/mono_industrial" >Mono Industrial</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/monokai" >Monokai</a></li>
                         <li><a tabindex="-1" href="#" data-value="ace/theme/pastel_on_dark">Pastel on Dark</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_dark" class="">Solarized Dark</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_light" class="">Solarized Light</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/textmate" class="">TextMate</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow" class="">Tomorrow</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_dark" >Solarized Dark</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_light" >Solarized Light</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/textmate" >TextMate</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow" >Tomorrow</a></li>
                         <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night">Tomorrow Night</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_blue" class="">Tomorrow Night Blue</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_bright" class="">Tomorrow Night Bright</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_eighties" class="">Tomorrow Night 80s</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/twilight" class="">Twilight</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/vibrant_ink" class="">Vibrant Ink</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_blue" >Tomorrow Night Blue</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_bright" >Tomorrow Night Bright</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_eighties" >Tomorrow Night 80s</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/twilight" >Twilight</a></li>
+                        <li><a tabindex="-1" href="#" data-value="ace/theme/vibrant_ink" >Vibrant Ink</a></li>
                     </ul>
                     <a id="save-native" class="btn btn-primary btn-sm"><i class="icon-save"></i> Save</a>
                 </div>
             </div>
         </div>
-        <div id="editor">{{ content }}</div>
-        <div id="preview"></div>
+
+        <div class="row" style="position: relative; height: 100%; margin-left: 15px; margin-right: 15px;">
+            <div class="col-xs-6" style="position: absolute; bottom: 20px; top: 10px; left:0;border-right: 2px solid transparent;">
+                <div id="editor">{{ content }}</div>
+            </div>
+            <div class="col-xs-6" style="position: absolute; bottom: 20px; top: 10px; right:0; border-left: 2px solid transparent;">
+                <div id="preview"></div>
+            </div>
+        </div>
+
+
     </div>
 
 {% endblock %}

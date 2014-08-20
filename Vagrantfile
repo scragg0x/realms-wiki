@@ -1,7 +1,14 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = "precise64"
+    config.vm.box = "ubuntu/trusty64"
+
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "realms-wiki"
+    vb.memory = 2048
+    vb.cpus = 2
+  end
+
   config.vm.synced_folder "srv/", "/srv/"
   config.vm.synced_folder ".", "/home/deploy/realms"
   config.vm.provision :salt do |salt|
@@ -11,7 +18,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 end
 
 Vagrant::Config.run do |config|
-  config.vm.forward_port 80, 8000
-  config.vm.forward_port 5432, 5432
-  config.vm.forward_port 10000, 10000
+  config.vm.forward_port 80, 8080
+  config.vm.forward_port 4567, 4567
 end

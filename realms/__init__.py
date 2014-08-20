@@ -22,55 +22,28 @@ import httplib
 import traceback
 from flask import Flask, request, render_template, url_for, redirect, session, flash, g
 from flask.ctx import _AppCtxGlobals
-from flask.ext.script import Manager, Server
-from flask.ext.login import LoginManager, login_required
-from flask.ext.assets import Environment, Bundle
+from flask.ext.script import Manager
+from flask.ext.login import LoginManager
 from werkzeug.routing import BaseConverter
 from werkzeug.utils import cached_property
 from werkzeug.exceptions import HTTPException
 
 from realms import config
-from realms.lib.services import db
 from realms.lib.ratelimit import get_view_rate_limit, ratelimiter
 from realms.lib.session import RedisSessionInterface
 from realms.lib.wiki import Wiki
 from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
-from realms.models import User, CurrentUser, Site
-
-
-sites = {}
 
 
 class AppCtxGlobals(_AppCtxGlobals):
 
     @cached_property
-    def current_site(self):
-        subdomain = format_subdomain(self.current_subdomain)
-        if not subdomain:
-            subdomain = "www"
-
-        if subdomain is "www" and self.current_subdomain:
-            # Invalid sub domain
-            return False
-
-        if not sites.get(subdomain):
-            sites[subdomain] = to_dict(Site.get_by_name(subdomain))
-            sites[subdomain].wiki = Wiki("%s/%s" % (config.REPO_DIR, subdomain))
-
-        return sites[subdomain]
+    def current_user(self):
+        return session.get('user') if session.get('user') else {'username': 'Anon'}
 
     @cached_property
     def current_wiki(self):
-        return g.current_site.wiki
-
-    @cached_property
-    def current_subdomain(self):
-        host = request.host.split(':')[0]
-        return host[:-len(config.DOMAIN)].rstrip('.')
-
-    @cached_property
-    def current_user(self):
-        return session.get('user') if session.get('user') else {'username': 'Anon'}
+        return Wiki(config.WIKI_PATH)
 
 
 class Application(Flask):
@@ -95,20 +68,11 @@ class Application(Flask):
         return super(Application, self).__call__(environ, start_response)
 
     def discover(self):
-        """
-        Pattern taken from guildwork.com
-        """
         IMPORT_NAME = 'realms.modules'
         FROMLIST = (
             'assets',
-            'models',
-            'search',
-            'perms',
-            'broadcasts',
             'commands',
-            'notifications',
-            'requests',
-            'tasks',
+            'models',
             'views',
         )
 
@@ -158,39 +122,18 @@ def redirect_url(referrer=None):
     return request.args.get('next') or referrer or url_for('index')
 
 
-def format_subdomain(s):
-    if not config.REPO_ENABLE_SUBDOMAIN:
-        return ""
-    s = s.lower()
-    s = to_canonical(s)
-    if s in config.REPO_FORBIDDEN_NAMES:
-        # Not allowed
-        s = ""
-    return s
-
 
 app = Application(__name__)
 app.config.from_object('realms.config')
 app.session_interface = RedisSessionInterface()
 app.url_map.converters['regex'] = RegexConverter
 app.url_map.strict_slashes = False
-app.debug = True
-
-# Flask-SQLAlchemy
-db.init_app(app)
+app.debug = config.DEBUG
 
 manager = Manager(app)
-manager.add_command("runserver", Server(host="0.0.0.0", port=10000))
-
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'auth.login'
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return CurrentUser(user_id)
 
 
 def error_handler(e):
@@ -224,30 +167,28 @@ for status_code in httplib.responses:
     if status_code >= 400:
         app.register_error_handler(status_code, error_handler)
 
-from realms.lib.assets import assets, register
+from realms.lib.assets import register, assets
 assets.init_app(app)
 assets.app = app
+assets.debug = config.DEBUG
 
-app.jinja_env.globals['bundles'] = assets
+register('main',
+         'vendor/jquery/jquery.js',
+         'vendor/components-underscore/underscore.js',
+         'vendor/components-bootstrap/js/bootstrap.js',
+         'vendor/handlebars/handlebars.js',
+         'vendor/showdown/src/showdown.js',
+         'vendor/showdown/src/extensions/table.js',
+         'js/wmd.js',
+         'js/html-sanitizer-minified.js',  # don't minify
+         'vendor/highlightjs/highlight.pack.js',
+         'vendor/parsleyjs/dist/parsley.js',
+         'js/main.js')
 
-register(
-    'vendor/jquery/jquery.js',
-    'vendor/components-underscore/underscore.js',
-    'vendor/components-bootstrap/js/bootstrap.js',
-    'vendor/handlebars/handlebars.js',
-    'vendor/showdown/src/showdown.js',
-    'vendor/marked/lib/marked.js',
-    'vendor/showdown/src/extensions/table.js',
-    'js/wmd.js',
-    'js/html-sanitizer-minified.js',  # don't minify
-    'vendor/highlightjs/highlight.pack.js',
-    'js/main.js'
-)
 
 @app.before_request
-def check_subdomain():
-    if not g.current_site:
-        return redirect('http://%s' % config.DOMAIN)
+def init_g():
+    g.assets = ['main']
 
 
 @app.after_request
@@ -271,30 +212,11 @@ def page_not_found(e):
     return render_template('errors/404.html'), 404
 
 
-@app.route("/")
-def root():
-    return redirect(url_for(config.ROOT_ENDPOINT))
+if config.RELATIVE_PATH:
+    @app.route("/")
+    def root():
+        return redirect(url_for(config.ROOT_ENDPOINT))
 
-@app.route("/new/", methods=['GET', 'POST'])
-@login_required
-def new():
-    if request.method == 'POST':
-        site_name = to_canonical(request.form['name'])
-
-        if Site.get_by_name(site_name):
-            flash("Site already exists")
-            return redirect(redirect_url())
-        else:
-            Site.create(name=site_name, founder=g.current_user.id)
-            return redirect('http://%s.%s' % (site_name, config.HOSTNAME))
-    else:
-        return render_template('wiki/new.html')
-
-
-@app.route("/_account/")
-@login_required
-def account():
-    return render_template('account/index.html')
 
 app.discover()
 

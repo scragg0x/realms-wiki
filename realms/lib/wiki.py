@@ -67,7 +67,7 @@ class Wiki():
         if not page:
             # Page not found
             return None
-        commit_info = gittle.utils.git.commit_info(self.repo[commit_sha])
+        commit_info = gittle.utils.git.commit_info(self.repo[commit_sha.encode('latin-1')])
         message = commit_info['message']
         return self.write_page(name, page['data'], message=message, username=username)
 
@@ -104,9 +104,8 @@ class Wiki():
         content = re.sub(r"```(.*?)```", unescape_repl, content, flags=re.DOTALL)
 
         filename = self.cname_to_filename(to_canonical(name))
-        f = open(self.path + "/" + filename, 'w')
-        f.write(content)
-        f.close()
+        with open(self.path + "/" + filename, 'w') as f:
+            f.write(content)
 
         if create:
             self.repo.add(filename)
@@ -118,7 +117,7 @@ class Wiki():
             username = self.default_committer_name
 
         if not email:
-            email = "%s@realms.io" % username
+            email = self.default_committer_email
 
         return self.repo.commit(name=username,
                                 email=email,
@@ -135,7 +134,9 @@ class Wiki():
 
     def get_page(self, name, sha='HEAD'):
         # commit = gittle.utils.git.commit_info(self.repo[sha])
-        name = self.cname_to_filename(name)
+        name = self.cname_to_filename(name).encode('latin-1')
+        sha = sha.encode('latin-1')
+
         try:
             return self.repo.get_commit_files(sha, paths=[name]).get(name)
         except KeyError:

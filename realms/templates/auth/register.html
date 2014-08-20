@@ -1,32 +1,29 @@
-{% import 'macros.html' as macros %}
 {% extends 'layout.html' %}
 {% block body %}
 
-    <h2>Register</h2>
-
-    <form role="form" method="post">
+    <form role="form" method="post" action="{{ url_for('auth.register') }}" data-parsley-validate>
         <div class="form-group">
             <label for="username">Username</label>
-            <input type="text" class="form-control" id="username" name="username" />
+            <input id="username" type="text" class="form-control" name="username" placeholder="Username" required data-parsley-type="alphanum" />
         </div>
 
         <div class="form-group">
             <label for="email">Email</label>
-            <input type="text" class="form-control" id="email" name="email" />
+            <input id="email" type="email" class="form-control" name="email" placeholder="Email" required />
         </div>
 
         <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" name="password" id="password" class="form-control" />
+            <input type="password" name="password" id="password" class="form-control" placeholder="Password" required min="6"/>
         </div>
 
         <div class="form-group">
-            {{ macros.recaptcha(config) }}
+            <label for="password_again">Confirm Password</label>
+            <input type="password" name="password_again" id="password_again" class="form-control" placeholder="Password" required min="6"/>
         </div>
 
-        <input type="submit" class="btn btn-primary" value="Submit" />
-    </form>
 
-    <a href="/login" class="pull-right">Already registered? Login here.</a>
+        <input type="submit" class="btn btn-primary" value="Register" />
+    </form>
 
 {% endblock %}
