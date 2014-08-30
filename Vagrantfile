@@ -11,6 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.synced_folder "srv/", "/srv/"
   config.vm.synced_folder ".", "/home/deploy/realms"
+  config.vm.synced_folder "~/.virtualenvs", "/home/deploy/virtualenvs"
   config.vm.provision :salt do |salt|
   	salt.minion_config = "srv/minion"
 	salt.run_highstate = true

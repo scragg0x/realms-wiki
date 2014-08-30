@@ -43,16 +43,16 @@
             {% endif %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            {% if session.get('user') %}
+            {% if g.current_user.is_authenticated() %}
               <li class="dropdown user-avatar">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                 <span>
-                    <img src="{{ session['user'].get('avatar') }}" class="menu-avatar">
-                    <span>{{ session['user'].get('username') }} <i class="icon-caret-down"></i></span>
+                    <img src="{{ g.current_user.avatar }}" class="menu-avatar">
+                    <span>{{ g.current_user.username }} <i class="icon-caret-down"></i></span>
                 </span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="{{ url_for('account') }}">Account</a></li>
+                    <li><a href="{{ url_for('auth.settings') }}">Settings</a></li>
                     <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
                 </ul>
                 </li>
@@ -66,8 +66,6 @@
     </div>
 
     <!-- Page Menu -->
-
-
 
 
     <div class="container">

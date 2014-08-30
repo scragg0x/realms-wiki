@@ -1,8 +1,7 @@
-from realms.lib.assets import register
+from realms import assets
 
-register(
-    'editor',
-    'js/ace/ace.js',
-    'js/ace/mode-markdown.js',
-    'vendor/keymaster/keymaster.js',
-    'js/dillinger.js')
+assets.register('editor',
+                'js/ace/ace.js',
+                'js/ace/mode-markdown.js',
+                'vendor/keymaster/keymaster.js',
+                'js/dillinger.js')

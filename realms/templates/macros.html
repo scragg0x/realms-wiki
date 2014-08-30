@@ -1,0 +1,99 @@
+{# Source: https://gist.github.com/bearz/7394681 #}
+
+{# Renders field for bootstrap 3 standards.
+
+    Params:
+        field - WTForm field
+        kwargs - pass any arguments you want in order to put them into the html attributes.
+        There are few exceptions: for - for_, class - class_, class__ - class_
+
+    Example usage:
+        {{ macros.render_field(form.email, placeholder='Input email', type='email') }}
+#}
+{% macro render_field(field, label_visible=true) -%}
+
+    <div class="form-group {% if field.errors %}has-error{% endif %} {{ kwargs.pop('class_', '') }}">
+        {% if (field.type != 'HiddenField' or field.type !='CSRFTokenField') and label_visible %}
+            <label for="{{ field.id }}" class="control-label">{{ field.label }}</label>
+        {% endif %}
+        {{ field(class_='form-control', **kwargs) }}
+        {% if field.errors %}
+            {% for e in field.errors %}
+                <p class="help-block">{{ e }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+{%- endmacro %}
+
+{# Renders checkbox fields since they are represented differently in bootstrap
+    Params:
+        field - WTForm field (there are no check, but you should put here only BooleanField.
+        kwargs - pass any arguments you want in order to put them into the html attributes.
+        There are few exceptions: for - for_, class - class_, class__ - class_
+
+    Example usage:
+        {{ macros.render_checkbox_field(form.remember_me) }}
+ #}
+{% macro render_checkbox_field(field) -%}
+    <div class="checkbox">
+        <label>
+            {{ field(type='checkbox', **kwargs) }} {{ field.label }}
+        </label>
+    </div>
+{%- endmacro %}
+
+{# Renders radio field
+    Params:
+        field - WTForm field (there are no check, but you should put here only BooleanField.
+        kwargs - pass any arguments you want in order to put them into the html attributes.
+        There are few exceptions: for - for_, class - class_, class__ - class_
+
+    Example usage:
+        {{ macros.render_radio_field(form.answers) }}
+ #}
+{% macro render_radio_field(field) -%}
+    {% for value, label, _ in field.iter_choices() %}
+        <div class="radio">
+            <label>
+                <input type="radio" name="{{ field.id }}" id="{{ field.id }}" value="{{ value }}">{{ label }}
+            </label>
+        </div>
+    {% endfor %}
+{%- endmacro %}
+
+{# Renders WTForm in bootstrap way. There are two ways to call function:
+     - as macros: it will render all field forms using cycle to iterate over them
+     - as call: it will insert form fields as you specify:
+     e.g. {% call macros.render_form(form, action_url=url_for('login_view'), action_text='Login',
+                                        class_='login-form') %}
+                {{ macros.render_field(form.email, placeholder='Input email', type='email') }}
+                {{ macros.render_field(form.password, placeholder='Input password', type='password') }}
+                {{ macros.render_checkbox_field(form.remember_me, type='checkbox') }}
+            {% endcall %}
+
+     Params:
+        form - WTForm class
+        action_url - url where to submit this form
+        action_text - text of submit button
+        class_ - sets a class for form
+    #}
+{% macro render_form(form, action_url='', action_text='Submit', class_='', btn_class='btn btn-default') -%}
+
+    <form method="POST" action="{{ action_url }}" role="form" class="{{ class_ }}" data-parsley-validate>
+        {{ form.hidden_tag() if form.hidden_tag }}
+        {% if caller %}
+            {{ caller() }}
+        {% else %}
+            {% for f in form %}
+                {% if f.type == 'BooleanField' %}
+                    {{ render_checkbox_field(f) }}
+                {% elif f.type == 'RadioField' %}
+                    {{ render_radio_field(f) }}
+                {% else %}
+                    {{ render_field(f) }}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <button type="submit" class="{{ btn_class }}">{{ action_text }} </button>
+    </form>
+{%- endmacro %}

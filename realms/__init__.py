@@ -20,18 +20,18 @@ import sys
 import json
 import httplib
 import traceback
-from flask import Flask, request, render_template, url_for, redirect, session, flash, g
+from flask import Flask, request, render_template, url_for, redirect, g
 from flask.ctx import _AppCtxGlobals
+from flask.ext.cache import Cache
 from flask.ext.script import Manager
-from flask.ext.login import LoginManager
+from flask.ext.login import LoginManager, current_user
+from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.assets import Environment, Bundle
 from werkzeug.routing import BaseConverter
 from werkzeug.utils import cached_property
 from werkzeug.exceptions import HTTPException
 
 from realms import config
-from realms.lib.ratelimit import get_view_rate_limit, ratelimiter
-from realms.lib.session import RedisSessionInterface
-from realms.lib.wiki import Wiki
 from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
 
 
@@ -39,11 +39,7 @@ class AppCtxGlobals(_AppCtxGlobals):
 
     @cached_property
     def current_user(self):
-        return session.get('user') if session.get('user') else {'username': 'Anon'}
-
-    @cached_property
-    def current_wiki(self):
-        return Wiki(config.WIKI_PATH)
+        return current_user
 
 
 class Application(Flask):
@@ -68,8 +64,8 @@ class Application(Flask):
         return super(Application, self).__call__(environ, start_response)
 
     def discover(self):
-        IMPORT_NAME = 'realms.modules'
-        FROMLIST = (
+        import_name = 'realms.modules'
+        fromlist = (
             'assets',
             'commands',
             'models',
@@ -78,10 +74,10 @@ class Application(Flask):
 
         start_time = time.time()
 
-        __import__(IMPORT_NAME, fromlist=FROMLIST)
+        __import__(import_name, fromlist=fromlist)
 
         for module_name in self.config['MODULES']:
-            sources = __import__('%s.%s' % (IMPORT_NAME, module_name), fromlist=FROMLIST)
+            sources = __import__('%s.%s' % (import_name, module_name), fromlist=fromlist)
 
             # Blueprint
             if hasattr(sources, 'views'):
@@ -107,6 +103,18 @@ class Application(Flask):
         return super(Application, self).make_response(tuple(rv))
 
 
+class Assets(Environment):
+    default_filters = {'js': 'uglifyjs', 'css': 'cssmin'}
+    default_output = {'js': 'assets/%(version)s.js', 'css': 'assets/%(version)s.css'}
+
+    def register(self, name, *args, **kwargs):
+        ext = args[0].split('.')[-1]
+        filters = kwargs.get('filters', self.default_filters[ext])
+        output = kwargs.get('output', self.default_output[ext])
+
+        super(Assets, self).register(name, Bundle(*args, filters=filters, output=output))
+
+
 class RegexConverter(BaseConverter):
     """
     Enables Regex matching on endpoints
@@ -120,20 +128,6 @@ def redirect_url(referrer=None):
     if not referrer:
         referrer = request.referrer
     return request.args.get('next') or referrer or url_for('index')
-
-
-
-app = Application(__name__)
-app.config.from_object('realms.config')
-app.session_interface = RedisSessionInterface()
-app.url_map.converters['regex'] = RegexConverter
-app.url_map.strict_slashes = False
-app.debug = config.DEBUG
-
-manager = Manager(app)
-
-login_manager = LoginManager()
-login_manager.init_app(app)
 
 
 def error_handler(e):
@@ -150,7 +144,7 @@ def error_handler(e):
         if request.is_xhr or request.accept_mimetypes.best in ['application/json', 'text/javascript']:
             response = {
                 'message': message,
-                'traceback': tb,
+                'traceback': tb
             }
         else:
             response = render_template('errors/error.html',
@@ -163,60 +157,67 @@ def error_handler(e):
 
     return response, status_code
 
-for status_code in httplib.responses:
-    if status_code >= 400:
-        app.register_error_handler(status_code, error_handler)
 
-from realms.lib.assets import register, assets
-assets.init_app(app)
-assets.app = app
-assets.debug = config.DEBUG
+def create_app():
+    app = Application(__name__)
+    app.config.from_object('realms.config')
+    app.url_map.converters['regex'] = RegexConverter
+    app.url_map.strict_slashes = False
 
-register('main',
-         'vendor/jquery/jquery.js',
-         'vendor/components-underscore/underscore.js',
-         'vendor/components-bootstrap/js/bootstrap.js',
-         'vendor/handlebars/handlebars.js',
-         'vendor/showdown/src/showdown.js',
-         'vendor/showdown/src/extensions/table.js',
-         'js/wmd.js',
-         'js/html-sanitizer-minified.js',  # don't minify
-         'vendor/highlightjs/highlight.pack.js',
-         'vendor/parsleyjs/dist/parsley.js',
-         'js/main.js')
+    for status_code in httplib.responses:
+        if status_code >= 400:
+            app.register_error_handler(status_code, error_handler)
 
+    @app.before_request
+    def init_g():
+        g.assets = ['main']
 
-@app.before_request
-def init_g():
-    g.assets = ['main']
+    @app.template_filter('datetime')
+    def _jinja2_filter_datetime(ts):
+        return time.strftime('%b %d, %Y %I:%M %p', time.localtime(ts))
 
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('errors/404.html'), 404
 
-@app.after_request
-def inject_x_rate_headers(response):
-    limit = get_view_rate_limit()
-    if limit and limit.send_x_headers:
-        h = response.headers
-        h.add('X-RateLimit-Remaining', str(limit.remaining))
-        h.add('X-RateLimit-Limit', str(limit.limit))
-        h.add('X-RateLimit-Reset', str(limit.reset))
-    return response
+    if config.RELATIVE_PATH:
+        @app.route("/")
+        def root():
+            return redirect(url_for(config.ROOT_ENDPOINT))
 
+    return app
 
-@app.template_filter('datetime')
-def _jinja2_filter_datetime(ts):
-    return time.strftime('%b %d, %Y %I:%M %p', time.localtime(ts))
+app = create_app()
 
+# Init plugins here if possible
+manager = Manager(app)
 
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('errors/404.html'), 404
+login_manager = LoginManager(app)
+login_manager.login_view = 'auth.login'
 
+db = SQLAlchemy(app)
+cache = Cache(app)
 
-if config.RELATIVE_PATH:
-    @app.route("/")
-    def root():
-        return redirect(url_for(config.ROOT_ENDPOINT))
-
+assets = Environment(app)
+assets.register('main',
+                'vendor/jquery/jquery.js',
+                'vendor/components-underscore/underscore.js',
+                'vendor/components-bootstrap/js/bootstrap.js',
+                'vendor/handlebars/handlebars.js',
+                'vendor/showdown/src/showdown.js',
+                'vendor/showdown/src/extensions/table.js',
+                'js/wmd.js',
+                'js/html-sanitizer-minified.js',  # don't minify?
+                'vendor/highlightjs/highlight.pack.js',
+                'vendor/parsleyjs/dist/parsley.js',
+                'js/main.js')
 
 app.discover()
+
+db.create_all()
+
+
+
+
+
 

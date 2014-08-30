@@ -7,7 +7,8 @@ import gittle.utils
 from gittle import Gittle
 from dulwich.repo import NotGitRepository
 from werkzeug.utils import escape, unescape
-from util import to_canonical
+from realms.lib.util import to_canonical
+from realms import cache
 
 
 class MyGittle(Gittle):
@@ -94,7 +95,7 @@ class Wiki():
 
         content = lxml.html.tostring(tree, encoding='utf-8', method='html')
 
-        # post processing to fix errors
+        # remove added div tags
         content = content[5:-6]
 
         # FIXME this is for block quotes, doesn't work for double ">"
@@ -103,7 +104,8 @@ class Wiki():
 
         content = re.sub(r"```(.*?)```", unescape_repl, content, flags=re.DOTALL)
 
-        filename = self.cname_to_filename(to_canonical(name))
+        cname = to_canonical(name)
+        filename = self.cname_to_filename(cname)
         with open(self.path + "/" + filename, 'w') as f:
             f.write(content)
 
@@ -119,10 +121,14 @@ class Wiki():
         if not email:
             email = self.default_committer_email
 
-        return self.repo.commit(name=username,
-                                email=email,
-                                message=message,
-                                files=[filename])
+        ret = self.repo.commit(name=username,
+                               email=email,
+                               message=message,
+                               files=[filename])
+
+        cache.delete_memoized(Wiki.get_page, cname)
+
+        return ret
 
     def rename_page(self, old_name, new_name):
         old_name, new_name = map(self.cname_to_filename, [old_name, new_name])
@@ -131,7 +137,10 @@ class Wiki():
                          email=self.default_committer_email,
                          message="Moving %s to %s" % (old_name, new_name),
                          files=[old_name])
+        cache.delete_memoized(Wiki.get_page, old_name)
+        cache.delete_memoized(Wiki.get_page, new_name)
 
+    @cache.memoize()
     def get_page(self, name, sha='HEAD'):
         # commit = gittle.utils.git.commit_info(self.repo[sha])
         name = self.cname_to_filename(name).encode('latin-1')
@@ -151,5 +160,6 @@ class Wiki():
     def get_history(self, name):
         return self.repo.file_history(self.cname_to_filename(name))
 
-    def cname_to_filename(self, cname):
+    @staticmethod
+    def cname_to_filename(cname):
         return cname.lower() + ".md"

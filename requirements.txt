@@ -1,8 +1,10 @@
 bcrypt
 Flask
-Flask-Login
 Flask-Assets
+Flask-Cache
+Flask-Login
 Flask-Script
+Flask-SQLAlchemy
 Flask-WTF
 beautifulsoup4
 closure==20121212

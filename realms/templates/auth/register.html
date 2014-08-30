@@ -1,29 +1,13 @@
 {% extends 'layout.html' %}
+{% from 'macros.html' import render_form, render_field %}
 {% block body %}
-
-    <form role="form" method="post" action="{{ url_for('auth.register') }}" data-parsley-validate>
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input id="username" type="text" class="form-control" name="username" placeholder="Username" required data-parsley-type="alphanum" />
-        </div>
-
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input id="email" type="email" class="form-control" name="email" placeholder="Email" required />
-        </div>
-
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" name="password" id="password" class="form-control" placeholder="Password" required min="6"/>
-        </div>
-
-        <div class="form-group">
-            <label for="password_again">Confirm Password</label>
-            <input type="password" name="password_again" id="password_again" class="form-control" placeholder="Password" required min="6"/>
-        </div>
-
-
-        <input type="submit" class="btn btn-primary" value="Register" />
-    </form>
-
+     {% call render_form(form, action_url=url_for('auth.register'), action_text='Register', btn_class='btn btn-primary') %}
+        {{ render_field(form.username, placeholder='Username', type='username', **{"required": 1, "data-parsley-type": "alphanum"}) }}
+        {{ render_field(form.email, placeholder='Email', type='email', required=1) }}
+        {{ render_field(form.password, placeholder='Password', type='password', **{"required": 1, "data-parsley-minlength": "6"}) }}
+        {{ render_field(form.confirm, placeholder='Confirm Password', type='password', **{"required": 1, "data-parsley-minlength": "6"}) }}
+        {% if config.RECAPTCHA_ENABLE %}
+            {{ render_field(form.recaptcha) }}
+        {% endif %}
+     {% endcall %}
 {% endblock %}

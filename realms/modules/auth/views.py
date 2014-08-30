@@ -13,24 +13,55 @@ def logout_page():
     return redirect(url_for(config.ROOT_ENDPOINT))
 
 
-@blueprint.route("/login")
+@blueprint.route("/login", methods=['GET', 'POST'])
 def login():
-    if request.method == "POST":
-        form = RegistrationForm()
+    form = LoginForm()
 
-        # TODO
+    if request.method == "POST":
         if not form.validate():
-            flash('Form invalid')
+            flash('Form invalid', 'warning')
             return redirect(url_for('auth.login'))
 
         if User.auth(request.form['email'], request.form['password']):
             return redirect(request.args.get("next") or url_for(config.ROOT_ENDPOINT))
+        else:
+            flash('Email or Password Incorrect', 'warning')
+            return redirect(url_for('auth.login'))
 
-    return render_template("auth/login.html")
+    return render_template("auth/login.html", form=form)
 
-@blueprint.route("/register")
+
+@blueprint.route("/register", methods=['GET', 'POST'])
 def register():
+    form = RegistrationForm()
+
     if request.method == "POST":
+
+        if not form.validate():
+            flash('Form invalid', 'warning')
+            return redirect(url_for('auth.register'))
+
+        if User.get_by_username(request.form['username']):
+            flash('Username is taken', 'warning')
+            return redirect(url_for('auth.register'))
+
+        if User.get_by_email(request.form['email']):
+            flash('Email is taken', 'warning')
+            return redirect(url_for('auth.register'))
+
+        User.create(request.form['username'], request.form['email'], request.form['password'])
+        User.auth(request.form['email'], request.form['password'])
+
         return redirect(request.args.get("next") or url_for(config.ROOT_ENDPOINT))
-    else:
-        return render_template("auth/register.html")
+
+    return render_template("auth/register.html", form=form)
+
+
+@blueprint.route("/settings", methods=['GET', 'POST'])
+def settings():
+    return render_template("auth/settings.html")
+
+@blueprint.route("/logout")
+def logout():
+    User.logout()
+    return redirect("/")

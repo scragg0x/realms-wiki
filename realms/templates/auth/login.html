@@ -1,18 +1,8 @@
 {% extends 'layout.html' %}
+{% from 'macros.html' import render_form, render_field %}
 {% block body %}
-
-    <form role="form" method="post" action="{{ url_for('auth.login') }}" data-parsley-validate>
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input id="email" type="email" class="form-control" name="email" placeholder="Email" required />
-        </div>
-
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" name="password" id="password" class="form-control" placeholder="Password" min="6" required />
-        </div>
-
-        <input type="submit" class="btn btn-primary" value="Login" />
-    </form>
-
+     {% call render_form(form, action_url=url_for('auth.login'), action_text='Login', btn_class='btn btn-primary') %}
+        {{ render_field(form.email, placeholder='Email', type='email', required=1) }}
+        {{ render_field(form.password, placeholder='Password', type='password', required=1) }}
+    {% endcall %}
 {% endblock %}

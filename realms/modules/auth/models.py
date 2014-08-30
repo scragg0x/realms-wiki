@@ -1,23 +1,15 @@
-from flask.ext.login import UserMixin, logout_user, login_user
-from realms import config, login_manager
-from realms.lib.services import db
+from flask.ext.login import UserMixin, logout_user, login_user, AnonymousUserMixin
+from realms import config, login_manager, db
+from realms.lib.model import Model
+from realms.lib.util import gravatar_url
 from itsdangerous import URLSafeSerializer, BadSignature
 from hashlib import sha256
-import json
 import bcrypt
-
-FIELD_MAP = dict(
-    u='username',
-    e='email',
-    p='password',
-    nv='not_verified',
-    a='admin',
-    b='banned')
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    return User.get_by_id(user_id)
 
 
 @login_manager.token_loader
@@ -29,7 +21,7 @@ def load_token(token):
         return False
 
     # User key *could* be stored in payload to avoid user lookup in db
-    user = User.get(payload.get('id'))
+    user = User.get_by_id(payload.get('id'))
 
     if not user:
         return False
@@ -43,68 +35,78 @@ def load_token(token):
         return False
 
 
-class User(UserMixin):
+class AnonUser(AnonymousUserMixin):
+    username = 'Anon'
+    email = ''
 
-    username = None
-    email = None
-    password = None
 
-    def __init__(self, email, data=None):
-        self.id = email
-        for k, v in data.items():
-            setattr(self, FIELD_MAP.get(k, k), v)
+class User(Model, UserMixin):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, unique=True)
+    email = db.Column(db.String, unique=True)
+    password = db.Column(db.String)
+
+    hidden_fields = ['password']
+    readonly_fields = ['email', 'password']
 
     def get_auth_token(self):
         key = sha256(self.password).hexdigest()
-        return User.signer(key).dumps(dict(id=self.username))
+        return User.signer(key).dumps(dict(id=self.id))
+
+    @property
+    def avatar(self):
+        return gravatar_url(self.email)
 
     @staticmethod
     def create(username, email, password):
-        User.set(email, dict(u=username, e=email, p=User.hash(password), nv=1))
+        u = User()
+        u.username = username
+        u.email = email
+        u.password = User.hash_password(password)
+        u.save()
+
+    @staticmethod
+    def get_by_username(username):
+        return User.query.filter_by(username=username).first()
+
+    @staticmethod
+    def get_by_email(email):
+        return User.query.filter_by(email=email).first()
 
     @staticmethod
     def signer(salt):
         """
         Signed with app secret salted with sha256 of password hash of user (client secret)
         """
-        return URLSafeSerializer(config.SECRET + salt)
-
-    @staticmethod
-    def set(email, data):
-        db.set('u:%s' % email, json.dumps(data, separators=(',', ':')))
-
-    @staticmethod
-    def get(email):
-        data = db.get('u:%s', email)
-
-        try:
-            data = json.loads(data)
-        except ValueError:
-            return None
-
-        if data:
-            return User(email, data)
-        else:
-            return None
+        return URLSafeSerializer(config.SECRET_KEY + salt)
 
     @staticmethod
     def auth(email, password):
-        user = User.get(email)
+        user = User.query.filter_by(email=email).first()
 
         if not user:
+            # User doesn't exist
             return False
 
-        if bcrypt.checkpw(password, user.password):
+        if User.check_password(password, user.password):
+            # Password is good, log in user
             login_user(user, remember=True)
             return user
         else:
+            # Password check failed
             return False
 
     @staticmethod
-    def hash(password):
-        return bcrypt.hashpw(password, bcrypt.gensalt(log_rounds=12))
+    def hash_password(password):
+        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(12))
+
+    @staticmethod
+    def check_password(password, hashed):
+        return bcrypt.hashpw(password.encode('utf-8'), hashed.encode('utf-8')) == hashed
 
     @classmethod
     def logout(cls):
         logout_user()
 
+login_manager.anonymous_user = AnonUser

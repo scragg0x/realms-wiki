@@ -3,8 +3,6 @@ import os
 import hashlib
 import json
 
-from realms.lib.services import db
-
 
 class AttrDict(dict):
     def __init__(self, *args, **kwargs):
@@ -32,36 +30,6 @@ def to_dict(data):
         return [row2dict(x) for x in data]
     else:
         return row2dict(data)
-
-
-def cache_it(fn):
-    def wrap(*args, **kw):
-        key = "%s:%s" % (args[0].table, args[1])
-        data = db.get(key)
-        # Assume strings are JSON encoded
-        try:
-            data = json.loads(data)
-        except TypeError:
-            pass
-        except ValueError:
-            pass
-
-        if data is not None:
-            return data
-        else:
-            data = fn(*args)
-            print data
-            ret = data
-            if data is None:
-                data = ''
-            if not isinstance(data, basestring):
-                try:
-                    data = json.dumps(data, separators=(',', ':'))
-                except TypeError:
-                    pass
-            db.set(key, data)
-            return ret
-    return wrap
 
 
 def mkdir_safe(path):
