@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Provision script created for Ubuntu 14.04
 APP_DIR=/vagrant
 
 echo "Provisioning..."
@@ -40,5 +41,17 @@ source .venv/bin/activate
 
 pip install -r requirements.txt
 
-# Dev server http://127.0.0.1:5000
-# python realms.py runserver
+cat << EOF > /usr/local/bin/realms-wiki
+#!/bin/bash
+${APP_DIR}/.venv/bin/python ${APP_DIR}/manage.py "\$@"
+EOF
+chmod +x /usr/local/bin/realms-wiki
+
+cat << EOF > /etc/init/realms-wiki.conf
+description "Realms Wiki"
+author "scragg@gmail.com"
+start on runlevel [2345]
+stop on runlevel [!2345]
+respawn
+exec /usr/local/bin/realms-wiki run
+EOF

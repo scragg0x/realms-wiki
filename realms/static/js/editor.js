@@ -1,3 +1,6 @@
+/*
+ Source is modified version of http://dillinger.io/
+ */
 $(function () {
 
     var url_prefix = "";

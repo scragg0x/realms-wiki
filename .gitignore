@@ -9,3 +9,4 @@ config.json
 realms/static/vendor
 realms/static/assets/*
 wiki.db
+npm-debug.log
