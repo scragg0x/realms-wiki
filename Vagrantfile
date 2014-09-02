@@ -1,7 +1,7 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-    config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "ubuntu/trusty64"
 
   config.vm.provider :virtualbox do |vb|
     vb.name = "realms-wiki"
@@ -9,16 +9,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.cpus = 2
   end
 
-  config.vm.synced_folder "srv/", "/srv/"
-  config.vm.synced_folder ".", "/home/deploy/realms"
-  config.vm.synced_folder "~/.virtualenvs", "/home/deploy/virtualenvs"
-  config.vm.provision :salt do |salt|
-  	salt.minion_config = "srv/minion"
-	salt.run_highstate = true
-  end
+  config.vm.provision "shell", path: "provision.sh"
 end
 
 Vagrant::Config.run do |config|
   config.vm.forward_port 80, 8080
-  config.vm.forward_port 4567, 4567
+  config.vm.forward_port 5000, 5000
 end

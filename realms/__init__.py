@@ -9,41 +9,25 @@ reload(sys)
 # noinspection PyUnresolvedReferences
 sys.setdefaultencoding('utf-8')
 
-# Silence Sentry and Requests.
-import logging
-logging.getLogger().setLevel(logging.INFO)
-logging.getLogger('raven').setLevel(logging.WARNING)
-logging.getLogger('requests').setLevel(logging.WARNING)
-
 import time
 import sys
 import json
 import httplib
 import traceback
 from flask import Flask, request, render_template, url_for, redirect, g
-from flask.ctx import _AppCtxGlobals
 from flask.ext.cache import Cache
 from flask.ext.script import Manager
 from flask.ext.login import LoginManager, current_user
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.assets import Environment, Bundle
 from werkzeug.routing import BaseConverter
-from werkzeug.utils import cached_property
 from werkzeug.exceptions import HTTPException
 
 from realms import config
 from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
 
 
-class AppCtxGlobals(_AppCtxGlobals):
-
-    @cached_property
-    def current_user(self):
-        return current_user
-
-
 class Application(Flask):
-    app_ctx_globals_class = AppCtxGlobals
 
     def __call__(self, environ, start_response):
         path_info = environ.get('PATH_INFO')
@@ -104,7 +88,7 @@ class Application(Flask):
 
 
 class Assets(Environment):
-    default_filters = {'js': 'uglifyjs', 'css': 'cssmin'}
+    default_filters = {'js': 'jsmin', 'css': 'cssmin'}
     default_output = {'js': 'assets/%(version)s.js', 'css': 'assets/%(version)s.css'}
 
     def register(self, name, *args, **kwargs):
@@ -139,7 +123,7 @@ def error_handler(e):
         else:
             status_code = httplib.INTERNAL_SERVER_ERROR
             message = None
-            tb = traceback.format_exc() if g.current_user.staff else None
+            tb = traceback.format_exc() if current_user.staff else None
 
         if request.is_xhr or request.accept_mimetypes.best in ['application/json', 'text/javascript']:
             response = {

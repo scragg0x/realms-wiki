@@ -2,7 +2,7 @@ from gevent import wsgi
 from realms import config, app, manager
 from flask.ext.script import Server
 
-manager.add_command("runserver", Server(host="0.0.0.0", port=config.PORT))
+manager.add_command("runserver", Server(host="0.0.0.0", port=5000))
 
 
 @manager.command

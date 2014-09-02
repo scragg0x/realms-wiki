@@ -1,5 +1,5 @@
 .vagrant
-.virtualenvs
+.venv
 .idea
 .webassets-cache
 *.pyc
@@ -8,3 +8,4 @@ config.sls
 config.json
 realms/static/vendor
 realms/static/assets/*
+wiki.db

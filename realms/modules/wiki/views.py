@@ -33,7 +33,7 @@ def revert():
     commit = request.form.get('commit')
     cname = to_canonical(name)
     wiki.revert_page(name, commit, message="Reverting %s" % cname,
-                     username=g.current_user.username)
+                     username=current_user.username)
     flash('Page reverted', 'success')
     return redirect(url_for('wiki.page', name=cname))
 
@@ -57,7 +57,7 @@ def edit(name):
         wiki.write_page(edit_cname,
                         request.form['content'],
                         message=request.form['message'],
-                        username=g.current_user.username)
+                        username=current_user.username)
     else:
         if data:
             name = remove_ext(data['name'])
@@ -83,7 +83,7 @@ def create(name):
                         request.form['content'],
                         message=request.form['message'],
                         create=True,
-                        username=g.current_user.username)
+                        username=current_user.username)
     else:
         cname = to_canonical(name) if name else ""
         if cname and wiki.get_page(cname):
