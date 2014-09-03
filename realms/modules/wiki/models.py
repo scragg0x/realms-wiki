@@ -63,6 +63,9 @@ class Wiki():
 
         self.path = path
 
+    def __repr__(self):
+        return "Wiki: %s" % self.path
+
     def revert_page(self, name, commit_sha, message, username):
         page = self.get_page(name, commit_sha)
         if not page:
@@ -126,7 +129,7 @@ class Wiki():
                                message=message,
                                files=[filename])
 
-        cache.delete_memoized(Wiki.get_page, cname)
+        cache.delete(cname)
 
         return ret
 
@@ -137,11 +140,13 @@ class Wiki():
                          email=self.default_committer_email,
                          message="Moving %s to %s" % (old_name, new_name),
                          files=[old_name])
-        cache.delete_memoized(Wiki.get_page, old_name)
-        cache.delete_memoized(Wiki.get_page, new_name)
+        cache.delete_many(old_name, new_name)
 
-    @cache.memoize()
     def get_page(self, name, sha='HEAD'):
+        cached = cache.get(name)
+        if cached:
+            return cached
+
         # commit = gittle.utils.git.commit_info(self.repo[sha])
         name = self.cname_to_filename(name).encode('latin-1')
         sha = sha.encode('latin-1')
