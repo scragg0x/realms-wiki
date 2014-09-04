@@ -41,9 +41,11 @@ WMD.convert = function(content, options) {
 };
 
 
-function gsub(str, re, fn, /*optional*/newstr) {
+function gsub(str, regex, fn, /*optional*/newstr) {
     newstr = newstr || '';
+    var re = new RegExp(regex);
     var match = re.exec(str);
+    var remaining;
     if (match) {
         newstr += str.slice(0, match.index);
         newstr += fn.apply(null, match);
@@ -51,7 +53,7 @@ function gsub(str, re, fn, /*optional*/newstr) {
         return gsub(remaining, re, fn, newstr);
     }
     return newstr + str;
-};
+}
 
 WMD.showdown = new Showdown.converter({extensions: ['table']});
 WMD.processor = WMD.showdown.makeHtml;
@@ -61,7 +63,7 @@ WMD.preprocessors = {
     underscores: function (doc) {
         // prevent foo_bar_baz from ending up with an italic word in the middle
         doc.markdown = gsub(doc.markdown,
-            /(^(?! {4}|\t)\w+_\w+_\w[\w_]*)/, function (match) {
+            "/(^(?! {4}|\t)\w+_\w+_\w[\w_]*)/", function (match) {
                 var count = 0;
                 for (var i = 0; i < match.length; i++) {
                     if (match[i] == '_') count++;
@@ -83,7 +85,7 @@ WMD.preprocessors = {
         while (lines.length) {
             var match = /^(\S+):\s+(.*)$/.exec(lines[0]);
             if (match) {
-                var key = match[1];
+                key = match[1];
                 doc.metadata[key] = match[2];
                 lines.shift();
             }

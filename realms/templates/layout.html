@@ -8,10 +8,12 @@
 
     <title>Realms</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-    <link href="{{ url_for('static', filename='css/bootstrap/flatly.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='vendor/highlightjs/styles/github.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    {% for bundle in g.assets['css'] %}
+      {% assets bundle %}
+        <link type="text/javascript" href="{{ ASSET_URL }}" rel="stylesheet">
+    {% endassets %}
+    {% endfor %}
     {% block css %}{% endblock %}
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -32,7 +34,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">Realms</a>
+          <a class="navbar-brand" href="/">{{ config.SITE_TITLE }}</a>
         </div>
         <div class="navbar-collapse collapse navbar-inverse-collapse">
           <ul class="nav navbar-nav">
@@ -86,7 +88,7 @@
     {% block body %}{% endblock %}
       </div>
     </div>
-    {% for bundle in g.assets %}
+    {% for bundle in g.assets['js'] %}
       {% assets bundle %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
       {% endassets %}

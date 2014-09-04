@@ -88,7 +88,7 @@ class Application(Flask):
 
 
 class Assets(Environment):
-    default_filters = {'js': 'jsmin', 'css': 'cssmin'}
+    default_filters = {'js': 'rjsmin', 'css': 'cleancss'}
     default_output = {'js': 'assets/%(version)s.js', 'css': 'assets/%(version)s.css'}
 
     def register(self, name, *args, **kwargs):
@@ -96,7 +96,7 @@ class Assets(Environment):
         filters = kwargs.get('filters', self.default_filters[ext])
         output = kwargs.get('output', self.default_output[ext])
 
-        super(Assets, self).register(name, Bundle(*args, filters=filters, output=output))
+        return super(Assets, self).register(name, Bundle(*args, filters=filters, output=output))
 
 
 class RegexConverter(BaseConverter):
@@ -123,7 +123,7 @@ def error_handler(e):
         else:
             status_code = httplib.INTERNAL_SERVER_ERROR
             message = None
-            tb = traceback.format_exc() if current_user.staff else None
+            tb = traceback.format_exc() if current_user.admin else None
 
         if request.is_xhr or request.accept_mimetypes.best in ['application/json', 'text/javascript']:
             response = {
@@ -154,7 +154,7 @@ def create_app():
 
     @app.before_request
     def init_g():
-        g.assets = ['main']
+        g.assets = dict(css=['main.css'], js=['main.js'])
 
     @app.template_filter('datetime')
     def _jinja2_filter_datetime(ts):
@@ -182,8 +182,8 @@ login_manager.login_view = 'auth.login'
 db = SQLAlchemy(app)
 cache = Cache(app)
 
-assets = Environment(app)
-assets.register('main',
+assets = Assets(app)
+assets.register('main.js',
                 'vendor/jquery/jquery.js',
                 'vendor/components-underscore/underscore.js',
                 'vendor/components-bootstrap/js/bootstrap.js',
@@ -196,8 +196,15 @@ assets.register('main',
                 'vendor/parsleyjs/dist/parsley.js',
                 'js/main.js')
 
+assets.register('main.css',
+                'css/bootstrap/flatly.css',
+                'css/font-awesome.min.css',
+                'vendor/highlightjs/styles/github.css',
+                'css/style.css')
+
 app.discover()
 
+# Should be called explicitly during install?
 db.create_all()
 
 

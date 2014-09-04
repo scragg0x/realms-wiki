@@ -62,7 +62,7 @@ def edit(name):
         if data:
             name = remove_ext(data['name'])
             content = data['data']
-            g.assets.append('editor')
+            g.assets['js'].append('editor.js')
             return render_template('wiki/edit.html', name=name, content=content)
         else:
             return redirect(url_for('wiki.create', name=cname))
@@ -90,7 +90,7 @@ def create(name):
             # Page exists, edit instead
             return redirect(url_for('wiki.edit', name=cname))
 
-        g.assets.append('editor')
+        g.assets['js'].append('editor.js')
         return render_template('wiki/edit.html', name=cname, content="")
 
 

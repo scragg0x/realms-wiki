@@ -9,11 +9,11 @@ ENV = 'DEV'
 
 DEBUG = True
 ASSETS_DEBUG = True
-
 SQLALCHEMY_ECHO = True
 
-PORT = 80
+PORT = 5000
 BASE_URL = 'http://realms.dev'
+SITE_TITLE = "Realms"
 
 DB_URI = 'sqlite:///%s/wiki.db' % USER_HOME
 
@@ -27,6 +27,8 @@ CACHE_REDIS_PORT = 6379
 CACHE_REDIS_DB = '0'
 """
 
+# Get ReCaptcha Keys for your domain here:
+# https://www.google.com/recaptcha/admin#whyrecaptcha
 RECAPTCHA_ENABLE = False
 RECAPTCHA_USE_SSL = False
 RECAPTCHA_PUBLIC_KEY = "6LfYbPkSAAAAAB4a2lG2Y_Yjik7MG9l4TDzyKUao"

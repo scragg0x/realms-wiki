@@ -38,6 +38,7 @@ def load_token(token):
 class AnonUser(AnonymousUserMixin):
     username = 'Anon'
     email = ''
+    admin = False
 
 
 class User(Model, UserMixin):
@@ -46,6 +47,7 @@ class User(Model, UserMixin):
     username = db.Column(db.String, unique=True)
     email = db.Column(db.String, unique=True)
     password = db.Column(db.String)
+    admin = False
 
     hidden_fields = ['password']
     readonly_fields = ['email', 'password']
