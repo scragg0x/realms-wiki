@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Provision script created for Ubuntu 14.04
-APP_DIR=/vagrant
+APP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 echo "Provisioning..."
 
