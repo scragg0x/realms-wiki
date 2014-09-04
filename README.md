@@ -4,6 +4,9 @@ Git based wiki written in Python
 Inspired by Gollum, Ghost, and Dillinger.
 Basic authentication and registration included.
 
+Demo: http://realms.io
+This domain is being used temporarily as a demo so expect it to change.
+
 ## Features
 
 - Built with Bootstrap 3
@@ -76,3 +79,7 @@ vagrant up
 vagrant ssh
 realms-wiki runserver
 ```
+
+## Author
+
+Matthew Scragg <scragg@gmail.com>
