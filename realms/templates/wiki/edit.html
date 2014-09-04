@@ -1,112 +1,98 @@
 {% extends 'layout.html' %}
 {% block js %}
-        <script>
-        $(function(){
-            $("#start-togetherjs").click(function(){
-                $(this).prop('disabled', true).html("Loading");
-            });
+ <script>
+    $(function(){
+        $("#start-togetherjs").click(function(){
+            $(this).prop('disabled', true).html("Loading");
         });
-        TogetherJSConfig_toolName = "Collaboration";
-        TogetherJSConfig_suppressJoinConfirmation = true;
-        {% if session.get('user') %}
-        TogetherJSConfig_getUserName = function () {
-            return {{ session['user'].get('username')|tojson }};
-        };
+    });
+    TogetherJSConfig_toolName = "Collaboration";
+    TogetherJSConfig_suppressJoinConfirmation = true;
+    {% if current_user.is_authenticated() %}
+    TogetherJSConfig_getUserName = function () {
+        return {{ current_user.username|tojson }};
+    };
 
-        TogetherJSConfig_getUserAvatar = function () {
-            return {{ session['user'].get('avatar')|tojson }};
-        };
-        {% endif %}
+    TogetherJSConfig_getUserAvatar = function () {
+        return {{ current_user.avatar|tojson }};
+    };
+    {% endif %}
 
-        TogetherJSConfig_on_ready = function () {
-           MDR.sanitize = true;
-           $("#preview").html('');
-           $("#start-togetherjs").addClass('btn-danger').html('End Collaboration').prop('disabled', false);
-        };
-        TogetherJSConfig_on_close = function () {
-            MDR.sanitize = false;
-            $("#start-togetherjs").removeClass('btn-danger').html('Collaborate').prop('disabled', false);
-        };
+    TogetherJSConfig_on_ready = function () {
+       MDR.sanitize = true;
+       $("#preview").html('');
+       $("#start-togetherjs").addClass('btn-danger').html('End Collaboration').prop('disabled', false);
+    };
+    TogetherJSConfig_on_close = function () {
+        MDR.sanitize = false;
+        $("#start-togetherjs").removeClass('btn-danger').html('Collaborate').prop('disabled', false);
+    };
 
-    </script>
-    <script src="https://togetherjs.com/togetherjs-min.js"></script>
+</script>
+<script src="https://togetherjs.com/togetherjs-min.js"></script>
 
 {% endblock %}
 {% block body %}
-{% block css %}
-<style>
-    #main-body {
-        background: inherit;
-        border: inherit;
-        padding: 0;
-        -webkit-box-shadow: 0;
-        -moz-box-shadow: 0;
-        box-shadow: 0;
-    }
-</style>
-{% endblock %}
+  <div id="app-wrap">
+    <div id="app-controls" class="row">
+      <div class="col-xs-3">
+        <input id="page-name" type="text" class="form-control input-sm" name="name" placeholder="Name" value="{{- name -}}" />
+      </div>
+      <div class="col-xs-3">
+        <input id="page-message" type="text" class="form-control input-sm" name="page-message" placeholder="Comment" value="" />
+      </div>
 
+      <div class="col-xs-6">
+        <div class="pull-right">
 
-    <div id="app-wrap">
-        <div id="app-controls" class="row">
-            <div class="col-xs-3">
-                <input id="page-name" type="text" class="form-control input-sm" name="name" placeholder="Name" value="{{- name -}}" />
-            </div>
-            <div class="col-xs-3">
-                <input id="page-message" type="text" class="form-control input-sm" name="page-message" placeholder="Comment" value="" />
-            </div>
+          <button class="btn btn-success btn-sm" id="start-togetherjs" type="button"
+                  onclick="TogetherJS(this); return false">
+            Collaborate
+          </button>
 
-            <div class="col-xs-6">
-                <div class="pull-right">
-
-                    <button class="btn btn-success btn-sm" id="start-togetherjs" type="button"
-                     onclick="TogetherJS(this); return false">
-                      Collaborate
-                    </button>
-
-                    <a href="#" id="drop6" role="button" class="dropdown-toggle btn btn-default btn-sm" data-toggle="dropdown">Theme <b class="caret"></b></a>
-                    <ul id="theme-list" class="dropdown-menu" role="menu" aria-labelledby="drop6">
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/chrome" >Chrome</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/clouds" >Clouds</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/clouds_midnight" >Clouds Midnight</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/cobalt" >Cobalt</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/crimson_editor" >Crimson Editor</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/dawn" class="selected">Dawn</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/dreamweaver" >Dreamweaver</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/eclipse" >Eclipse</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/idle_fingers" >idleFingers</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/kr_theme" >krTheme</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore" >Merbivore</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore_soft" >Merbivore Soft</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/mono_industrial" >Mono Industrial</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/monokai" >Monokai</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/pastel_on_dark">Pastel on Dark</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_dark" >Solarized Dark</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_light" >Solarized Light</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/textmate" >TextMate</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow" >Tomorrow</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night">Tomorrow Night</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_blue" >Tomorrow Night Blue</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_bright" >Tomorrow Night Bright</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_eighties" >Tomorrow Night 80s</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/twilight" >Twilight</a></li>
-                        <li><a tabindex="-1" href="#" data-value="ace/theme/vibrant_ink" >Vibrant Ink</a></li>
-                    </ul>
-                    <a id="save-native" class="btn btn-primary btn-sm"><i class="icon-save"></i> Save</a>
-                </div>
-            </div>
+          <a href="#" id="drop6" role="button" class="dropdown-toggle btn btn-default btn-sm" data-toggle="dropdown">Theme <b class="caret"></b></a>
+          <ul id="theme-list" class="dropdown-menu" role="menu" aria-labelledby="drop6">
+            <li><a tabindex="-1" href="#" data-value="ace/theme/chrome" >Chrome</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/clouds" >Clouds</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/clouds_midnight" >Clouds Midnight</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/cobalt" >Cobalt</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/crimson_editor" >Crimson Editor</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/dawn" class="selected">Dawn</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/dreamweaver" >Dreamweaver</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/eclipse" >Eclipse</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/idle_fingers" >idleFingers</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/kr_theme" >krTheme</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore" >Merbivore</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore_soft" >Merbivore Soft</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/mono_industrial" >Mono Industrial</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/monokai" >Monokai</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/pastel_on_dark">Pastel on Dark</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_dark" >Solarized Dark</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_light" >Solarized Light</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/textmate" >TextMate</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow" >Tomorrow</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night">Tomorrow Night</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_blue" >Tomorrow Night Blue</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_bright" >Tomorrow Night Bright</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_eighties" >Tomorrow Night 80s</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/twilight" >Twilight</a></li>
+            <li><a tabindex="-1" href="#" data-value="ace/theme/vibrant_ink" >Vibrant Ink</a></li>
+          </ul>
+          <a id="save-native" class="btn btn-primary btn-sm"><i class="icon-save"></i> Save</a>
         </div>
-
-        <div class="row" style="position: relative; height: 100%; margin-left: 15px; margin-right: 15px;">
-            <div class="col-xs-6" style="position: absolute; bottom: 20px; top: 10px; left:0;border-right: 2px solid transparent;">
-                <div id="editor">{{ content }}</div>
-            </div>
-            <div class="col-xs-6" style="position: absolute; bottom: 20px; top: 10px; right:0; border-left: 2px solid transparent;">
-                <div id="preview"></div>
-            </div>
-        </div>
-
-
+      </div>
     </div>
+
+    <div class="row" style="position: relative; height: 100%; margin-left: 15px; margin-right: 15px;">
+      <div class="col-xs-6" style="position: absolute; bottom: 20px; top: 10px; left:0;border-right: 2px solid transparent;">
+        <div id="editor">{{ content }}</div>
+      </div>
+      <div class="col-xs-6" style="position: absolute; bottom: 20px; top: 10px; right:0; border-left: 2px solid transparent;">
+        <div id="preview"></div>
+      </div>
+    </div>
+
+
+  </div>
 
 {% endblock %}

@@ -1,13 +1,13 @@
 {% extends 'layout.html' %}
 {% from 'macros.html' import render_form, render_field %}
 {% block body %}
-     {% call render_form(form, action_url=url_for('auth.register'), action_text='Register', btn_class='btn btn-primary') %}
-        {{ render_field(form.username, placeholder='Username', type='username', **{"required": 1, "data-parsley-type": "alphanum"}) }}
-        {{ render_field(form.email, placeholder='Email', type='email', required=1) }}
-        {{ render_field(form.password, placeholder='Password', type='password', **{"required": 1, "data-parsley-minlength": "6"}) }}
-        {{ render_field(form.confirm, placeholder='Confirm Password', type='password', **{"required": 1, "data-parsley-minlength": "6"}) }}
-        {% if config.RECAPTCHA_ENABLE %}
-            {{ render_field(form.recaptcha) }}
-        {% endif %}
-     {% endcall %}
+  {% call render_form(form, action_url=url_for('auth.register'), action_text='Register', btn_class='btn btn-primary') %}
+    {{ render_field(form.username, placeholder='Username', type='username', **{"required": 1, "data-parsley-type": "alphanum"}) }}
+    {{ render_field(form.email, placeholder='Email', type='email', required=1) }}
+    {{ render_field(form.password, placeholder='Password', type='password', **{"required": 1, "data-parsley-minlength": "6"}) }}
+    {{ render_field(form.confirm, placeholder='Confirm Password', type='password', **{"required": 1, "data-parsley-minlength": "6"}) }}
+    {% if config.RECAPTCHA_ENABLE %}
+      {{ render_field(form.recaptcha) }}
+    {% endif %}
+  {% endcall %}
 {% endblock %}

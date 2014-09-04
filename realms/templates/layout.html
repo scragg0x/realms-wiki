@@ -12,7 +12,7 @@
     {% for bundle in g.assets['css'] %}
       {% assets bundle %}
         <link href="{{ ASSET_URL }}" rel="stylesheet">
-    {% endassets %}
+      {% endassets %}
     {% endfor %}
     {% block css %}{% endblock %}
 

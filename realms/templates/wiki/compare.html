@@ -1,19 +1,16 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-    <h2>History for <strong>{{ name }}</strong></h2>
-    <div class="pull-right">
-        <a href="{{ url_for('wiki.commit', name=name, sha=old) }}" class="btn btn-default btn-sm">View Old</a>
-        <a href="{{ url_for('wiki.commit', name=name, sha=new) }}" class="btn btn-info btn-sm">View New</a>
-    </div>
-    <p>
-        <a class="btn btn-default btn-sm" href="{{ url_for('wiki.history', name=name) }}">Back to History</a>
-    </p>
-
-
-    {{ diff|safe }}
-
-    <p>
-        <a class="btn btn-default btn-sm" href="{{ url_for('wiki.history', name=name) }}">Back to History</a>
-    </p>
+  <h2>History for <strong>{{ name }}</strong></h2>
+  <div class="pull-right">
+    <a href="{{ url_for('wiki.commit', name=name, sha=old) }}" class="btn btn-default btn-sm">View Old</a>
+    <a href="{{ url_for('wiki.commit', name=name, sha=new) }}" class="btn btn-info btn-sm">View New</a>
+  </div>
+  <p>
+    <a class="btn btn-default btn-sm" href="{{ url_for('wiki.history', name=name) }}">Back to History</a>
+  </p>
+  {{ diff|safe }}
+  <p>
+    <a class="btn btn-default btn-sm" href="{{ url_for('wiki.history', name=name) }}">Back to History</a>
+  </p>
 {% endblock %}

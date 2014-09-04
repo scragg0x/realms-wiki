@@ -2,9 +2,9 @@
 {% block title %}{{ title|escape }}{% endblock %}
 {% block scripts %}
   {% if traceback %}
-  <link rel="stylesheet" href="{{ static_url('vendor/highlightjs/default.css') }}" />
-  <script src="{{ static_url('vendor/highlightjs/highlight.pack.js') }}"></script>
-  <script>hljs.initHighlightingOnLoad();</script>
+    <link rel="stylesheet" href="{{ static_url('vendor/highlightjs/default.css') }}" />
+    <script src="{{ static_url('vendor/highlightjs/highlight.pack.js') }}"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
   {% endif %}
 {% endblock %}
 {% block content %}
