@@ -198,7 +198,7 @@ assets.register('main.js',
 
 assets.register('main.css',
                 'css/bootstrap/flatly.css',
-                'css/font-awesome.min.css',
+                'css/font-awesome.css',
                 'vendor/highlightjs/styles/github.css',
                 'css/style.css')
 
