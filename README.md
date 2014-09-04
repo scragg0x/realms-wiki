@@ -12,6 +12,7 @@ Basic authentication and registration included.
 - Live preview
 - Collaboration (TogetherJS)
 - Drafts saved to localstorage
+- Handlebars
 
 ## Screenshots
 
