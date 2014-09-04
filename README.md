@@ -66,7 +66,7 @@ Current there are different ways.
 
 Access from your browser
 
-```http://localhost:5000```
+http://localhost:5000
 
 ## Vagrant
 
