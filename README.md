@@ -22,7 +22,7 @@ TODO thumbnails here
 - Git
 - NodeJS (needed for bower/cleancss, distro packages shouldn't need this in future)
 
-** Optional **
+**Optional**
 - Nginx (if you want proxy requests, this is recommended)
 - Memcached or Redis, default is memonization
 - MariaDB, MySQL, Postgresql, or another database supported by SQLAlchemy, default is sqlite.  
@@ -65,6 +65,8 @@ Access from your browser
 ```http://localhost:5000```
 
 ## Vagrant
+
+Vagrantfile is included for development.
 
 ```
 git clone https://github.com/scragg0x/realms-wiki
