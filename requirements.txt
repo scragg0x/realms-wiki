@@ -7,12 +7,10 @@ Flask-Script
 Flask-SQLAlchemy
 Flask-WTF
 beautifulsoup4
-closure==20121212
 gevent
 ghdiff
 gittle
 itsdangerous
 lxml
 markdown2
-redis
 simplejson
