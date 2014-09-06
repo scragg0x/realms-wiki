@@ -184,13 +184,13 @@ cache = Cache(app)
 
 assets = Assets(app)
 assets.register('main.js',
-                'vendor/jquery/jquery.js',
-                'vendor/components-underscore/underscore.js',
+                #'vendor/requirejs/require.js',
+                'vendor/jquery/dist/jquery.js',
                 'vendor/components-bootstrap/js/bootstrap.js',
                 'vendor/handlebars/handlebars.js',
-                'vendor/showdown/src/showdown.js',
-                'vendor/showdown/src/extensions/table.js',
-                'js/wmd.js',
+                'vendor/js-yaml/dist/js-yaml.js',
+                'vendor/marked/lib/marked.js',
+                #'js/wmd.js',
                 'js/html-sanitizer-minified.js',  # don't minify?
                 'vendor/highlightjs/highlight.pack.js',
                 'vendor/parsleyjs/dist/parsley.js',

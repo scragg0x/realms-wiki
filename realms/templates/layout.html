@@ -90,7 +90,11 @@
     </div>
     {% for bundle in g.assets['js'] %}
       {% assets bundle %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        {% if bundle == 'editor.js' %}
+          <script type="text/javascript" data-ace-base="src" charset="utf-8" src="{{ ASSET_URL }}"></script>
+        {% else %}
+          <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        {% endif %}
       {% endassets %}
     {% endfor %}
     {% block js %}{% endblock %}
