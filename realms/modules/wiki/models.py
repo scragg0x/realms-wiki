@@ -4,6 +4,7 @@ import lxml.html
 from lxml.html.clean import Cleaner
 import ghdiff
 import gittle.utils
+import yaml
 from gittle import Gittle
 from dulwich.repo import NotGitRepository
 from werkzeug.utils import escape, unescape
@@ -105,6 +106,9 @@ class Wiki():
         content = re.sub(r"(\n&gt;)", "\n>", content)
         content = re.sub(r"(^&gt;)", ">", content)
 
+        # Handlebars partial ">"
+        content = re.sub(r"\{\{&gt;(.*?)\}\}", r'{{>\1}}', content)
+
         content = re.sub(r"```(.*?)```", unescape_repl, content, flags=re.DOTALL)
 
         cname = to_canonical(name)
@@ -156,6 +160,15 @@ class Wiki():
         except KeyError:
             # HEAD doesn't exist yet
             return None
+
+    def get_meta(self, content):
+        if not content.startswith("---"):
+            return None
+        meta_end = re.search("\n(\.{3}|\-{3})", content)
+        if not meta_end:
+            return None
+        return yaml.safe_load(content[0:meta_end.start()])
+        #return [content[0:meta_end.start()], content[meta_end.end():]]
 
     def compare(self, name, old_sha, new_sha):
         old = self.get_page(name, sha=old_sha)

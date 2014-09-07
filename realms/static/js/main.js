@@ -1,3 +1,9 @@
+// Handlebar helpers
+Handlebars.registerHelper('well', function(options) {
+  return '<div class="well">' + options.fn(this) + '</div>';
+});
+
+Handlebars.registerPartial('item', '<table class="table table-bordered"><tr><td>{{ name }}<td><td></tr></table>')
 /* © 2013 j201
  * https://github.com/j201/meta-marked */
 

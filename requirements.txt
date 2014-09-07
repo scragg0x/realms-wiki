@@ -14,3 +14,4 @@ itsdangerous
 lxml
 markdown2
 simplejson
+PyYAML

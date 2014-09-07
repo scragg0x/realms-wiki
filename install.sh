@@ -9,7 +9,7 @@ add-apt-repository -y ppa:chris-lea/node.js
 apt-get update
 apt-get install -y python build-essential git libpcre3-dev python-software-properties \
 python-pip python-virtualenv python-dev pkg-config curl libxml2-dev libxslt1-dev zlib1g-dev \
-libffi-dev nodejs screen node-cleancss
+libffi-dev nodejs screen node-cleancss libyaml-dev
 
 # Default cache is memoization
 
