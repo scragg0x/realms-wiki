@@ -44,9 +44,12 @@ LOGIN_DISABLED = ALLOW_ANON
 
 ROOT_ENDPOINT = 'wiki.page'
 
-with open(os.path.join(APP_PATH, 'config.json')) as f:
-    __settings = json.load(f)
-    globals().update(__settings)
+try:
+    with open(os.path.join(APP_PATH, 'config.json')) as f:
+        __settings = json.load(f)
+        globals().update(__settings)
+except IOError:
+    pass
 
 if BASE_URL.endswith('/'):
     BASE_URL = BASE_URL[-1]

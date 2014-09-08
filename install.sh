@@ -1,14 +1,24 @@
 #!/bin/bash
 
 # Provision script created for Ubuntu 14.04
+
 APP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 APP_USER="$( stat -c '%U' ${APP_DIR} )"
 
+if [ -d "/vagrant" ]; then
+  # Control will enter here if $DIRECTORY exists.
+  APP_DIR="/vagrant"
+  APP_USER="vagrant"
+fi
+
+echo ${APP_DIR}
+echo ${APP_USER}
+
 echo "Provisioning..."
 
-add-apt-repository -y ppa:chris-lea/node.js
-apt-get update
-apt-get install -y python build-essential git libpcre3-dev python-software-properties \
+sudo add-apt-repository -y ppa:chris-lea/node.js
+sudo apt-get update
+sudo apt-get install -y python build-essential git libpcre3-dev python-software-properties \
 python-pip python-virtualenv python-dev pkg-config curl libxml2-dev libxslt1-dev zlib1g-dev \
 libffi-dev nodejs screen libyaml-dev
 
@@ -31,24 +41,20 @@ libffi-dev nodejs screen libyaml-dev
 # Postgres
 # apt-get install -y postgresql postgresql-contrib
 
-cd ${APP_DIR}
-
 # Install frontend assets
-npm install -g bower
-bower install
+sudo npm install -g bower
+sudo -iu ${APP_USER} bower install --config.cwd=${APP_DIR} --config.directory=realms/static/vendor install
 
-virtualenv .venv
-source .venv/bin/activate
+sudo -iu ${APP_USER} virtualenv ${APP_DIR}/.venv
 
-pip install -r requirements.txt
-chown -R ${APP_USER}.${APP_USER} .venv
+sudo -iu ${APP_USER} ${APP_DIR}/.venv/bin/pip install -r ${APP_DIR}/requirements.txt
 
 echo "Installing start scripts"
 cat << EOF > /usr/local/bin/realms-wiki
 #!/bin/bash
 ${APP_DIR}/.venv/bin/python ${APP_DIR}/manage.py "\$@"
 EOF
-chmod +x /usr/local/bin/realms-wiki
+sudo chmod +x /usr/local/bin/realms-wiki
 
 cat << EOF > /etc/init/realms-wiki.conf
 description "Realms Wiki"

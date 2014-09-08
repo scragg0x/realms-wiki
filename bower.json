@@ -9,7 +9,6 @@
         "highlightjs": "~8.0.0",
         "handlebars": "~2.0.0",
         "components-font-awesome": "~4.1.0",
-        "showdown": "~0.3.1",
         "keymaster": "madrobby/keymaster",
         "ace": "~1.1.6",
         "parsleyjs": "~2.0.3",
