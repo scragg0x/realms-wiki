@@ -267,6 +267,9 @@ $(function () {
     function initAce() {
         editor = ace.edit("editor");
         editor.focus();
+        editor.setOptions({
+            enableBasicAutocompletion: true
+        });
     }
 
     function initUi() {
@@ -274,9 +277,13 @@ $(function () {
         fetchTheme(profile.theme, function () {
             $theme.find('li > a[data-value="' + profile.theme + '"]').addClass('selected');
 
+            editor.setBehavioursEnabled(true);
             editor.getSession().setUseWrapMode(true);
             editor.setShowPrintMargin(false);
-
+            editor.getSession().setTabSize(2);
+            editor.getSession().setUseSoftTabs(true);
+            editor.renderer.setShowInvisibles(true);
+            editor.renderer.setShowGutter(false);
             editor.getSession().setMode('ace/mode/markdown');
 
             editor.getSession().setValue(profile.currentMd || editor.getSession().getValue());

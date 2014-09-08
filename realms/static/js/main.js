@@ -3,7 +3,6 @@ Handlebars.registerHelper('well', function(options) {
   return '<div class="well">' + options.fn(this) + '</div>';
 });
 
-Handlebars.registerPartial('item', '<table class="table table-bordered"><tr><td>{{ name }}<td><td></tr></table>')
 /* © 2013 j201
  * https://github.com/j201/meta-marked */
 
@@ -82,7 +81,7 @@ var MDR = {
                 return id;
             });
         }
-        //html = this.hook(html);
+        this.hook();
         return html;
     },
 
@@ -98,15 +97,6 @@ var MDR = {
         }
     },
 
-    hook: function(html) {
-        if (!this.doc.meta) {
-            return html;
-        }
-        try {
-            var template = Handlebars.compile(html);
-            return template(this.doc.meta);
-        } catch(e) {
-            return html;
-        }
+    hook: function() {
     }
 };

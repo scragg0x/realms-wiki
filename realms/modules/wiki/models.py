@@ -178,7 +178,10 @@ class Wiki():
         meta_end = re.search("\n(\.{3}|\-{3})", content)
         if not meta_end:
             return None
-        return yaml.safe_load(content[0:meta_end.start()])
+        try:
+            return yaml.safe_load(content[0:meta_end.start()])
+        except Exception as e:
+            return {'error': e.message}
 
     def compare(self, name, old_sha, new_sha):
         old = self.get_page(name, sha=old_sha)

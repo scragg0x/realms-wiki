@@ -2,6 +2,7 @@
 
 # Provision script created for Ubuntu 14.04
 APP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+APP_USER="$( stat -c '%U' ${APP_DIR} )"
 
 echo "Provisioning..."
 
@@ -9,7 +10,7 @@ add-apt-repository -y ppa:chris-lea/node.js
 apt-get update
 apt-get install -y python build-essential git libpcre3-dev python-software-properties \
 python-pip python-virtualenv python-dev pkg-config curl libxml2-dev libxslt1-dev zlib1g-dev \
-libffi-dev nodejs screen node-cleancss libyaml-dev
+libffi-dev nodejs screen libyaml-dev
 
 # Default cache is memoization
 
@@ -40,7 +41,9 @@ virtualenv .venv
 source .venv/bin/activate
 
 pip install -r requirements.txt
+chown -R ${APP_USER}.${APP_USER} .venv
 
+echo "Installing start scripts"
 cat << EOF > /usr/local/bin/realms-wiki
 #!/bin/bash
 ${APP_DIR}/.venv/bin/python ${APP_DIR}/manage.py "\$@"
