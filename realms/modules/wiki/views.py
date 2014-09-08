@@ -60,15 +60,10 @@ def edit(name):
                         username=current_user.username)
     else:
         if data:
-            partials = {}
-            meta = wiki.get_meta(data['data'])
-            if meta and 'import' in meta:
-                for partial_name in meta['import']:
-                    partials[partial_name] = wiki.get_page(partial_name)
             name = remove_ext(data['name'])
-            content = data['data']
+            content = data.get('data')
             g.assets['js'].append('editor.js')
-            return render_template('wiki/edit.html', name=name, content=content, partials=partials)
+            return render_template('wiki/edit.html', name=name, content=content, partials=data.get('partials'))
         else:
             return redirect(url_for('wiki.create', name=cname))
 
@@ -107,14 +102,8 @@ def page(name):
         return redirect(url_for('wiki.page', name=cname))
 
     data = wiki.get_page(cname)
-    meta = wiki.get_meta(data['data'])
-
-    partials = {}
-    if meta and 'import' in meta:
-        for partial_name in meta['import']:
-            partials[partial_name] = wiki.get_page(partial_name)
 
     if data:
-        return render_template('wiki/page.html', name=cname, page=data, partials=partials)
+        return render_template('wiki/page.html', name=cname, page=data, partials=data.get('partials'))
     else:
         return redirect(url_for('wiki.create', name=cname))

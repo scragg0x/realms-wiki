@@ -156,7 +156,18 @@ class Wiki():
         sha = sha.encode('latin-1')
 
         try:
-            return self.repo.get_commit_files(sha, paths=[name]).get(name)
+            data = self.repo.get_commit_files(sha, paths=[name]).get(name)
+            if not data:
+                return None
+            partials = {}
+            if data.get('data'):
+                meta = self.get_meta(data['data'])
+                if meta and 'import' in meta:
+                    for partial_name in meta['import']:
+                        partials[partial_name] = self.get_page(partial_name)
+            data['partials'] = partials
+            return data
+
         except KeyError:
             # HEAD doesn't exist yet
             return None
@@ -168,7 +179,6 @@ class Wiki():
         if not meta_end:
             return None
         return yaml.safe_load(content[0:meta_end.start()])
-        #return [content[0:meta_end.start()], content[meta_end.end():]]
 
     def compare(self, name, old_sha, new_sha):
         old = self.get_page(name, sha=old_sha)
