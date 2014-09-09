@@ -46,7 +46,36 @@ sudo bash install.sh
 
 ```sudo apt-get install -y nginx```
 
-TODO nginx config here
+Create a file called realms.conf in /etc/nginx/conf.d
+
+```/etc/nginx/conf.d/realms.conf```
+
+Put the following sample configuration in that file.
+
+```
+server {
+  listen 80;
+  
+  # Your domain here
+  server_name wiki.example.org;
+  
+  location / {
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+  
+    proxy_pass http://127.0.0.1:5000/;
+    proxy_redirect off;
+    
+  }
+}
+```
+
+Test Nginx config
+```sudo nginx -t```
+
+Reload Nginx
+```sudo service nginx reload```
 
 ## Running
 
