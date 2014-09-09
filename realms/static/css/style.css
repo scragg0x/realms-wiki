@@ -9,6 +9,15 @@ body {
   margin-bottom: 10px;
 }
 
+.navbar-collapse {
+  background: #242628;
+}
+
+.navbar-toggle {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
 .navbar .nav li a, .navbar .nav li button, .navbar-brand {
   display: block;
   height: 49px;
@@ -19,7 +28,7 @@ body {
 }
 
 .navbar .nav li a:hover, .navbar-brand:hover {
-    color: #FFF !important;
+  color: #FFF !important;
 }
 
 .navbar .nav li {
@@ -92,8 +101,8 @@ body {
 }
 
 .ace_gutter-cell {
-    font-size: 1em;
-    line-height: 1em;
+  font-size: 1em;
+  line-height: 1em;
 }
 
 #page-action-bar {
@@ -103,36 +112,36 @@ body {
 }
 
 .user-avatar a img {
-    width: 24px;
-    height: 24px;
-    -webkit-box-shadow: 0 1px 3px #1e1e1e;
-    -moz-box-shadow: 0 1px 3px #1e1e1e;
-    box-shadow: 0 1px 3px #1e1e1e;
-    -webkit-border-radius: 2px;
-    -moz-border-radius: 2px;
-    -ms-border-radius: 2px;
-    -o-border-radius: 2px;
-    border-radius: 2px;
+  width: 24px;
+  height: 24px;
+  -webkit-box-shadow: 0 1px 3px #1e1e1e;
+  -moz-box-shadow: 0 1px 3px #1e1e1e;
+  box-shadow: 0 1px 3px #1e1e1e;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  border-radius: 2px;
 }
 
 .navbar-nav>li.user-avatar img {
-    margin-right: 3px;
+  margin-right: 3px;
 }
 
 .floating-header {
-    position: absolute;
-    right: 12px;
-    bottom: -39px;
-    z-index: 400;
-    /* height: 20px; */
-    padding: 1px;
-    text-transform: uppercase;
-    color: #aaa9a2;
-    background-color: #000;
-    border: 1px solid #000;
-    /* background-image: -webkit-linear-gradient(top, #fff 0%,#fff 25%,rgba(255,255,255,0.9) 100%); */
-    /* background-image: linear-gradient(to bottom,#fff 0%,#fff 25%,rgba(255,255,255,0.9) 100%); */
-    font-size: 10px;
+  position: absolute;
+  right: 12px;
+  bottom: -39px;
+  z-index: 400;
+  /* height: 20px; */
+  padding: 1px;
+  text-transform: uppercase;
+  color: #aaa9a2;
+  background-color: #000;
+  border: 1px solid #000;
+  /* background-image: -webkit-linear-gradient(top, #fff 0%,#fff 25%,rgba(255,255,255,0.9) 100%); */
+  /* background-image: linear-gradient(to bottom,#fff 0%,#fff 25%,rgba(255,255,255,0.9) 100%); */
+  font-size: 10px;
 }
 
 input.parsley-success,
