@@ -37,7 +37,7 @@ RECAPTCHA_OPTIONS = {}
 
 SECRET_KEY = 'K3dRq1q9eN72GJDkgvyshFVwlqHHCyPI'
 
-WIKI_PATH = os.path.join(USER_HOME, 'wiki')
+WIKI_PATH = os.path.join(APP_PATH, 'wiki')
 WIKI_HOME = 'home'
 ALLOW_ANON = True
 LOGIN_DISABLED = ALLOW_ANON
