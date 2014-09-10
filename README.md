@@ -1,7 +1,7 @@
 # Realms Wiki Beta
 
 Git based wiki written in Python
-Inspired by Gollum, Ghost, and Dillinger.
+Inspired by [Gollum][gollum], [Ghost][ghost], and [Dillinger][dillinger].
 Basic authentication and registration included.
 
 Demo: http://realms.io
@@ -114,3 +114,9 @@ realms-wiki runserver
 ## Author
 
 Matthew Scragg <scragg@gmail.com>
+
+
+[gollum]: https://github.com/gollum/gollum
+[ghost]: https://github.com/tryghost/Ghost
+[dillinger]: https://github.com/joemccann/dillinger/
+
