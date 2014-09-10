@@ -71,6 +71,7 @@ var MDR = {
         } catch(e) {
             return this.md;
         }
+
         if (sanitize) {
             // Causes some problems with inline styles
             html = html_sanitize(html, function(url) {

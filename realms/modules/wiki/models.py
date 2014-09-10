@@ -109,6 +109,10 @@ class Wiki():
         # Handlebars partial ">"
         content = re.sub(r"\{\{&gt;(.*?)\}\}", r'{{>\1}}', content)
 
+        # Handlebars, allow {{}} inside HTML links
+        content = content.replace("%7B", "{")
+        content = content.replace("%7D", "}")
+
         content = re.sub(r"```(.*?)```", unescape_repl, content, flags=re.DOTALL)
 
         cname = to_canonical(name)
