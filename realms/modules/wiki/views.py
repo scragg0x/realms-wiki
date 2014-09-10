@@ -32,6 +32,11 @@ def revert():
     name = request.form.get('name')
     commit = request.form.get('commit')
     cname = to_canonical(name)
+
+    if cname in config.LOCKED:
+        flash("Page is locked")
+        return redirect(url_for(config.ROOT_ENDPOINT))
+
     wiki.revert_page(name, commit, message="Reverting %s" % cname,
                      username=current_user.username)
     flash('Page reverted', 'success')
