@@ -89,7 +89,11 @@
             <li><a tabindex="-1" href="#" data-value="ace/theme/twilight" >Twilight</a></li>
             <li><a tabindex="-1" href="#" data-value="ace/theme/vibrant_ink" >Vibrant Ink</a></li>
           </ul>
-          <a id="save-native" class="btn btn-primary btn-sm"><i class="icon-save"></i> Save</a>
+          {% if name in config.LOCKED %}
+            <a class="btn btn-danger btn-sm"><i class="icon-lock"></i> Locked</a>
+          {% else %}
+            <a id="save-native" class="btn btn-primary btn-sm"><i class="icon-save"></i> Save</a>
+          {% endif %}
         </div>
       </div>
     </div>

@@ -42,6 +42,9 @@ WIKI_HOME = 'home'
 ALLOW_ANON = True
 LOGIN_DISABLED = ALLOW_ANON
 
+# Page names that can't be modified
+LOCKED = []
+
 ROOT_ENDPOINT = 'wiki.page'
 
 try:

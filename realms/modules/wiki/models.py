@@ -86,6 +86,8 @@ class Wiki():
             if m.group(1):
                 return "```" + unescape(m.group(1)) + "```"
 
+        cname = to_canonical(name)
+
         # prevents p tag from being added, we remove this later
         content = '<div>' + content + '</div>'
         content = re.sub(r"```(.*?)```", escape_repl, content, flags=re.DOTALL)
@@ -115,7 +117,6 @@ class Wiki():
 
         content = re.sub(r"```(.*?)```", unescape_repl, content, flags=re.DOTALL)
 
-        cname = to_canonical(name)
         filename = self.cname_to_filename(cname)
         with open(self.path + "/" + filename, 'w') as f:
             f.write(content)

@@ -51,6 +51,10 @@ def edit(name):
     cname = to_canonical(name)
     if request.method == 'POST':
         edit_cname = to_canonical(request.form['name'])
+
+        if edit_cname in config.LOCKED:
+            return redirect(url_for(config.ROOT_ENDPOINT))
+
         if edit_cname.lower() != cname.lower():
             wiki.rename_page(cname, edit_cname)
 
@@ -61,6 +65,7 @@ def edit(name):
     else:
         if data:
             name = remove_ext(data['name'])
+
             content = data.get('data')
             g.assets['js'].append('editor.js')
             return render_template('wiki/edit.html', name=name, content=content, partials=data.get('partials'))
@@ -79,6 +84,14 @@ def delete(name):
 @login_required
 def create(name):
     if request.method == 'POST':
+        cname = to_canonical(request.form['name'])
+
+        if cname in config.LOCKED:
+            return redirect(url_for("wiki.create"))
+
+        if not cname:
+            return redirect(url_for("wiki.create"))
+
         wiki.write_page(request.form['name'],
                         request.form['content'],
                         message=request.form['message'],
