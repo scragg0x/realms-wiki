@@ -75,7 +75,7 @@ var MDR = {
         if (sanitize) {
             // Causes some problems with inline styles
             html = html_sanitize(html, function(url) {
-                if(/^https?:\/\//.test(url)) {
+                if(/^(\/|https?:\/\/)/.test(url)) {
                     return url
                 }
             }, function(id){
