@@ -18,7 +18,9 @@
     {% for h in history %}
       <tr>
         <td class="checkbox-cell text-center">
+          {% if h.type != 'delete' %}
           <input type="checkbox" name="versions[]" value="{{ h.sha }}" />
+          {% endif %}
         </td>
         <td>{{ h.author }}</td>
         <td><a href="{{ url_for('wiki.commit', name=name, sha=h.sha) }}" class='label label-primary'>View</a> {{ h.message }} </td>

@@ -45,8 +45,7 @@ def revert():
 
 @blueprint.route("/_history/<name>")
 def history(name):
-    history = wiki.get_history(name)
-    return render_template('wiki/history.html', name=name, history=history, wiki_home=url_for('wiki.page'))
+    return render_template('wiki/history.html', name=name, history=wiki.get_history(name))
 
 
 @blueprint.route("/_edit/<name>", methods=['GET', 'POST'])
@@ -63,10 +62,11 @@ def edit(name):
         if edit_cname.lower() != cname.lower():
             wiki.rename_page(cname, edit_cname)
 
+        """
         wiki.write_page(edit_cname,
                         request.form['content'],
                         message=request.form['message'],
-                        username=current_user.username)
+                        username=current_user.username)"""
     else:
         if data:
             name = remove_ext(data['name'])

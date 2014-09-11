@@ -180,3 +180,12 @@ textarea.parsley-error {
 .parsley-errors-list.filled {
   opacity: 1;
 }
+
+a.label {
+  text-decoration: none !important;
+}
+
+.diff {
+  font-size: 14px !important;
+  margin-bottom: 10px;
+}
