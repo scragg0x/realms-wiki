@@ -33,6 +33,11 @@ def login():
 
 @blueprint.route("/register", methods=['GET', 'POST'])
 def register():
+
+    if not config.REGISTRATION_ENABLED:
+        flash("Registration is disabled")
+        return redirect(url_for(config.ROOT_ENDPOINT))
+
     form = RegistrationForm()
 
     if request.method == "POST":
@@ -60,6 +65,7 @@ def register():
 @blueprint.route("/settings", methods=['GET', 'POST'])
 def settings():
     return render_template("auth/settings.html")
+
 
 @blueprint.route("/logout")
 def logout():

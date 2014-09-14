@@ -2,12 +2,18 @@ import re
 import os
 import hashlib
 import json
+import string
+import random
 
 
 class AttrDict(dict):
     def __init__(self, *args, **kwargs):
         super(AttrDict, self).__init__(*args, **kwargs)
         self.__dict__ = self
+
+
+def random_string(size=6, chars=string.ascii_lowercase + string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 
 def to_json(data):

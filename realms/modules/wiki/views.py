@@ -33,7 +33,7 @@ def revert():
     commit = request.form.get('commit')
     cname = to_canonical(name)
 
-    if cname in config.LOCKED:
+    if cname in config.WIKI_LOCKED_PAGES:
         flash("Page is locked")
         return redirect(url_for(config.ROOT_ENDPOINT))
 
@@ -56,7 +56,7 @@ def edit(name):
     if request.method == 'POST':
         edit_cname = to_canonical(request.form['name'])
 
-        if edit_cname in config.LOCKED:
+        if edit_cname in config.WIKI_LOCKED_PAGES:
             return redirect(url_for(config.ROOT_ENDPOINT))
 
         if edit_cname.lower() != cname.lower():
@@ -91,7 +91,7 @@ def create(name):
     if request.method == 'POST':
         cname = to_canonical(request.form['name'])
 
-        if cname in config.LOCKED:
+        if cname in config.WIKI_LOCKED_PAGES:
             return redirect(url_for("wiki.create"))
 
         if not cname:

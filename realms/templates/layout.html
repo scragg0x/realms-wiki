@@ -59,8 +59,10 @@
                 </ul>
                 </li>
             {% else %}
-                <li><a href="{{ url_for('auth.login') }}"><i class="icon-user"></i> &nbsp;Login</a></li>
+              <li><a href="{{ url_for('auth.login') }}"><i class="icon-user"></i> &nbsp;Login</a></li>
+              {% if config.REGISTRATION_ENABLED %}
                 <li><a href="{{ url_for('auth.register') }}"><i class="icon-pencil"></i> &nbsp;Register</a></li>
+              {% endif %}
             {% endif %}
           </ul>
         </div><!--/.nav-collapse -->

@@ -37,19 +37,31 @@ RECAPTCHA_OPTIONS = {}
 
 SECRET_KEY = 'K3dRq1q9eN72GJDkgvyshFVwlqHHCyPI'
 
+# Path on file system where wiki data will reside
 WIKI_PATH = os.path.join(APP_PATH, 'wiki')
+
+# Name of page that will act as home
 WIKI_HOME = 'home'
+
 ALLOW_ANON = True
+REGISTRATION_ENABLED = True
+
+# Used by Flask-Login
 LOGIN_DISABLED = ALLOW_ANON
 
 # Page names that can't be modified
-LOCKED = []
+WIKI_LOCKED_PAGES = []
+# Depreciated variable name
+LOCKED = WIKI_LOCKED_PAGES
 
 ROOT_ENDPOINT = 'wiki.page'
 
 try:
     with open(os.path.join(APP_PATH, 'config.json')) as f:
         __settings = json.load(f)
+        for k in ['APP_PATH', 'USER_HOME']:
+            if k in __settings:
+                del __settings[k]
         globals().update(__settings)
 except IOError:
     pass

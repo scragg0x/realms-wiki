@@ -3,7 +3,6 @@ Flask
 Flask-Assets
 Flask-Cache
 Flask-Login
-Flask-Script
 Flask-SQLAlchemy
 Flask-WTF
 beautifulsoup4
@@ -15,3 +14,4 @@ lxml
 markdown2
 simplejson
 PyYAML
+click

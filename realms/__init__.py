@@ -1,6 +1,6 @@
 # Monkey patch stdlib.
 import gevent.monkey
-gevent.monkey.patch_all(aggressive=False)
+gevent.monkey.patch_all(aggressive=False, subprocess=True)
 
 # Set default encoding to UTF-8
 import sys
@@ -14,9 +14,9 @@ import sys
 import json
 import httplib
 import traceback
+import click
 from flask import Flask, request, render_template, url_for, redirect, g
 from flask.ext.cache import Cache
-from flask.ext.script import Manager
 from flask.ext.login import LoginManager, current_user
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.assets import Environment, Bundle
@@ -67,9 +67,9 @@ class Application(Flask):
             if hasattr(sources, 'views'):
                 self.register_blueprint(sources.views.blueprint)
 
-            # Flask-Script
+            # Click
             if hasattr(sources, 'commands'):
-                manager.add_command(module_name, sources.commands.manager)
+                cli.add_command(sources.commands.cli, name=module_name)
 
         print >> sys.stderr, ' * Ready in %.2fms' % (1000.0 * (time.time() - start_time))
 
@@ -142,40 +142,39 @@ def error_handler(e):
     return response, status_code
 
 
-def create_app():
-    app = Application(__name__)
-    app.config.from_object('realms.config')
-    app.url_map.converters['regex'] = RegexConverter
-    app.url_map.strict_slashes = False
 
-    for status_code in httplib.responses:
-        if status_code >= 400:
-            app.register_error_handler(status_code, error_handler)
+app = Application(__name__)
+app.config.from_object('realms.config')
+app.url_map.converters['regex'] = RegexConverter
+app.url_map.strict_slashes = False
 
-    @app.before_request
-    def init_g():
-        g.assets = dict(css=['main.css'], js=['main.js'])
+for status_code in httplib.responses:
+    if status_code >= 400:
+        app.register_error_handler(status_code, error_handler)
 
-    @app.template_filter('datetime')
-    def _jinja2_filter_datetime(ts):
-        return time.strftime('%b %d, %Y %I:%M %p', time.localtime(ts))
+@app.before_request
+def init_g():
+    g.assets = dict(css=['main.css'], js=['main.js'])
 
-    @app.errorhandler(404)
-    def page_not_found(e):
-        return render_template('errors/404.html'), 404
+@app.template_filter('datetime')
+def _jinja2_filter_datetime(ts):
+    return time.strftime('%b %d, %Y %I:%M %p', time.localtime(ts))
 
-    if config.RELATIVE_PATH:
-        @app.route("/")
-        def root():
-            return redirect(url_for(config.ROOT_ENDPOINT))
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('errors/404.html'), 404
 
-    return app
+if config.RELATIVE_PATH:
+    @app.route("/")
+    def root():
+        return redirect(url_for(config.ROOT_ENDPOINT))
 
-app = create_app()
+
+@click.group()
+def cli():
+    pass
 
 # Init plugins here if possible
-manager = Manager(app)
-
 login_manager = LoginManager(app)
 login_manager.login_view = 'auth.login'
 
@@ -204,7 +203,7 @@ assets.register('main.css',
 
 app.discover()
 
-# Should be called explicitly during install?
+# This will be removed at some point
 db.create_all()
 
 
