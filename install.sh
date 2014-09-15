@@ -20,7 +20,7 @@ sudo add-apt-repository -y ppa:chris-lea/node.js
 sudo apt-get update
 sudo apt-get install -y python build-essential git libpcre3-dev python-software-properties \
 python-pip python-virtualenv python-dev pkg-config curl libxml2-dev libxslt1-dev zlib1g-dev \
-libffi-dev nodejs screen libyaml-dev
+libffi-dev nodejs libyaml-dev
 
 # Default cache is memoization
 

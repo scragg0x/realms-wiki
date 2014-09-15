@@ -13,6 +13,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 end
 
 Vagrant::Config.run do |config|
-  config.vm.forward_port 80, 8080
   config.vm.forward_port 5000, 5000
 end

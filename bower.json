@@ -1,18 +1,17 @@
 {
     "name": "realms",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "dependencies": {
         "components-bootstrap": "~3.2.0",
         "jquery": "~1.11.1",
-        "components-underscore": "~1.5.2",
-        "requirejs": "~2.1.14",
         "highlightjs": "~8.0.0",
         "handlebars": "~2.0.0",
         "components-font-awesome": "~4.1.0",
         "keymaster": "madrobby/keymaster",
-        "ace": "~1.1.6",
+        "ace-builds": "~1.1.6",
         "parsleyjs": "~2.0.3",
         "marked": "~0.3.2",
-        "js-yaml": "~3.2.1"
+        "js-yaml": "~3.2.1",
+        "localforage": "~0.9.2"
     }
 }
