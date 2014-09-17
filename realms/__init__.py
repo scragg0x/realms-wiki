@@ -183,21 +183,19 @@ cache = Cache(app)
 
 assets = Assets(app)
 assets.register('main.js',
-                #'vendor/requirejs/require.js',
                 'vendor/jquery/dist/jquery.js',
                 'vendor/components-bootstrap/js/bootstrap.js',
                 'vendor/handlebars/handlebars.js',
                 'vendor/js-yaml/dist/js-yaml.js',
                 'vendor/marked/lib/marked.js',
-                #'js/wmd.js',
                 'js/html-sanitizer-minified.js',  # don't minify?
                 'vendor/highlightjs/highlight.pack.js',
                 'vendor/parsleyjs/dist/parsley.js',
                 'js/main.js')
 
 assets.register('main.css',
-                'css/bootstrap/flatly.css',
-                'css/font-awesome.css',
+                'vendor/bootswatch-dist/css/bootstrap.css',
+                'vendor/components-font-awesome/css/font-awesome.css',
                 'vendor/highlightjs/styles/github.css',
                 'css/style.css')
 

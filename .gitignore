@@ -3,6 +3,10 @@
 .idea
 .webassets-cache
 *.pyc
+*.egg-info
+*.pid
+dist
+build
 config.py
 config.sls
 config.json

@@ -2,30 +2,56 @@ import os
 import json
 from urlparse import urlparse
 
-APP_PATH = os.path.dirname(__file__) + "/../.."
-USER_HOME = os.path.expanduser("~")
+
+def update(data):
+    conf = read()
+    conf.update(data)
+    save(data)
+
+
+def read():
+    conf = dict()
+
+    try:
+        with open(os.path.join(APP_PATH, 'config.json')) as f:
+            conf = json.load(f)
+    except IOError:
+        pass
+
+    return conf
+
+
+def save(conf):
+    with open(os.path.join(APP_PATH, 'config.json'), 'w') as f:
+        f.write(json.dumps(conf, sort_keys=True, indent=4, separators=(',', ': ')))
+
+APP_PATH = os.path.abspath(os.path.dirname(__file__) + "/../..")
+USER_HOME = os.path.abspath(os.path.expanduser("~"))
 
 ENV = 'DEV'
 
 DEBUG = True
 ASSETS_DEBUG = True
-SQLALCHEMY_ECHO = True
+SQLALCHEMY_ECHO = False
 
 PORT = 5000
-BASE_URL = 'http://realms.dev'
+BASE_URL = 'http://localhost'
 SITE_TITLE = "Realms"
 
 DB_URI = 'sqlite:///%s/wiki.db' % USER_HOME
 
 CACHE_TYPE = 'simple'
 
-# Redis Example
-"""
-CACHE_TYPE = 'redis'
+# Redis
+#CACHE_TYPE = 'redis'
 CACHE_REDIS_HOST = '127.0.0.1'
 CACHE_REDIS_PORT = 6379
 CACHE_REDIS_DB = '0'
-"""
+
+# Memcached
+#CACHE_TYPE = 'memcached'
+CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
+
 
 # Get ReCaptcha Keys for your domain here:
 # https://www.google.com/recaptcha/admin#whyrecaptcha
@@ -35,7 +61,7 @@ RECAPTCHA_PUBLIC_KEY = "6LfYbPkSAAAAAB4a2lG2Y_Yjik7MG9l4TDzyKUao"
 RECAPTCHA_PRIVATE_KEY = "6LfYbPkSAAAAAG-KlkwjZ8JLWgwc9T0ytkN7lWRE"
 RECAPTCHA_OPTIONS = {}
 
-SECRET_KEY = 'K3dRq1q9eN72GJDkgvyshFVwlqHHCyPI'
+SECRET_KEY = 'CHANGE_ME'
 
 # Path on file system where wiki data will reside
 WIKI_PATH = os.path.join(APP_PATH, 'wiki')
