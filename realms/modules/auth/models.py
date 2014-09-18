@@ -15,24 +15,24 @@ def load_user(user_id):
 @login_manager.token_loader
 def load_token(token):
     # Load unsafe because payload is needed for sig
-    sig_okay, payload = URLSafeSerializer(None).loads_unsafe(token)
+    sig_okay, payload = URLSafeSerializer(config.SECRET_KEY).loads_unsafe(token)
 
     if not payload:
-        return False
+        return None
 
     # User key *could* be stored in payload to avoid user lookup in db
     user = User.get_by_id(payload.get('id'))
 
     if not user:
-        return False
+        return None
 
     try:
         if User.signer(sha256(user.password).hexdigest()).loads(token):
             return user
         else:
-            return False
+            return None
     except BadSignature:
-        return False
+        return None
 
 
 class AnonUser(AnonymousUserMixin):
