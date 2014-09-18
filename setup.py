@@ -34,5 +34,5 @@ setup(name='realms-wiki',
       classifiers=CLASSIFIERS,
       entry_points='''
         [console_scripts]
-        realms-wiki=manage:cli
+        realms-wiki=realms.cli:main
       ''')

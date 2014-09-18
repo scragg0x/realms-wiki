@@ -23,7 +23,7 @@ def read():
 
 def save(conf):
     with open(os.path.join(APP_PATH, 'config.json'), 'w') as f:
-        f.write(json.dumps(conf, sort_keys=True, indent=4, separators=(',', ': ')))
+        f.write(json.dumps(conf, sort_keys=True, indent=4, separators=(',', ': ')).strip() + '\n')
 
 APP_PATH = os.path.abspath(os.path.dirname(__file__) + "/../..")
 USER_HOME = os.path.abspath(os.path.expanduser("~"))
