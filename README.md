@@ -25,7 +25,7 @@ This domain is being used temporarily as a demo so expect it to change.
 ## Requirements
 - Python 2.7
 - Git
-- NodeJS (needed for bower/cleancss, distro packages shouldn't need this in future)
+- NodeJS (needed for bower, distro packages shouldn't need this in future)
 
 **Optional**
 - Nginx (if you want proxy requests, this is recommended)
@@ -34,24 +34,57 @@ This domain is being used temporarily as a demo so expect it to change.
 Anon or single user does not require a database.
 
 ## Installation
-Install script only tested with Ubuntu 14.04.
-Please refer to the script for package requisites if needed
 
+### Ubuntu
+
+If you are using Ubuntu 14.04, you can use install.sh.
+    
 ```
 git clone https://github.com/scragg0x/realms-wiki
 cd realms-wiki
 sudo bash install.sh
 ```
 
-**Nginx**
+### OSX / Windows
 
-```sudo apt-get install -y nginx```
+This app is designed to run in Linux and I recommend using Vagrant to install on OSX or Windows.
+
+### Vagrant
+
+Vagrantfile is included for development or running locally.
+To get started with Vagrant, download and install Vagrant and Virtualbox for your platform with the links provided
+
+https://www.vagrantup.com/downloads.html
+https://www.virtualbox.org/wiki/Downloads
+
+Then execute the following in the terminal:
+
+    git clone https://github.com/scragg0x/realms-wiki
+    cd realms-wiki
+    vagrant up
+    vagrant ssh
+    realms-wiki dev
+
+Check ```http://127.0.0.1:5000/``` to make sure it's running.
+
+## Config and Setup
+
+You should be able to run this right out of the box with the default config values.
+You may want to customize your app and the easiest way is the setup command.
+
+    realms-wiki setup
+    
+This will ask you questions and create a config.json file in the app root directory.
+Of course you can manually edit this file as well.
+Any config value set in config.json will override values set in ```realms/config/__init__.py```
+
+## Nginx Setup
+
+    sudo apt-get install -y nginx
 
 Create a file called realms.conf in /etc/nginx/conf.d
 
-```
-/etc/nginx/conf.d/realms.conf
-```
+    sudo nano /etc/nginx/conf.d/realms.conf
 
 Put the following sample configuration in that file.
 
@@ -61,6 +94,12 @@ Put the following sample configuration in that file.
       # Your domain here
       server_name wiki.example.org;
       
+      # Settings to by-pass for static files 
+      location ^~ /static/  {
+        # Example:
+        root /full/path/to/realms/static/;
+      }
+        
       location / {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -74,10 +113,12 @@ Put the following sample configuration in that file.
 
 
 Test Nginx config
-```sudo nginx -t```
+    
+    sudo nginx -t
 
 Reload Nginx
-```sudo service nginx reload```
+
+    sudo service nginx reload
 
 ## Running
 
@@ -93,23 +134,12 @@ Current there are different ways.
 
 - Debug mode
 
-```realms-wiki runserver```
+```realms-wiki dev```
 
 Access from your browser
 
 http://localhost:5000
 
-## Vagrant
-
-Vagrantfile is included for development.
-
-```
-git clone https://github.com/scragg0x/realms-wiki
-cd realms-wiki
-vagrant up
-vagrant ssh
-realms-wiki runserver
-```
 
 ## Author
 

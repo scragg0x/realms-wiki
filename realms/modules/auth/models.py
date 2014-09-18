@@ -15,7 +15,7 @@ def load_user(user_id):
 @login_manager.token_loader
 def load_token(token):
     # Load unsafe because payload is needed for sig
-    sig_okay, payload = URLSafeSerializer(None).load_unsafe(token)
+    sig_okay, payload = URLSafeSerializer(None).loads_unsafe(token)
 
     if not payload:
         return False

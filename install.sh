@@ -11,14 +11,17 @@ if [ -d "/vagrant" ]; then
   APP_USER="vagrant"
 fi
 
-echo ${APP_DIR}
-echo ${APP_USER}
+if [ "${APP_USER}" == "root" ]; then
+    echo "Installing app as root is not recommended"
+    echo "Username is determined by owner of application directory."
+fi
 
 echo "Provisioning..."
-
+sudo apt-get update
+sudo apt-get install -y software-properties-common python-software-properties
 sudo add-apt-repository -y ppa:chris-lea/node.js
 sudo apt-get update
-sudo apt-get install -y python build-essential git libpcre3-dev python-software-properties \
+sudo apt-get install -y python build-essential git libpcre3-dev \
 python-pip python-virtualenv python-dev pkg-config curl libxml2-dev libxslt1-dev zlib1g-dev \
 libffi-dev nodejs libyaml-dev
 
@@ -47,18 +50,17 @@ sudo -iu ${APP_USER} bower --config.cwd=${APP_DIR} --config.directory=realms/sta
 
 sudo -iu ${APP_USER} virtualenv ${APP_DIR}/.venv
 
-sudo -iu ${APP_USER} ${APP_DIR}/.venv/bin/pip install -r ${APP_DIR}/requirements.txt
+sudo -iu ${APP_USER} ${APP_DIR}/.venv/bin/pip install ${APP_DIR}
 
 echo "Installing start scripts"
-cat << EOF > /usr/local/bin/realms-wiki
-#!/bin/bash
-${APP_DIR}/.venv/bin/python ${APP_DIR}/manage.py "\$@"
-EOF
+sudo ln -s ${APP_DIR}/.venv/bin/realms-wiki /usr/local/bin/realms-wiki
 sudo chmod +x /usr/local/bin/realms-wiki
 
 cat << EOF > /etc/init/realms-wiki.conf
 description "Realms Wiki"
 author "scragg@gmail.com"
+setuid ${APP_USER}
+setgid ${APP_USER}
 start on runlevel [2345]
 stop on runlevel [!2345]
 respawn

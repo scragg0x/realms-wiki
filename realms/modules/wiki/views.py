@@ -62,11 +62,10 @@ def edit(name):
         if edit_cname.lower() != cname.lower():
             wiki.rename_page(cname, edit_cname)
 
-        """
         wiki.write_page(edit_cname,
                         request.form['content'],
                         message=request.form['message'],
-                        username=current_user.username)"""
+                        username=current_user.username)
     else:
         if data:
             name = remove_ext(data['name'])
