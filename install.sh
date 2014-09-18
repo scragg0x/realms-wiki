@@ -43,7 +43,7 @@ libffi-dev nodejs libyaml-dev
 
 # Install frontend assets
 sudo npm install -g bower
-sudo -iu ${APP_USER} bower --config.cwd=${APP_DIR} --config.directory=realms/static/vendor --config.interactive=false install
+sudo -iu ${APP_USER} bower --allow-root --config.cwd=${APP_DIR} --config.directory=realms/static/vendor --config.interactive=false install
 
 sudo -iu ${APP_USER} virtualenv ${APP_DIR}/.venv
 
