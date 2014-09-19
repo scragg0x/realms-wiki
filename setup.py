@@ -8,7 +8,7 @@ with open('README.md') as f:
 with open('requirements.txt') as f:
     required = f.read().splitlines()
 
-VERSION = '0.1.8'
+VERSION = '0.1.9'
 
 CLASSIFIERS = [
     'Intended Audience :: Developers',
@@ -21,7 +21,6 @@ setup(name='realms-wiki',
       version=VERSION,
       packages=find_packages(),
       install_requires=required,
-      scripts=['realms-wiki'],
       author='Matthew Scragg',
       author_email='scragg@gmail.com',
       maintainer='Matthew Scragg',

@@ -53,7 +53,11 @@ sudo -iu ${APP_USER} virtualenv ${APP_DIR}/.venv
 sudo -iu ${APP_USER} ${APP_DIR}/.venv/bin/pip install ${APP_DIR}
 
 echo "Installing start scripts"
-sudo ln -s ${APP_DIR}/.venv/bin/realms-wiki /usr/local/bin/realms-wiki
+cat << EOF > /usr/local/bin/realms-wiki
+#!/bin/bash
+${APP_DIR}/.venv/bin/python ${APP_DIR}/manage.py "\$@"
+EOF
+
 sudo chmod +x /usr/local/bin/realms-wiki
 
 cat << EOF > /etc/init/realms-wiki.conf

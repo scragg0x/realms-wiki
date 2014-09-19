@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from gevent import wsgi
 from realms import config, app, cli, db
 from realms.lib.util import random_string
