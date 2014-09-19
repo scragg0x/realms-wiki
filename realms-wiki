@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from gevent import wsgi
 from realms import config, app, cli, db
 from realms.lib.util import random_string
@@ -139,6 +141,5 @@ def drop_db():
     click.echo("Dropping all tables")
     db.drop_all()
 
-
-def main():
+if __name__ == '__main__':
     cli()
