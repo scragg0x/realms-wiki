@@ -58,7 +58,7 @@ hljs.initHighlightingOnLoad();
 var MDR = {
     meta: null,
     md: null,
-    sanitize: true, // Override
+    sanitize: false, // Override
     parse: function(md){ return marked(md); },
     convert: function(md, sanitize){
         if (this.sanitize !== null) {
@@ -75,9 +75,17 @@ var MDR = {
         if (sanitize) {
             // Causes some problems with inline styles
             html = html_sanitize(html, function(url) {
-                if(/^(\/|https?:\/\/)/.test(url)) {
-                    return url
+                try {
+                  var prot = decodeURIComponent(unescape(url))
+                    .replace(/[^\w:]/g, '')
+                    .toLowerCase();
+                } catch (e) {
+                  return '';
                 }
+                if (prot.indexOf('javascript:') === 0) {
+                  return '';
+                }
+                return prot;
             }, function(id){
                 return id;
             });
