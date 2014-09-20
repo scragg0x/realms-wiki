@@ -67,6 +67,16 @@ Then execute the following in the terminal:
 
 Check ```http://127.0.0.1:5000/``` to make sure it's running.
 
+### Docker
+
+Make sure you have docker installed. http://docs.docker.com/installation/
+Here is an example run command, it will pull the image from docker hub initially.
+
+    docker run --name realms-wiki -p 5000:5000 -d realms/realms-wiki
+    
+You can build your own image if you want.  Mine is based off https://github.com/phusion/baseimage-docker
+The Dockerfile is located in [docker/Dockerfile](docker/Dockerfile)  realms/base just creates the deploy user.
+
 ## Config and Setup
 
 You should be able to run this right out of the box with the default config values.
