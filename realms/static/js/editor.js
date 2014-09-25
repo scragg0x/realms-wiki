@@ -12,6 +12,21 @@ $(function () {
     , $wordcounter = $('#wordcounter')
     , $pagename = $("#page-name");
 
+  var $entry_markdown_header = $("#entry-markdown-header");
+  var $entry_preview_header = $("#entry-preview-header");
+
+  // Tabs
+  $entry_markdown_header.click(function(){
+    $("section.entry-markdown").addClass('active');
+    $("section.entry-preview").removeClass('active');
+  });
+
+  $entry_preview_header.click(function(){
+    $("section.entry-preview").addClass('active');
+    $("section.entry-markdown").removeClass('active');
+  });
+
+
   var editor
     , autoInterval
     , profile =

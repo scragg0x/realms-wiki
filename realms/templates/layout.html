@@ -6,7 +6,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Realms</title>
+    <title>{{ config.SITE_TITLE }}</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
 
     {% for bundle in g.assets['css'] %}
@@ -38,10 +38,10 @@
         </div>
         <div class="navbar-collapse collapse navbar-inverse-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('wiki.create') }}">New</a></li>
+            <li><a href="{{ url_for('wiki.create') }}"><i class="fa fa-plus"></i> New</a></li>
             {% if name %}
-              <li><a href="{{ url_for('wiki.edit', name=name) }}">Edit</a></li>
-              <li><a href="{{ url_for('wiki.history', name=name) }}">History</a></li>
+              <li><a href="{{ url_for('wiki.edit', name=name) }}"><i class="fa fa-pencil"></i> Edit</a></li>
+              <li><a href="{{ url_for('wiki.history', name=name) }}"><i class="fa fa-clock-o"></i> History</a></li>
             {% endif %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
@@ -54,14 +54,14 @@
                 </span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="{{ url_for('auth.settings') }}">Settings</a></li>
-                    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                    <li><a href="{{ url_for('auth.settings') }}"><i class="fa fa-gear"></i> Settings</a></li>
+                    <li><a href="{{ url_for('auth.logout') }}"><i class="fa fa-power-off"></i> Logout</a></li>
                 </ul>
                 </li>
             {% else %}
               <li><a href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i> &nbsp;Login</a></li>
               {% if config.REGISTRATION_ENABLED %}
-                <li><a href="{{ url_for('auth.register') }}"><i class="fa fa-pencil"></i> &nbsp;Register</a></li>
+                <li><a href="{{ url_for('auth.register') }}"><i class="fa fa-users"></i> &nbsp;Register</a></li>
               {% endif %}
             {% endif %}
           </ul>

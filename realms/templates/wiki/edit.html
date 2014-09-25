@@ -38,7 +38,6 @@
         MDR.sanitize = false;
         $("#start-togetherjs").removeClass('btn-danger').html('Collaborate').prop('disabled', false);
     };
-
 </script>
 <script src="https://togetherjs.com/togetherjs-min.js"></script>
 {% endblock %}
@@ -46,22 +45,27 @@
 {% block body %}
   <div id="app-wrap">
     <div id="app-controls" class="row">
-      <div class="col-xs-3">
+      <div class="col-xs-4 col-md-3">
         <input id="page-name" type="text" class="form-control input-sm" name="name" placeholder="Name" value="{{- name -}}" />
       </div>
-      <div class="col-xs-3">
+      <div class="col-xs-4 col-md-3">
         <input id="page-message" type="text" class="form-control input-sm" name="page-message" placeholder="Comment" value="" />
       </div>
 
-      <div class="col-xs-6">
+      <div class="col-md-6  col-xs-4">
         <div class="pull-right">
 
-          <button class="btn btn-success btn-sm" id="start-togetherjs" type="button"
+          <button class="btn btn-default btn-sm" id="start-togetherjs" type="button"
                   onclick="TogetherJS(this); return false">
-            Collaborate
+
+            <i class="fa fa-comments-o visible-xs"></i>
+            <span class="hidden-xs">Collaborate</span>
           </button>
 
-          <a href="#" id="drop6" role="button" class="dropdown-toggle btn btn-default btn-sm" data-toggle="dropdown">Theme <b class="caret"></b></a>
+          <a href="#" id="drop6" role="button" class="dropdown-toggle btn btn-default btn-sm" data-toggle="dropdown">
+            <i class="fa fa-paint-brush visible-xs"></i>
+            <span class="hidden-xs">Theme <i class="fa fa-caret-down"></i></span>
+          </a>
           <ul id="theme-list" class="dropdown-menu" role="menu" aria-labelledby="drop6">
             <li><a tabindex="-1" href="#" data-value="ace/theme/chrome" >Chrome</a></li>
             <li><a tabindex="-1" href="#" data-value="ace/theme/clouds" >Clouds</a></li>
@@ -98,14 +102,25 @@
       </div>
     </div>
 
-    <div class="row" style="position: relative; height: 100%; margin-left: 15px; margin-right: 15px;">
-      <div class="col-xs-6" style="position: absolute; bottom: 20px; top: 10px; left:0;border-right: 2px solid transparent;">
-        <div id="editor">{{ content }}</div>
-      </div>
-      <div class="col-xs-6" style="position: absolute; bottom: 20px; top: 10px; right:0; border-left: 2px solid transparent;">
-        <div id="preview"></div>
-      </div>
-    </div>
+  <section class="entry-markdown active">
+    <header class="floatingheader" id="entry-markdown-header">
+        <small>Markdown</small>
+        <a class="markdown-help" href=""><span class="hidden">What is Markdown?</span></a>
+    </header>
+    <section id="entry-markdown-content" class="entry-markdown-content">
+      <div id="editor" class="ace-editor">{{ content }}</div>
+    </section>
+  </section>
+
+  <section class="entry-preview">
+    <header class="floatingheader" id="entry-preview-header">
+        <small>Preview</small>
+    </header>
+    <section class="entry-preview-content">
+      <div id="preview"></div>
+     </section>
+  </section>
+
   </div>
 
 {% endblock %}
