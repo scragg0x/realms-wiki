@@ -568,7 +568,7 @@ function syncPreview() {
 
   // Set the scroll position of the preview pane to match.  jQuery will
   // gracefully handle out-of-bounds values.
-  $prev.scrollTop(scrollFactor * previewScrollRange);
+  $prev.parent().scrollTop(scrollFactor * previewScrollRange);
 }
 
 window.onload = function () {
