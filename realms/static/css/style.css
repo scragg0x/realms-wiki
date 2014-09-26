@@ -226,6 +226,10 @@ a.label {
     padding: 3px;
   }
 
+  #editor {
+    margin-top: 0;
+  }
+
   .entry-markdown, .entry-preview {
     top: 80px;
     left: 0;
