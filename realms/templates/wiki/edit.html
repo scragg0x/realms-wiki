@@ -52,7 +52,7 @@
         <input id="page-message" type="text" class="form-control input-sm" name="page-message" placeholder="Comment" value="" />
       </div>
 
-      <div class="col-md-6  col-xs-4">
+      <div class="col-md-6 col-xs-4">
         <div class="pull-right">
 
           <button class="btn btn-default btn-sm" id="start-togetherjs" type="button"
@@ -94,9 +94,15 @@
             <li><a tabindex="-1" href="#" data-value="ace/theme/vibrant_ink" >Vibrant Ink</a></li>
           </ul>
           {% if name in config.LOCKED %}
-            <a class="btn btn-danger btn-sm"><i class="fa fa-lock"></i> Locked</a>
+            <a class="btn btn-danger btn-sm">
+              <i class="fa fa-lock"></i>
+              <span class="hidden-xs">Locked</span>
+            </a>
           {% else %}
-            <a id="save-native" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Save</a>
+            <a id="save-native" class="btn btn-primary btn-sm">
+              <i class="fa fa-save"></i>
+              <span class="hidden-xs">Save</span>
+            </a>
           {% endif %}
         </div>
       </div>
