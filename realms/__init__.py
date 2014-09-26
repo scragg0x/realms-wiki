@@ -152,13 +152,16 @@ for status_code in httplib.responses:
     if status_code >= 400:
         app.register_error_handler(status_code, error_handler)
 
+
 @app.before_request
 def init_g():
     g.assets = dict(css=['main.css'], js=['main.js'])
 
+
 @app.template_filter('datetime')
 def _jinja2_filter_datetime(ts):
     return time.strftime('%b %d, %Y %I:%M %p', time.localtime(ts))
+
 
 @app.errorhandler(404)
 def page_not_found(e):

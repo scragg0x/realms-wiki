@@ -172,12 +172,12 @@ a.label {
 
 .entry-markdown {
   left: 0;
-  border-right: #edece4 2px solid;
+  border-right: #ddd 2px solid;
 }
 
 .entry-preview {
   right: 0;
-  border-left: #edece4 2px solid;
+  border-left: #ddd 2px solid;
 }
 
 .entry-preview-content {
@@ -204,10 +204,6 @@ a.label {
   line-height: 1.3em;
 }
 
-.ace_content {
-  padding: 40px 3px;
-}
-
 .floatingheader {
   position: absolute;
   top: 0;
@@ -219,6 +215,10 @@ a.label {
   text-transform: uppercase;
   color: #333;
   background-color: #eee;
+}
+
+#editor {
+  margin-top: 40px;
 }
 
 @media (max-width:1000px) {
