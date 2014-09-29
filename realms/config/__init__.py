@@ -82,6 +82,13 @@ LOCKED = WIKI_LOCKED_PAGES
 
 ROOT_ENDPOINT = 'wiki.page'
 
+__env = {}
+for k, v in os.environ.items():
+    if k.startswith('REALMS_'):
+        __env[k[7:]] = v
+
+globals().update(__env)
+
 try:
     with open(os.path.join(APP_PATH, 'config.json')) as f:
         __settings = json.load(f)

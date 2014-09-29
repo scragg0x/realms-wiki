@@ -23,7 +23,6 @@ from flask.ext.assets import Environment, Bundle
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 
-from realms import config
 from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
 
 
@@ -100,8 +99,7 @@ class Assets(Environment):
 
 
 class RegexConverter(BaseConverter):
-    """
-    Enables Regex matching on endpoints
+    """ Enables Regex matching on endpoints
     """
     def __init__(self, url_map, *items):
         super(RegexConverter, self).__init__(url_map)
@@ -167,10 +165,10 @@ def _jinja2_filter_datetime(ts):
 def page_not_found(e):
     return render_template('errors/404.html'), 404
 
-if config.RELATIVE_PATH:
+if app.config['RELATIVE_PATH']:
     @app.route("/")
     def root():
-        return redirect(url_for(config.ROOT_ENDPOINT))
+        return redirect(url_for(app.config['ROOT_ENDPOINT']))
 
 
 @click.group()

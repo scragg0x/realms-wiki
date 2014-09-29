@@ -1,6 +1,6 @@
 from flask_wtf import Form, RecaptchaField
 from wtforms import StringField, PasswordField, validators
-from realms import config
+from realms import app
 
 
 class RegistrationForm(Form):
@@ -12,7 +12,7 @@ class RegistrationForm(Form):
     ])
     confirm = PasswordField('Repeat Password')
 
-if config.RECAPTCHA_ENABLE:
+if app.config['RECAPTCHA_ENABLE']:
     setattr(RegistrationForm, 'recaptcha', RecaptchaField("You Human?"))
 
 
