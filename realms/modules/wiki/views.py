@@ -74,7 +74,7 @@ def edit(name):
             name = remove_ext(data['name'])
             content = data.get('data')
             g.assets['js'].append('editor.js')
-            return render_template('wiki/edit.html', name=name, content=content, partials=data.get('partials'))
+            return render_template('wiki/edit.html', name=name, content=content, sha=data.get('sha'), partials=data.get('partials'))
         else:
             return redirect(url_for('wiki.create', name=cname))
 
@@ -121,7 +121,6 @@ def page(name):
         return redirect(url_for('wiki.page', name=cname))
 
     data = g.current_wiki.get_page(cname)
-
     if data:
         return render_template('wiki/page.html', name=cname, page=data, partials=data.get('partials'))
     else:

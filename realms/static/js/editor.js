@@ -4,13 +4,13 @@
 $(function () {
 
   var url_prefix = "";
-
-  var $theme = $('#theme-list')
-    , $preview = $('#preview')
-    , $autosave = $('#autosave')
-    , $wordcount = $('#wordcount')
-    , $wordcounter = $('#wordcounter')
-    , $pagename = $("#page-name");
+  var sha = $("#sha").text();
+  var $theme = $('#theme-list');
+  var $preview = $('#preview');
+  var $autosave = $('#autosave');
+  var $wordcount = $('#wordcount');
+  var $wordcounter = $('#wordcounter');
+  var $pagename = $("#page-name");
 
   var $entry_markdown_header = $("#entry-markdown-header");
   var $entry_preview_header = $("#entry-preview-header");
@@ -27,23 +27,25 @@ $(function () {
   });
 
 
-  var editor
-    , autoInterval
-    , profile =
-    {
-      theme: 'ace/theme/idle_fingers', currentMd: '', autosave: {
-      enabled: true, interval: 3000 // might be too aggressive; don't want to block UI for large saves.
-    }, current_filename: $pagename.val()
-    };
+  var editor;
+  var autoInterval;
+  var profile = {
+      theme: 'ace/theme/idle_fingers',
+      currentMd: '',
+      autosave: {
+        enabled: true,
+        interval: 3000 // might be too aggressive; don't want to block UI for large saves.
+      },
+      current_filename: $pagename.val()
+  };
 
   // Feature detect ish
-  var dillinger = 'dillinger'
-    , dillingerElem = document.createElement(dillinger)
-    , dillingerStyle = dillingerElem.style
-    , domPrefixes = 'Webkit Moz O ms Khtml'.split(' ');
+  var dillinger = 'dillinger';
+  var dillingerElem = document.createElement(dillinger);
+  var dillingerStyle = dillingerElem.style;
+  var domPrefixes = 'Webkit Moz O ms Khtml'.split(' ');
 
   /// UTILS =================
-
 
   /**
    * Utility method to async load a JavaScript file.
@@ -70,44 +72,22 @@ $(function () {
   }
 
   /**
-   * Utility method to determin if localStorage is supported or not.
-   *
-   * @return {Boolean}
-   */
-  function hasLocalStorage() {
-    // http://mathiasbynens.be/notes/localstorage-pattern
-    var storage;
-    try {
-      if (localStorage.getItem) {
-        storage = localStorage
-      }
-    } catch (e) {
-    }
-    return storage;
-  }
-
-  /**
    * Grab the user's profile from localStorage and stash in "profile" variable.
    *
    * @return {Void}
    */
   function getUserProfile() {
-
-    var p;
-
-    try {
-      p = JSON.parse(localStorage.profile);
-      // Need to merge in any undefined/new properties from last release
-      // Meaning, if we add new features they may not have them in profile
-      p = $.extend(true, profile, p);
-    } catch (e) {
-      p = profile
-    }
-
-    if (p.filename != $pagename.val()) {
-      updateUserProfile({ filename: $pagename.val(), currentMd: "" });
-    }
-    profile = p;
+    localforage.getItem('profile', function(p) {
+      profile = $.extend(true, profile, p);
+      if (profile.filename != $pagename.val()) {
+        setEditorValue("");
+        updateUserProfile({ filename: $pagename.val(), currentMd: "" });
+      } else {
+        if (profile.currentMd) {
+          setEditorValue(profile.currentMd);
+        }
+      }
+    });
   }
 
   /**
@@ -117,8 +97,8 @@ $(function () {
    * @return {Void}
    */
   function updateUserProfile(obj) {
-    localStorage.clear();
-    localStorage.profile = JSON.stringify($.extend(true, profile, obj));
+    localforage.clear();
+    localforage.setItem('profile', $.extend(true, profile, obj));
   }
 
   /**
@@ -190,26 +170,6 @@ $(function () {
 
 
   /**
-   * Get current filename from contenteditable field.
-   *
-   * @return {String}
-   */
-  function getCurrentFilenameFromField() {
-    return $('#filename > span[contenteditable="true"]').text()
-  }
-
-
-  /**
-   * Set current filename from profile.
-   *
-   * @param {String}  Optional string to force set the value.
-   * @return {String}
-   */
-  function setCurrentFilenameField(str) {
-    $('#filename > span[contenteditable="true"]').text(str || profile.current_filename || "Untitled Document")
-  }
-
-  /**
    * Returns the full text of an element and all its children.
    * The script recursively traverses all text nodes, and returns a
    * concatenated string of all texts.
@@ -252,31 +212,22 @@ $(function () {
    * @return {Void}
    */
   function init() {
+    // Attach to jQuery support object for later use.
+    $.support.transitionEnd = normalizeTransitionEnd();
 
-    if (!hasLocalStorage()) {
-      sadPanda()
-    }
-    else {
+    initAce();
 
-      // Attach to jQuery support object for later use.
-      $.support.transitionEnd = normalizeTransitionEnd();
+    getUserProfile();
 
-      getUserProfile();
+    initUi();
 
-      initAce();
+    bindPreview();
 
-      initUi();
+    bindNav();
 
-      bindPreview();
+    bindKeyboard();
 
-      bindNav();
-
-      bindKeyboard();
-
-      autoSave();
-
-    }
-
+    autoSave();
   }
 
   function initAce() {
@@ -300,8 +251,7 @@ $(function () {
       editor.renderer.setShowInvisibles(true);
       editor.renderer.setShowGutter(false);
       editor.getSession().setMode('ace/mode/markdown');
-
-      editor.getSession().setValue(profile.currentMd || editor.getSession().getValue());
+      setEditorValue(profile.currentMd || editor.getSession().getValue());
       previewMd();
     });
 
@@ -310,23 +260,17 @@ $(function () {
     $autosave.html(profile.autosave.enabled ? '<i class="icon-remove"></i>&nbsp;Disable Autosave' : '<i class="icon-ok"></i>&nbsp;Enable Autosave');
     $wordcount.html(!profile.wordcount ? '<i class="icon-remove"></i>&nbsp;Disabled Word Count' : '<i class="icon-ok"></i>&nbsp;Enabled Word Count');
 
-    setCurrentFilenameField();
-
-    /* BEGIN RE-ARCH STUFF */
-
     $('.dropdown-toggle').dropdown();
-
-    /* END RE-ARCH STUFF */
-
   }
 
 
   function clearSelection() {
-    editor.getSession().setValue("");
+    setEditorValue("");
     previewMd();
   }
 
   function saveFile(isManual) {
+
     updateUserProfile({currentMd: editor.getSession().getValue()});
 
     if (isManual) {
@@ -337,7 +281,7 @@ $(function () {
         message: $("#page-message").val(),
         content: editor.getSession().getValue()
       };
-      $.post(window.location, data, function () {
+      $.post(window.location, data, function() {
         location.href = url_prefix + '/' + data['name'];
       });
     }
@@ -347,8 +291,7 @@ $(function () {
   function autoSave() {
 
     if (profile.autosave.enabled) {
-      autoInterval = setInterval(function () {
-        // firefox barfs if I don't pass in anon func to setTimeout.
+      autoInterval = setInterval(function() {
         saveFile();
       }, profile.autosave.interval);
 
@@ -358,21 +301,20 @@ $(function () {
 
   }
 
-  $("#save-native").on('click', function () {
+  $("#save-native").on('click', function() {
     saveFile(true);
   });
 
 
   function resetProfile() {
     // For some reason, clear() is not working in Chrome.
-    localStorage.clear();
+    localforage.clear();
+
     // Let's turn off autosave
-    profile.autosave.enabled = false
-      // Delete the property altogether --> need ; for JSHint bug.
-    ;
-    delete localStorage.profile;
-    // Now reload the page to start fresh
-    window.location.reload();
+    profile.autosave.enabled = false;
+    localforage.removeItem('profile', function() {
+      window.location.reload();
+    });
   }
 
   function changeTheme(e) {
@@ -409,15 +351,12 @@ $(function () {
     // document.body.style.backgroundColor = bgColors[name]
   }
 
+  function setEditorValue(str) {
+    editor.getSession().setValue(str);
+  }
+
   function previewMd() {
-
-    var unmd = editor.getSession().getValue()
-      , md = MDR.convert(unmd, true);
-    $preview
-      .html('') // unnecessary?
-      .html(md);
-
-    //refreshWordCount();
+    $preview.html(MDR.convert(editor.getSession().getValue(), true));
   }
 
   function updateFilename(str) {
@@ -460,11 +399,6 @@ $(function () {
 
     $.ajax(config)
 
-  }
-
-  function sadPanda() {
-    // TODO: ACTUALLY SHOW A SAD PANDA.
-    alert('Sad Panda - No localStorage for you!')
   }
 
   function toggleAutoSave() {
