@@ -1,59 +1,245 @@
-/*
- Source is modified version of http://dillinger.io/
- */
-$(function () {
+function Aced(settings) {
+  var id,
+    options,
+    editor,
+    element,
+    preview,
+    previewWrapper,
+    profile,
+    autoInterval,
+    themes,
+    themeSelect,
+    loadedThemes = {};
 
-  var url_prefix = "";
-  var sha = $("#sha").text();
-  var $theme = $('#theme-list');
-  var $preview = $('#preview');
-  var $autosave = $('#autosave');
-  var $wordcount = $('#wordcount');
-  var $wordcounter = $('#wordcounter');
-  var $pagename = $("#page-name");
+  settings = settings || {};
 
-  var $entry_markdown_header = $("#entry-markdown-header");
-  var $entry_preview_header = $("#entry-preview-header");
-
-  // Tabs
-  $entry_markdown_header.click(function(){
-    $("section.entry-markdown").addClass('active');
-    $("section.entry-preview").removeClass('active');
-  });
-
-  $entry_preview_header.click(function(){
-    $("section.entry-preview").addClass('active');
-    $("section.entry-markdown").removeClass('active');
-  });
-
-
-  var editor;
-  var autoInterval;
-  var profile = {
-      theme: 'ace/theme/idle_fingers',
-      currentMd: '',
-      autosave: {
-        enabled: true,
-        interval: 3000 // might be too aggressive; don't want to block UI for large saves.
-      },
-      current_filename: $pagename.val()
+  options = {
+    sanitize: true,
+    preview: null,
+    editor: null,
+    theme: 'idle_fingers',
+    themePath: '/static/vendor/ace-builds/src',
+    mode: 'markdown',
+    autoSave: true,
+    autoSaveInterval: 5000,
+    syncPreview: false,
+    keyMaster: false,
+    submit: function(data){ alert(data); },
+    showButtonBar: false,
+    themeSelect: null,
+    submitBtn: null,
+    renderer: null,
+    info: null
   };
 
-  // Feature detect ish
-  var dillinger = 'dillinger';
-  var dillingerElem = document.createElement(dillinger);
-  var dillingerStyle = dillingerElem.style;
-  var domPrefixes = 'Webkit Moz O ms Khtml'.split(' ');
+  themes = {
+    chrome: "Chrome",
+    clouds: "Clouds",
+    clouds_midnight: "Clouds Midnight",
+    cobalt: "Cobalt",
+    crimson_editor: "Crimson Editor",
+    dawn: "Dawn",
+    dreamweaver: "Dreamweaver",
+    eclipse: "Eclipse",
+    idle_fingers: "idleFingers",
+    kr_theme: "krTheme",
+    merbivore: "Merbivore",
+    merbivore_soft: "Merbivore Soft",
+    mono_industrial: "Mono Industrial",
+    monokai: "Monokai",
+    pastel_on_dark: "Pastel on Dark",
+    solarized_dark: "Solarized Dark",
+    solarized_light: "Solarized Light",
+    textmate: "TextMate",
+    tomorrow: "Tomorrow",
+    tomorrow_night: "Tomorrow Night",
+    tomorrow_night_blue: "Tomorrow Night Blue",
+    tomorrow_night_bright: "Tomorrow Night Bright",
+    tomorrow_night_eighties: "Tomorrow Night 80s",
+    twilight: "Twilight",
+    vibrant_ink: "Vibrant Ink"
+  };
 
-  /// UTILS =================
+  function editorId() {
+    return "aced." + id;
+  }
 
-  /**
-   * Utility method to async load a JavaScript file.
-   *
-   * @param {String} The name of the file to load
-   * @param {Function} Optional callback to be executed after the script loads.
-   * @return {void}
-   */
+  function infoKey() {
+    return editorId() + ".info";
+  }
+
+  function gc() {
+    // Clean up localstorage
+    store.forEach(function(key, val) {
+      var re = new RegExp("aced\.(.*?)\.info");
+      var info = re.exec(key);
+      if (!info || !val.time) {
+        return;
+      }
+
+      var id = info[1];
+
+      // Remove week+ old stuff
+      var now = new Date().getTime() / 1000;
+
+      if (now > (val.time + 604800)) {
+        store.remove(key);
+        store.remove('aced.' + id);
+      }
+    });
+  }
+
+  function buildThemeSelect() {
+    var $sel = $("<select class='aced-theme-sel' data-placeholder='Theme'></select>");
+    $sel.append('<option></option>');
+    $.each(themes, function(k, v) {
+      $sel.append("<option value='" + k + "'>" + v + "</option>");
+    });
+    return $("<div/>").html($sel);
+  }
+
+  function toJquery(o) {
+    return (typeof o == 'string') ? $("#" + o) : $(o);
+  }
+
+  function initProfile() {
+    profile = {theme: ''};
+
+    try {
+      // Need to merge in any undefined/new properties from last release
+      // Meaning, if we add new features they may not have them in profile
+      profile = $.extend(true, profile, store.get('aced.profile'));
+    } catch (e) { }
+  }
+
+  function updateProfile(obj) {
+    profile = $.extend(null, profile, obj);
+    store.set('profile', profile);
+  }
+
+  function render(content) {
+    return (options.renderer) ? options.renderer(content) : content;
+  }
+
+  function bindKeyboard() {
+    // CMD+s TO SAVE DOC
+    key('command+s, ctrl+s', function (e) {
+      submit();
+      e.preventDefault();
+    });
+
+    var saveCommand = {
+      name: "save",
+      bindKey: {
+        mac: "Command-S",
+        win: "Ctrl-S"
+      },
+      exec: function () {
+        submit();
+      }
+    };
+    editor.commands.addCommand(saveCommand);
+  }
+
+  function info(info) {
+    if (info) {
+      store.set(infoKey(), info);
+    }
+    return store.get(infoKey());
+  }
+
+  function val(val) {
+    // Alias func
+    if (val) {
+      editor.getSession().setValue(val);
+    }
+    return editor.getSession().getValue();
+  }
+
+  function discardDraft() {
+    stopAutoSave();
+    store.remove(editorId());
+    store.remove(infoKey());
+    location.reload();
+  }
+
+  function save() {
+    store.set(editorId(), val());
+  }
+
+  function submit() {
+    store.remove(editorId());
+    store.remove(editorId() + ".info");
+    options.submit(val());
+  }
+
+  function autoSave() {
+    if (options.autoSave) {
+      autoInterval = setInterval(function () {
+        save();
+      }, options.autoSaveInterval);
+    } else {
+      stopAutoSave();
+    }
+  }
+
+  function stopAutoSave() {
+    if (autoInterval){
+      clearInterval(autoInterval)
+    }
+  }
+
+  function renderPreview() {
+    if (!preview) {
+      return;
+    }
+    preview.html(render(val()));
+    $('pre code', preview).each(function(i, e) {
+      hljs.highlightBlock(e)
+    });
+  }
+
+  function getScrollHeight($prevFrame) {
+    // Different browsers attach the scrollHeight of a document to different
+    // elements, so handle that here.
+    if ($prevFrame[0].scrollHeight !== undefined) {
+      return $prevFrame[0].scrollHeight;
+    } else if ($prevFrame.find('html')[0].scrollHeight !== undefined &&
+      $prevFrame.find('html')[0].scrollHeight !== 0) {
+      return $prevFrame.find('html')[0].scrollHeight;
+    } else {
+      return $prevFrame.find('body')[0].scrollHeight;
+    }
+  }
+
+  function getPreviewWrapper(obj) {
+    // Attempts to get the wrapper for preview based on overflow prop
+    if (!obj) {
+      return;
+    }
+    if (obj.css('overflow') == 'auto' || obj.css('overflow') == 'scroll') {
+      return obj;
+    } else {
+      return getPreviewWrapper(obj.parent());
+    }
+  }
+
+  function syncPreview() {
+
+    var editorScrollRange = (editor.getSession().getLength());
+
+    var previewScrollRange = (getScrollHeight(preview));
+
+    // Find how far along the editor is (0 means it is scrolled to the top, 1
+    // means it is at the bottom).
+    var scrollFactor = editor.getFirstVisibleRow() / editorScrollRange;
+
+    // Set the scroll position of the preview pane to match.  jQuery will
+    // gracefully handle out-of-bounds values.
+
+    previewWrapper.scrollTop(scrollFactor * previewScrollRange);
+  }
+
   function asyncLoad(filename, cb) {
     (function (d, t) {
 
@@ -71,459 +257,174 @@ $(function () {
     }(document, 'script'));
   }
 
-  /**
-   * Grab the user's profile from localStorage and stash in "profile" variable.
-   *
-   * @return {Void}
-   */
-  function getUserProfile() {
-    localforage.getItem('profile', function(p) {
-      profile = $.extend(true, profile, p);
-      if (profile.filename != $pagename.val()) {
-        setEditorValue("");
-        updateUserProfile({ filename: $pagename.val(), currentMd: "" });
+  function setTheme(theme) {
+    var cb = function(theme) {
+      editor.setTheme('ace/theme/'+theme);
+      updateProfile({theme: theme});
+    };
+
+    if (loadedThemes[theme]) {
+      cb(theme);
+    } else {
+      asyncLoad(options.themePath + "/theme-" + theme + ".js", function () {
+        cb(theme);
+        loadedThemes[theme] = true;
+      });
+    }
+  }
+
+  function initSyncPreview() {
+    if (!preview || !options.syncPreview) return;
+    previewWrapper = getPreviewWrapper(preview);
+    window.onload = function () {
+      /**
+       * Bind synchronization of preview div to editor scroll and change
+       * of editor cursor position.
+       */
+      editor.session.on('changeScrollTop', syncPreview);
+      editor.session.selection.on('changeCursor', syncPreview);
+    };
+  }
+
+  function initProps() {
+    // Id of editor
+    if (typeof settings == 'string') {
+      settings = { editor: settings };
+    }
+
+    if ('theme' in profile && profile['theme']) {
+      settings['theme'] = profile['theme'];
+    }
+
+    if (settings['preview'] && !settings.hasOwnProperty('syncPreview')) {
+      settings['syncPreview'] = true;
+    }
+
+    $.extend(options, settings);
+
+    if (options.editor) {
+      element = toJquery(options.editor);
+    }
+
+    $.each(options, function(k, v){
+      if (element.data(k.toLowerCase())) {
+        options[k] = element.data(k.toLowerCase());
+      }
+    });
+
+    if (options.themeSelect) {
+      themeSelect = toJquery(options.themeSelect);
+    }
+
+    if (options.submitBtn) {
+      var submitBtn = toJquery(options.submitBtn);
+      submitBtn.click(function(){
+        submit();
+      });
+    }
+
+    if (options.preview) {
+      preview = toJquery(options.preview);
+
+      // Enable sync unless set otherwise
+      if (!settings.hasOwnProperty('syncPreview')) {
+        options['syncPreview'] = true;
+      }
+    }
+
+    if (!element.attr('id')) {
+      // No id, make one!
+      id = Math.random().toString(36).substring(7);
+      element.attr('id', id);
+    } else {
+      id = element.attr('id')
+    }
+  }
+
+  function initEditor() {
+    editor = ace.edit(id);
+    setTheme(profile.theme || options.theme);
+    editor.getSession().setMode('ace/mode/' + options.mode);
+    if (store.get(editorId()) && store.get(editorId()) != val()) {
+      editor.getSession().setValue(store.get(editorId()));
+    }
+    editor.getSession().setUseWrapMode(true);
+    editor.getSession().setTabSize(2);
+    editor.getSession().setUseSoftTabs(true);
+    editor.setShowPrintMargin(false);
+    editor.renderer.setShowInvisibles(true);
+    editor.renderer.setShowGutter(false);
+
+    if (options.showButtonBar) {
+      var $btnBar = $('<div class="aced-button-bar aced-button-bar-top">' + buildThemeSelect().html() + ' <button type="button" class="btn btn-primary btn-xs aced-save">Save</button></div>')
+      element.find('.ace_content').before($btnBar);
+
+      $(".aced-save", $btnBar).click(function(){
+        submit();
+      });
+
+      if ($.fn.chosen) {
+        $('select', $btnBar).chosen().change(function(){
+          setTheme($(this).val());
+        });
+      }
+    }
+
+    if (options.keyMaster) {
+      bindKeyboard();
+    }
+
+    if (preview) {
+      editor.getSession().on('change', function (e) {
+        renderPreview();
+      });
+      renderPreview();
+    }
+
+    if (themeSelect) {
+      themeSelect
+        .find('li > a')
+        .bind('click', function (e) {
+          setTheme($(e.target).data('value'));
+          $(e.target).blur();
+          return false;
+        });
+    }
+
+    if (options.info) {
+      // If no info exists, save it to storage
+      if (!store.get(infoKey())) {
+        store.set(infoKey(), options.info);
       } else {
-        if (profile.currentMd) {
-          setEditorValue(profile.currentMd);
+        // Check info in storage against one passed in
+        // for possible changes in data that may have occurred
+        var info = store.get(infoKey());
+        if (info['sha'] != options.info['sha'] && !info['ignore']) {
+          // Data has changed since start of draft
+          $(document).trigger('shaMismatch');
         }
       }
-    });
-  }
-
-  /**
-   * Update user's profile in localStorage by merging in current profile with passed in param.
-   *
-   * @param {Object}  An object containg proper keys and values to be JSON.stringify'd
-   * @return {Void}
-   */
-  function updateUserProfile(obj) {
-    localforage.clear();
-    localforage.setItem('profile', $.extend(true, profile, obj));
-  }
-
-  /**
-   * Utility method to test if particular property is supported by the browser or not.
-   * Completely ripped from Modernizr with some mods.
-   * Thx, Modernizr team!
-   *
-   * @param {String}  The property to test
-   * @return {Boolean}
-   */
-  function prefixed(prop) {
-    return testPropsAll(prop, 'pfx')
-  }
-
-  /**
-   * A generic CSS / DOM property test; if a browser supports
-   * a certain property, it won't return undefined for it.
-   * A supported CSS property returns empty string when its not yet set.
-   *
-   * @param  {Object}  A hash of properties to test
-   * @param  {String}  A prefix
-   * @return {Boolean}
-   */
-  function testProps(props, prefixed) {
-
-    for (var i in props) {
-
-      if (dillingerStyle[ props[i] ] !== undefined) {
-        return prefixed === 'pfx' ? props[i] : true;
-      }
-
-    }
-    return false
-  }
-
-  /**
-   * Tests a list of DOM properties we want to check against.
-   * We specify literally ALL possible (known and/or likely) properties on
-   * the element including the non-vendor prefixed one, for forward-
-   * compatibility.
-   *
-   * @param  {String}  The name of the property
-   * @param  {String}  The prefix string
-   * @return {Boolean}
-   */
-  function testPropsAll(prop, prefixed) {
-
-    var ucProp = prop.charAt(0).toUpperCase() + prop.substr(1)
-      , props = (prop + ' ' + domPrefixes.join(ucProp + ' ') + ucProp).split(' ');
-
-    return testProps(props, prefixed);
-  }
-
-  /**
-   * Normalize the transitionEnd event across browsers.
-   *
-   * @return {String}
-   */
-  function normalizeTransitionEnd() {
-
-    var transEndEventNames =
-    {
-      'WebkitTransition': 'webkitTransitionEnd', 'MozTransition': 'transitionend', 'OTransition': 'oTransitionEnd', 'msTransition': 'msTransitionEnd' // maybe?
-      , 'transition': 'transitionend'
-    };
-
-    return transEndEventNames[ prefixed('transition') ];
-  }
-
-
-  /**
-   * Returns the full text of an element and all its children.
-   * The script recursively traverses all text nodes, and returns a
-   * concatenated string of all texts.
-   *
-   * Taken from
-   * http://stackoverflow.com/questions/2653670/innertext-textcontent-vs-retrieving-each-text-node
-   *
-   * @param node
-   * @return {int}
-   */
-  function getTextInElement(node) {
-    if (node.nodeType === 3) {
-      return node.data;
     }
 
-    var txt = '';
-
-    if (node = node.firstChild) do {
-      txt += getTextInElement(node);
-    } while (node = node.nextSibling);
-
-    return txt;
+    $(this).trigger('ready');
   }
 
-  /**
-   * Counts the words in a string
-   *
-   * @param string
-   * @return int
-   */
-  function countWords(string) {
-    var words = string.replace(/W+/g, ' ').match(/\S+/g);
-    return words && words.length || 0;
-  }
-
-
-  /**
-   * Initialize application.
-   *
-   * @return {Void}
-   */
   function init() {
-    // Attach to jQuery support object for later use.
-    $.support.transitionEnd = normalizeTransitionEnd();
-
-    initAce();
-
-    getUserProfile();
-
-    initUi();
-
-    bindPreview();
-
-    bindNav();
-
-    bindKeyboard();
-
+    gc();
+    initProfile();
+    initProps();
+    initEditor();
+    initSyncPreview();
     autoSave();
-  }
-
-  function initAce() {
-    editor = ace.edit("editor");
-    editor.focus();
-    editor.setOptions({
-      enableBasicAutocompletion: true
-    });
-  }
-
-  function initUi() {
-    // Set proper theme value in theme dropdown
-    fetchTheme(profile.theme, function () {
-      $theme.find('li > a[data-value="' + profile.theme + '"]').addClass('selected');
-
-      editor.setBehavioursEnabled(true);
-      editor.getSession().setUseWrapMode(true);
-      editor.setShowPrintMargin(false);
-      editor.getSession().setTabSize(2);
-      editor.getSession().setUseSoftTabs(true);
-      editor.renderer.setShowInvisibles(true);
-      editor.renderer.setShowGutter(false);
-      editor.getSession().setMode('ace/mode/markdown');
-      setEditorValue(profile.currentMd || editor.getSession().getValue());
-      previewMd();
-    });
-
-
-    // Set text for dis/enable autosave / word counter
-    $autosave.html(profile.autosave.enabled ? '<i class="icon-remove"></i>&nbsp;Disable Autosave' : '<i class="icon-ok"></i>&nbsp;Enable Autosave');
-    $wordcount.html(!profile.wordcount ? '<i class="icon-remove"></i>&nbsp;Disabled Word Count' : '<i class="icon-ok"></i>&nbsp;Enabled Word Count');
-
-    $('.dropdown-toggle').dropdown();
-  }
-
-
-  function clearSelection() {
-    setEditorValue("");
-    previewMd();
-  }
-
-  function saveFile(isManual) {
-
-    updateUserProfile({currentMd: editor.getSession().getValue()});
-
-    if (isManual) {
-      updateUserProfile({  currentMd: "" });
-
-      var data = {
-        name: $pagename.val(),
-        message: $("#page-message").val(),
-        content: editor.getSession().getValue()
-      };
-      $.post(window.location, data, function() {
-        location.href = url_prefix + '/' + data['name'];
-      });
-    }
-
-  }
-
-  function autoSave() {
-
-    if (profile.autosave.enabled) {
-      autoInterval = setInterval(function() {
-        saveFile();
-      }, profile.autosave.interval);
-
-    } else {
-      clearInterval(autoInterval)
-    }
-
-  }
-
-  $("#save-native").on('click', function() {
-    saveFile(true);
-  });
-
-
-  function resetProfile() {
-    // For some reason, clear() is not working in Chrome.
-    localforage.clear();
-
-    // Let's turn off autosave
-    profile.autosave.enabled = false;
-    localforage.removeItem('profile', function() {
-      window.location.reload();
-    });
-  }
-
-  function changeTheme(e) {
-    // check for same theme
-    var $target = $(e.target);
-    if ($target.attr('data-value') === profile.theme) {
-      return;
-    }
-    else {
-      // add/remove class
-      $theme.find('li > a.selected').removeClass('selected');
-      $target.addClass('selected');
-      // grabnew theme
-      var newTheme = $target.attr('data-value');
-      $(e.target).blur();
-      fetchTheme(newTheme, function () {
-
-      });
-    }
-  }
-
-  function fetchTheme(th, cb) {
-    var name = th.split('/').pop();
-    asyncLoad("/static/vendor/ace-builds/src/theme-" + name + ".js", function () {
-      editor.setTheme(th);
-      cb && cb();
-      updateBg(name);
-      updateUserProfile({theme: th});
-    });
-
-  }
-
-  function updateBg(name) {
-    // document.body.style.backgroundColor = bgColors[name]
-  }
-
-  function setEditorValue(str) {
-    editor.getSession().setValue(str);
-  }
-
-  function previewMd() {
-    $preview.html(MDR.convert(editor.getSession().getValue(), true));
-  }
-
-  function updateFilename(str) {
-    // Check for string because it may be keyup event object
-    var f;
-    if (typeof str === 'string') {
-      f = str;
-    } else {
-      f = getCurrentFilenameFromField();
-    }
-    updateUserProfile({ current_filename: f });
-  }
-
-
-  function showHtml() {
-
-    // TODO: UPDATE TO SUPPORT FILENAME NOT JUST A RANDOM FILENAME
-
-    var unmd = editor.getSession().getValue();
-
-    function _doneHandler(jqXHR, data, response) {
-      // console.dir(resp)
-      var resp = JSON.parse(response.responseText);
-      $('#myModalBody').text(resp.data);
-      $('#myModal').modal();
-    }
-
-    function _failHandler() {
-      alert("Roh-roh. Something went wrong. :(");
-    }
-
-    var config = {
-      type: 'POST',
-      data: "unmd=" + encodeURIComponent(unmd),
-      dataType: 'json',
-      url: '/factory/fetch_html_direct',
-      error: _failHandler,
-      success: _doneHandler
-    };
-
-    $.ajax(config)
-
-  }
-
-  function toggleAutoSave() {
-    $autosave.html(profile.autosave.enabled ? '<i class="icon-remove"></i>&nbsp;Disable Autosave' : '<i class="icon-ok"></i>&nbsp;Enable Autosave');
-    updateUserProfile({autosave: {enabled: !profile.autosave.enabled }});
-    autoSave();
-  }
-
-  function bindPreview() {
-    editor.getSession().on('change', function (e) {
-      previewMd();
-    });
-  }
-
-  function bindNav() {
-
-    $theme
-      .find('li > a')
-      .bind('click', function (e) {
-        changeTheme(e);
-        return false;
-      });
-
-    $('#clear')
-      .on('click', function () {
-        clearSelection();
-        return false;
-      });
-
-    $("#autosave")
-      .on('click', function () {
-        toggleAutoSave();
-        return false;
-      });
-
-    $('#reset')
-      .on('click', function () {
-        resetProfile();
-        return false;
-      });
-
-    $('#cheat').
-      on('click', function () {
-        window.open("https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet", "_blank");
-        return false;
-      });
-
-  } // end bindNav()
-
-
-  function bindKeyboard() {
-    // CMD+s TO SAVE DOC
-    key('command+s, ctrl+s', function (e) {
-      saveFile(true);
-      e.preventDefault(); // so we don't save the web page - native browser functionality
-    });
-
-    var saveCommand = {
-      name: "save",
-      bindKey: {
-        mac: "Command-S",
-        win: "Ctrl-S"
-      },
-      exec: function () {
-        saveFile(true);
-      }
-    };
-
-    editor.commands.addCommand(saveCommand);
   }
 
   init();
-});
 
-
-function getScrollHeight($prevFrame) {
-  // Different browsers attach the scrollHeight of a document to different
-  // elements, so handle that here.
-  if ($prevFrame[0].scrollHeight !== undefined) {
-    return $prevFrame[0].scrollHeight;
-  } else if ($prevFrame.find('html')[0].scrollHeight !== undefined &&
-    $prevFrame.find('html')[0].scrollHeight !== 0) {
-    return $prevFrame.find('html')[0].scrollHeight;
-  } else {
-    return $prevFrame.find('body')[0].scrollHeight;
-  }
+  return {
+    editor: editor,
+    submit: submit,
+    val: val,
+    discard: discardDraft,
+    info: info
+  };
 }
-
-
-function syncPreview() {
-  var $ed = window.ace.edit('editor');
-  var $prev = $('#preview');
-
-  var editorScrollRange = ($ed.getSession().getLength());
-
-  var previewScrollRange = (getScrollHeight($prev));
-
-  // Find how far along the editor is (0 means it is scrolled to the top, 1
-  // means it is at the bottom).
-  var scrollFactor = $ed.getFirstVisibleRow() / editorScrollRange;
-
-  // Set the scroll position of the preview pane to match.  jQuery will
-  // gracefully handle out-of-bounds values.
-  $prev.parent().scrollTop(scrollFactor * previewScrollRange);
-}
-
-window.onload = function () {
-  var $loading = $('#loading');
-
-  if ($.support.transition) {
-    $loading
-      .bind($.support.transitionEnd, function () {
-        $('#main').removeClass('bye');
-        $loading.remove();
-      })
-      .addClass('fade_slow');
-  } else {
-    $('#main').removeClass('bye');
-    $loading.remove();
-  }
-
-  /**
-   * Bind synchronization of preview div to editor scroll and change
-   * of editor cursor position.
-   */
-  window.ace.edit('editor').session.on('changeScrollTop', syncPreview);
-  window.ace.edit('editor').session.selection.on('changeCursor', syncPreview);
-};

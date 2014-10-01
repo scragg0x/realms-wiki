@@ -139,11 +139,11 @@ class Wiki():
             return cached
 
         # commit = gittle.utils.git.commit_info(self.repo[sha])
-        name = self.cname_to_filename(name).encode('latin-1')
+        filename = self.cname_to_filename(name).encode('latin-1')
         sha = sha.encode('latin-1')
 
         try:
-            data = self.gittle.get_commit_files(sha, paths=[name]).get(name)
+            data = self.gittle.get_commit_files(sha, paths=[filename]).get(filename)
             if not data:
                 return None
             partials = {}
@@ -153,6 +153,7 @@ class Wiki():
                     for partial_name in meta['import']:
                         partials[partial_name] = self.get_page(partial_name)
             data['partials'] = partials
+            data['info'] = self.get_history(name, limit=1)[0]
             return data
 
         except KeyError:
@@ -175,10 +176,10 @@ class Wiki():
         new = self.get_page(name, sha=new_sha)
         return ghdiff.diff(old['data'], new['data'])
 
-    def get_history(self, name):
+    def get_history(self, name, limit=100):
         file_path = self.cname_to_filename(name)
         versions = []
-        walker = self.repo.get_walker(paths=[file_path], max_entries=100)
+        walker = self.repo.get_walker(paths=[file_path], max_entries=limit)
         for entry in walker:
             change_type = None
             for change in entry.changes():

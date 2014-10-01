@@ -150,7 +150,25 @@ Access from your browser
 
 http://localhost:5000
 
+## Templating
 
+Realms uses handlebars partials to create templates.
+Each page that you create is a potential partial.
+
+Let's create the following partial:
+
+http://localhost:5000/_create/my-partial
+
+    <div class="panel panel-default">
+      <div class="panel-heading">{{ heading }}</div>
+      <div class="panel-body">
+        {{ body }}
+      </div>
+    </div>
+
+Don't forget to save it.
+
+Now 
 ## Author
 
 Matthew Scragg <scragg@gmail.com>

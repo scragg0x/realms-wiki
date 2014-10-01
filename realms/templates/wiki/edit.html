@@ -1,45 +1,224 @@
 {% extends 'layout.html' %}
 {% block js %}
- <script>
-    $(function(){
-      {% if partials %}
+  <script>
+  var $entry_markdown_header = $("#entry-markdown-header");
+  var $entry_preview_header = $("#entry-preview-header");
+
+  // Tabs
+  $entry_markdown_header.click(function(){
+    $("section.entry-markdown").addClass('active');
+    $("section.entry-preview").removeClass('active');
+  });
+
+  $entry_preview_header.click(function(){
+    $("section.entry-preview").addClass('active');
+    $("section.entry-markdown").removeClass('active');
+  });
+
+  $(document).on('shaMismatch', function() {
+    bootbox.dialog({
+      title: "Page has changed",
+      message: "This page has changed and differs from your draft.  What do you want to do?",
+      buttons: {
+        ignore: {
+          label: "Ignore",
+          className: "btn-default",
+          callback: function() {
+            var info = aced.info();
+            info['ignore'] = true;
+            aced.info(info);
+          }
+        },
+        discard: {
+          label: "Discard Draft",
+          className: "btn-danger",
+          callback: function() {
+            aced.discard();
+          }
+        },
+        changes: {
+          label: "Show Diff",
+          className: "btn-primary",
+          callback: function() {
+            bootbox.alert("Draft diff not done! Sorry");
+          }
+        }
+      }
+    })
+  });
+
+  $(function(){
+    $("#discard-btn").click(function() {
+      aced.discard();
+    });
+
+    $(".entry-markdown .floatingheader").click(function(){
+      aced.editor.focus();
+    });
+  });
+  var aced = new Aced({
+    editor: 'editor-{{- name -}}',
+    renderer: function(md) { return MDR.convert(md) },
+    info: {{ info|tojson }},
+    submit: function(content) {
+      var data = {
+        name: $("#page-name").val(),
+        message: $("#page-message").val(),
+        content: content
+      };
+      $.post(window.location, data, function() {
+        location.href = "{{ config.get('RELATIVE_PATH') }}" + '/' + data['name'];
+      });
+    }
+  });
+  </script>
+
+  {% if partials %}
+    <script>
+      $(function() {
         {% for name, value in partials.items() %}
           {% if name and value %}
             try {
               Handlebars.registerPartial({{ name|tojson|safe }}, {{ value.data|tojson|safe }});
-            } catch(e) {
+            } catch (e) {
               // no data?
             }
           {% endif %}
         {% endfor %}
-      {% endif %}
-        $("#start-togetherjs").click(function(){
-            $(this).prop('disabled', true).html("Loading");
+      });
+    </script>
+  {% endif %}
+
+  {% if config.get('COLLABORATION') %}
+    <script>
+      var $startCollaborationBtn = $('#start-collaboration');
+      var $endCollaborationBtn = $('#end-collaboration');
+      var $loadingCollaborationBtn = $('#loading-collaboration');
+
+      function loadingCollaboration() {
+        $endCollaborationBtn.hide();
+        $startCollaborationBtn.hide();
+        $loadingCollaborationBtn.show();
+        $(document).trigger('loading-collaboration');
+      }
+
+      function startCollaboration() {
+        $loadingCollaborationBtn.hide();
+        $startCollaborationBtn.hide();
+        $endCollaborationBtn.show();
+        $(document).trigger('start-collaboration');
+      }
+
+      function endCollaboration() {
+        $loadingCollaborationBtn.hide();
+        $endCollaborationBtn.hide();
+        $startCollaborationBtn.show();
+        $(document).trigger('end-collaboration');
+      }
+      $(function() {
+        $startCollaborationBtn.click(function() {
+          loadingCollaboration();
         });
+        $endCollaborationBtn.click(function() {
+          endCollaboration();
+        });
+      });
+    </script>
+  {% endif %}
+
+  {% if config.get('COLLABORATION') == 'firepad' %}
+    <script src="https://cdn.firebase.com/js/client/1.0.17/firebase.js"></script>
+    <script src="https://cdn.firebase.com/libs/firepad/1.0.0/firepad.min.js"></script>
+    <script>
+      // Helper to get hash from end of URL or generate a random one.
+      function getExampleRef() {
+        var ref = new Firebase('https://{{ config.get("FIREBASE_HOSTNAME") }}');
+        var hash = window.location.hash.replace(/^#fp-/, '');
+        if (hash) {
+          ref = ref.child(hash);
+        } else {
+          ref = ref.push(); // generate unique location.
+          window.location = window.location + '#fp-' + ref.name(); // add it as a hash to the URL.
+        }
+        return ref;
+      }
+
+      function initFirepad() {
+        var new_ = true;
+        if (window.location.hash.lastIndexOf('#fp-', 0) === 0) {
+          new_ = false;
+        }
+        var firepadRef = getExampleRef();
+        var session = window.ace.edit('editor').session;
+        var content;
+
+        if (new_) {
+          content = session.getValue();
+        }
+
+        // Firepad wants an empty editor
+        session.setValue('');
+
+        //// Create Firepad.
+        var firepad = Firepad.fromACE(firepadRef, aced.editor, {
+          defaultText: content
+        });
+
+        firepad.on('ready', function() {
+          startCollaboration();
+        });
+
+        $(document).on('end-collaboration', function() {
+          firepad.dispose();
+        });
+      }
+
+      $(document).on('loading-collaboration', function() {
+        initFirepad(true);
+      });
+
+      $(function(){
+        if (window.location.hash.lastIndexOf('#fp-', 0) === 0) {
+          loadingCollaboration();
+        }
+      });
+    </script>
+  {% endif %}
+
+ {% if config.get('COLLABORATION') == 'togetherjs' %}
+ <script>
+    $(document).on('loading-collaboration', function() {
+      TogetherJS();
     });
+
+    $(document).on('end-collaboration', function() {
+      TogetherJS();
+    });
+
     TogetherJSConfig_toolName = "Collaboration";
     TogetherJSConfig_suppressJoinConfirmation = true;
+
     {% if current_user.is_authenticated() %}
     TogetherJSConfig_getUserName = function () {
-        return {{ current_user.username|tojson }};
+      return {{ current_user.username|tojson }};
     };
 
     TogetherJSConfig_getUserAvatar = function () {
-        return {{ current_user.avatar|tojson }};
+      return {{ current_user.avatar|tojson }};
     };
     {% endif %}
 
     TogetherJSConfig_on_ready = function () {
-       MDR.sanitize = true;
-       $("#preview").html('');
-       $("#start-togetherjs").addClass('btn-danger').html('End Collaboration').prop('disabled', false);
+      startCollaboration();
     };
+
     TogetherJSConfig_on_close = function () {
-        MDR.sanitize = false;
-        $("#start-togetherjs").removeClass('btn-danger').html('Collaborate').prop('disabled', false);
+      //endCollaboration();
     };
-</script>
-<script src="https://togetherjs.com/togetherjs-min.js"></script>
+  </script>
+  <script src="https://togetherjs.com/togetherjs-min.js"></script>
+  {% endif %}
+
 {% endblock %}
 
 {% block body %}
@@ -55,51 +234,66 @@
       <div class="col-md-6 col-xs-4">
         <div class="pull-right">
 
-          <button class="btn btn-default btn-sm" id="start-togetherjs" type="button"
-                  onclick="TogetherJS(this); return false">
+        <button id="discard-btn" class="btn btn-sm btn-danger">
+          <i class="fa fa-trash-o"></i>
+          <span class="hidden-xs">Discard Draft</span>
+        </button>
 
-            <i class="fa fa-comments-o visible-xs"></i>
+        {% if config.get('COLLABORATION') %}
+          <button style='display:none' class="btn btn-danger btn-sm" id="end-collaboration">
+            <i class="fa fa-comments-o"></i>
+            <span class="hidden-xs">End Collaboration</span>
+          </button>
+
+          <button class="btn btn-default btn-sm" id="start-collaboration" type="button">
+            <i class="fa fa-comments-o"></i>
             <span class="hidden-xs">Collaborate</span>
           </button>
 
-          <a href="#" id="drop6" role="button" class="dropdown-toggle btn btn-default btn-sm" data-toggle="dropdown">
-            <i class="fa fa-paint-brush visible-xs"></i>
+          <button style='display:none' class="btn btn-default btn-sm" id="loading-collaboration" type="button">
+            <i class="fa fa-cog fa-spin"></i>
+            <span class="hidden-xs">Loading</span>
+          </button>
+        {% endif %}
+
+          <a id="drop6" role="button" class="dropdown-toggle btn btn-default btn-sm" data-toggle="dropdown">
+            <i class="fa fa-paint-brush"></i>
             <span class="hidden-xs">Theme <i class="fa fa-caret-down"></i></span>
           </a>
           <ul id="theme-list" class="dropdown-menu" role="menu" aria-labelledby="drop6">
-            <li><a tabindex="-1" href="#" data-value="ace/theme/chrome" >Chrome</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/clouds" >Clouds</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/clouds_midnight" >Clouds Midnight</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/cobalt" >Cobalt</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/crimson_editor" >Crimson Editor</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/dawn" class="selected">Dawn</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/dreamweaver" >Dreamweaver</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/eclipse" >Eclipse</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/idle_fingers" >idleFingers</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/kr_theme" >krTheme</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore" >Merbivore</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore_soft" >Merbivore Soft</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/mono_industrial" >Mono Industrial</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/monokai" >Monokai</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/pastel_on_dark">Pastel on Dark</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_dark" >Solarized Dark</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_light" >Solarized Light</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/textmate" >TextMate</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow" >Tomorrow</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night">Tomorrow Night</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_blue" >Tomorrow Night Blue</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_bright" >Tomorrow Night Bright</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_eighties" >Tomorrow Night 80s</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/twilight" >Twilight</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/vibrant_ink" >Vibrant Ink</a></li>
+            <li><a tabindex="-1" data-value="chrome" >Chrome</a></li>
+            <li><a tabindex="-1" data-value="clouds" >Clouds</a></li>
+            <li><a tabindex="-1" data-value="clouds_midnight" >Clouds Midnight</a></li>
+            <li><a tabindex="-1" data-value="cobalt" >Cobalt</a></li>
+            <li><a tabindex="-1"  data-value="crimson_editor" >Crimson Editor</a></li>
+            <li><a tabindex="-1"  data-value="dawn" class="selected">Dawn</a></li>
+            <li><a tabindex="-1"  data-value="dreamweaver" >Dreamweaver</a></li>
+            <li><a tabindex="-1"  data-value="eclipse" >Eclipse</a></li>
+            <li><a tabindex="-1"  data-value="idle_fingers" >idleFingers</a></li>
+            <li><a tabindex="-1"  data-value="kr_theme" >krTheme</a></li>
+            <li><a tabindex="-1"  data-value="merbivore" >Merbivore</a></li>
+            <li><a tabindex="-1"  data-value="merbivore_soft" >Merbivore Soft</a></li>
+            <li><a tabindex="-1"  data-value="mono_industrial" >Mono Industrial</a></li>
+            <li><a tabindex="-1"  data-value="monokai" >Monokai</a></li>
+            <li><a tabindex="-1"  data-value="pastel_on_dark">Pastel on Dark</a></li>
+            <li><a tabindex="-1"  data-value="solarized_dark" >Solarized Dark</a></li>
+            <li><a tabindex="-1"  data-value="solarized_light" >Solarized Light</a></li>
+            <li><a tabindex="-1"  data-value="textmate" >TextMate</a></li>
+            <li><a tabindex="-1"  data-value="tomorrow" >Tomorrow</a></li>
+            <li><a tabindex="-1"  data-value="tomorrow_night">Tomorrow Night</a></li>
+            <li><a tabindex="-1"  data-value="tomorrow_night_blue" >Tomorrow Night Blue</a></li>
+            <li><a tabindex="-1"  data-value="tomorrow_night_bright" >Tomorrow Night Bright</a></li>
+            <li><a tabindex="-1"  data-value="tomorrow_night_eighties" >Tomorrow Night 80s</a></li>
+            <li><a tabindex="-1"  data-value="twilight" >Twilight</a></li>
+            <li><a tabindex="-1"  data-value="vibrant_ink" >Vibrant Ink</a></li>
           </ul>
-          {% if name in config.LOCKED %}
+          {% if name in config['LOCKED'] %}
             <a class="btn btn-danger btn-sm">
               <i class="fa fa-lock"></i>
               <span class="hidden-xs">Locked</span>
             </a>
           {% else %}
-            <a id="save-native" class="btn btn-primary btn-sm">
+            <a id="submit-btn" class="btn btn-primary btn-sm">
               <i class="fa fa-save"></i>
               <span class="hidden-xs">Save</span>
             </a>
@@ -114,7 +308,7 @@
         <a class="markdown-help" href=""><span class="hidden">What is Markdown?</span></a>
     </header>
     <section id="entry-markdown-content" class="entry-markdown-content">
-      <div id="editor" class="ace-editor">{{ content }}</div>
+      <div id="editor-{{- name -}}" data-submitbtn='submit-btn' data-themeselect="theme-list" data-mode="markdown" data-preview="preview" class="editor">{{ content }}</div>
     </section>
   </section>
 

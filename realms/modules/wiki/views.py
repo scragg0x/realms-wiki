@@ -74,7 +74,12 @@ def edit(name):
             name = remove_ext(data['name'])
             content = data.get('data')
             g.assets['js'].append('editor.js')
-            return render_template('wiki/edit.html', name=name, content=content, sha=data.get('sha'), partials=data.get('partials'))
+            return render_template('wiki/edit.html',
+                                   name=name,
+                                   content=content,
+                                   info=data.get('info'),
+                                   sha=data.get('sha'),
+                                   partials=data.get('partials'))
         else:
             return redirect(url_for('wiki.create', name=cname))
 
@@ -110,7 +115,10 @@ def create(name):
             return redirect(url_for('wiki.edit', name=cname))
 
         g.assets['js'].append('editor.js')
-        return render_template('wiki/edit.html', name=cname, content="")
+        return render_template('wiki/edit.html',
+                               name=cname,
+                               content="",
+                               info={})
 
 
 @blueprint.route("/", defaults={'name': 'home'})

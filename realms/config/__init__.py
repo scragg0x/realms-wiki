@@ -52,7 +52,6 @@ CACHE_REDIS_DB = '0'
 #CACHE_TYPE = 'memcached'
 CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
 
-
 # Get ReCaptcha Keys for your domain here:
 # https://www.google.com/recaptcha/admin#whyrecaptcha
 RECAPTCHA_ENABLE = False
@@ -74,6 +73,12 @@ REGISTRATION_ENABLED = True
 
 # Used by Flask-Login
 LOGIN_DISABLED = ALLOW_ANON
+
+# None, firepad, or togetherjs
+COLLABORATION = 'togetherjs'
+
+# Required for firepad
+FIREBASE_HOSTNAME = None
 
 # Page names that can't be modified
 WIKI_LOCKED_PAGES = []

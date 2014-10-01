@@ -186,7 +186,7 @@ a.label {
   right: 0;
   bottom: 0;
   left: 0;
-  padding: 40px 10px 10px 10px;
+  padding: 45px 10px 10px 10px;
   overflow: auto;
   //word-break: break-word;
   cursor: default;
@@ -217,7 +217,7 @@ a.label {
   background-color: #eee;
 }
 
-#editor {
+.editor {
   margin-top: 40px;
 }
 
@@ -226,7 +226,7 @@ a.label {
     padding: 3px;
   }
 
-  #editor {
+  .editor {
     margin-top: 0;
   }
 
