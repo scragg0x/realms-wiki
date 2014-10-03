@@ -44,9 +44,9 @@ class AnonUser(AnonymousUserMixin):
 class User(Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, unique=True)
-    email = db.Column(db.String, unique=True)
-    password = db.Column(db.String)
+    username = db.Column(db.String(128), unique=True)
+    email = db.Column(db.String(128), unique=True)
+    password = db.Column(db.String(60))
     admin = False
 
     hidden_fields = ['password']

@@ -38,7 +38,11 @@ PORT = 5000
 BASE_URL = 'http://localhost'
 SITE_TITLE = "Realms"
 
+# https://pythonhosted.org/Flask-SQLAlchemy/config.html#connection-uri-format
 DB_URI = 'sqlite:///%s/wiki.db' % USER_HOME
+# DB_URI = 'mysql://scott:tiger@localhost/mydatabase'
+# DB_URI = 'postgresql://scott:tiger@localhost/mydatabase'
+# DB_URI = 'oracle://scott:tiger@127.0.0.1:1521/sidname'
 
 CACHE_TYPE = 'simple'
 

@@ -1,12 +1,6 @@
-// Handlebar helpers
-Handlebars.registerHelper('well', function(options) {
-  return '<div class="well">' + options.fn(this) + '</div>';
-});
+// Init highlight JS
+hljs.initHighlightingOnLoad();
 
-/* © 2013 j201
- * https://github.com/j201/meta-marked */
-
-// Splits the given string into a meta section and a markdown section if a meta section is present, else returns null
 function splitInput(str) {
   if (str.slice(0, 3) !== '---') return;
 
@@ -16,6 +10,10 @@ function splitInput(str) {
   return metaEnd && [str.slice(0, metaEnd.index), str.slice(matcher.lastIndex)];
 }
 
+/* © 2013 j201
+ * https://github.com/j201/meta-marked */
+
+// Splits the given string into a meta section and a markdown section if a meta section is present, else returns null
 var metaMarked = function(src, opt, callback) {
   if (Object.prototype.toString.call(src) !== '[object String]')
     throw new TypeError('First parameter must be a string.');
@@ -50,9 +48,6 @@ marked.setOptions({
   smartLists: true,
   smartypants: false
 });
-
-// Init highlight JS
-hljs.initHighlightingOnLoad();
 
 // Markdown Renderer
 var MDR = {
@@ -100,7 +95,9 @@ var MDR = {
       try {
         var template = Handlebars.compile(this.md);
         this.md = template(this.meta);
-      } catch(e) {}
+      } catch(e) {
+        console.log(e);
+      }
     }
   },
 

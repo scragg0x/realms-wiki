@@ -1,8 +1,10 @@
 from gevent import wsgi
 from realms import config, app, cli, db
 from realms.lib.util import random_string
+from subprocess import call
 import click
 import json
+import sys
 
 
 @cli.command()
@@ -77,6 +79,37 @@ def setup_redis(**kw):
         conf[k.upper()] = v
 
     config.update(conf)
+    install_redis()
+
+
+def get_pip():
+    """ Get virtualenv path for pip
+    """
+    return sys.prefix + '/bin/pip'
+
+
+@cli.command()
+@click.argument('cmd', nargs=-1)
+def pip(cmd):
+    """ Execute pip commands for this virtualenv
+    """
+    call(get_pip() + ' ' + ' '.join(cmd), shell=True)
+
+
+def install_redis():
+    call([get_pip(), 'install', 'redis'])
+
+
+def install_mysql():
+    call([get_pip(), 'install', 'MySQL-Python'])
+
+
+def install_postgres():
+    call([get_pip(), 'install', 'psycopg2'])
+
+
+def install_memcached():
+    call([get_pip(), 'install', 'python-memcached'])
 
 
 @click.command()
@@ -138,6 +171,14 @@ def drop_db():
     """
     click.echo("Dropping all tables")
     db.drop_all()
+
+
+@cli.command()
+def version():
+    """ Output version
+    """
+    with open('VERSION') as f:
+        return f.read().strip()
 
 if __name__ == '__main__':
     cli()

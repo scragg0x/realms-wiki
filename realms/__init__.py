@@ -192,7 +192,8 @@ assets.register('main.js',
                 'js/html-sanitizer-minified.js',  # don't minify?
                 'vendor/highlightjs/highlight.pack.js',
                 'vendor/parsleyjs/dist/parsley.js',
-                'js/main.js')
+                'js/hbs-helpers.js',
+                'js/mdr.js')
 
 assets.register('main.css',
                 'vendor/bootswatch-dist/css/bootstrap.css',

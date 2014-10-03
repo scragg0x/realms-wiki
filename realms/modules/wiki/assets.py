@@ -7,4 +7,4 @@ assets.register('editor.js',
                 'vendor/ace-builds/src/mode-markdown.js',
                 'vendor/ace-builds/src/ext-keybinding_menu.js',
                 'vendor/keymaster/keymaster.js',
-                'js/editor.js')
+                'js/aced.js')

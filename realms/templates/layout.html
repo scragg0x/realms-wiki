@@ -7,6 +7,7 @@
     <meta name="author" content="">
 
     <title>{{ config.SITE_TITLE }}</title>
+
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
 
     {% for bundle in g.assets['css'] %}
@@ -14,6 +15,7 @@
         <link href="{{ ASSET_URL }}" rel="stylesheet">
       {% endassets %}
     {% endfor %}
+
     {% block css %}{% endblock %}
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -88,6 +90,20 @@
     {% block body %}{% endblock %}
       </div>
     </div>
+
+    <script>
+      var Config = {};
+      {% for attr in ['RELATIVE_PATH'] %}
+        Config.{{ attr }} = {{ config[attr]|tojson }};
+      {% endfor %}
+
+      var User = {};
+      User.is_authenticated = {{ current_user.is_authenticated()|tojson }};
+      {% for attr in ['username', 'email'] %}
+        User.{{ attr }} = {{ current_user[attr]|tojson }};
+      {% endfor %}
+    </script>
+
     {% for bundle in g.assets['js'] %}
       {% assets bundle %}
         {% if bundle == 'editor.js' %}
@@ -97,6 +113,8 @@
         {% endif %}
       {% endassets %}
     {% endfor %}
+
     {% block js %}{% endblock %}
+
   </body>
 </html>

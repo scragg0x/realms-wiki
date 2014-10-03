@@ -58,9 +58,9 @@
 
 #app-wrap {
   top: 60px;
-  left: -5px;
+  left: 0;
   bottom: 0;
-  right: -5px;
+  right: 0;
   position: fixed;
 }
 
@@ -186,9 +186,8 @@ a.label {
   right: 0;
   bottom: 0;
   left: 0;
-  padding: 45px 10px 10px 10px;
+  padding: 40px 10px 10px 10px;
   overflow: auto;
-  //word-break: break-word;
   cursor: default;
 }
 
