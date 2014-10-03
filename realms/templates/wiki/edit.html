@@ -1,133 +1,169 @@
 {% extends 'layout.html' %}
 {% block js %}
- <script>
-    $(function(){
-      {% if partials %}
+  <script>
+    var Commit = {};
+    Commit.info = {{ info|tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+
+  {% if partials %}
+    <script>
+      $(function() {
         {% for name, value in partials.items() %}
           {% if name and value %}
             try {
               Handlebars.registerPartial({{ name|tojson|safe }}, {{ value.data|tojson|safe }});
-            } catch(e) {
+            } catch (e) {
               // no data?
             }
           {% endif %}
         {% endfor %}
-      {% endif %}
-        $("#start-togetherjs").click(function(){
-            $(this).prop('disabled', true).html("Loading");
-        });
-    });
-    TogetherJSConfig_toolName = "Collaboration";
-    TogetherJSConfig_suppressJoinConfirmation = true;
-    {% if current_user.is_authenticated() %}
-    TogetherJSConfig_getUserName = function () {
-        return {{ current_user.username|tojson }};
-    };
+      });
+    </script>
+  {% endif %}
 
-    TogetherJSConfig_getUserAvatar = function () {
-        return {{ current_user.avatar|tojson }};
-    };
-    {% endif %}
+  {% if config.get('COLLABORATION') %}
+    <script src="{{ url_for('static', filename='js/collaboration/main.js') }}"></script>
+  {% endif %}
 
-    TogetherJSConfig_on_ready = function () {
-       MDR.sanitize = true;
-       $("#preview").html('');
-       $("#start-togetherjs").addClass('btn-danger').html('End Collaboration').prop('disabled', false);
-    };
-    TogetherJSConfig_on_close = function () {
-        MDR.sanitize = false;
-        $("#start-togetherjs").removeClass('btn-danger').html('Collaborate').prop('disabled', false);
-    };
-</script>
-<script src="https://togetherjs.com/togetherjs-min.js"></script>
+  {% if config.get('COLLABORATION') == 'firepad' %}
+    <script>
+      Config['FIREBASE_HOSTNAME'] = {{ config.get('FIREBASE_HOSTNAME')|tojson }};
+    </script>
+    <script src="https://cdn.firebase.com/js/client/1.0.17/firebase.js"></script>
+    <script src="https://cdn.firebase.com/libs/firepad/1.0.0/firepad.min.js"></script>
+    <script src="{{ url_for('static', filename='js/collaboration/firepad.js') }}"></script>
+  {% endif %}
+
+  {% if config.get('COLLABORATION') == 'togetherjs' %}
+    <script src="{{ url_for('static', filename='js/collaboration/togetherjs.js') }}"></script>
+    <script src="https://togetherjs.com/togetherjs-min.js"></script>
+  {% endif %}
+
 {% endblock %}
 
 {% block body %}
   <div id="app-wrap">
     <div id="app-controls" class="row">
       <div class="col-xs-4 col-md-3">
-        <input id="page-name" type="text" class="form-control input-sm" name="name" placeholder="Name" value="{{- name -}}" />
+        <input id="page-name" type="text" class="form-control input-sm" name="name"
+               placeholder="Name" value="{{- name -}}" />
       </div>
       <div class="col-xs-4 col-md-3">
-        <input id="page-message" type="text" class="form-control input-sm" name="page-message" placeholder="Comment" value="" />
+        <input id="page-message" type="text" class="form-control input-sm" name="page-message"
+               placeholder="Comment" value="" />
       </div>
 
-      <div class="col-md-6 col-xs-4">
-        <div class="pull-right">
+      <div class="col-md-6 col-xs-4 text-right">
 
-          <button class="btn btn-default btn-sm" id="start-togetherjs" type="button"
-                  onclick="TogetherJS(this); return false">
+        {% if config.get('COLLABORATION') %}
+          <div class="btn-group">
+            <button style='display:none' class="btn btn-danger btn-sm" id="end-collaboration">
+              <i class="fa fa-comments-o"></i>
+              <span class="hidden-xs">End Collaboration</span>
+            </button>
+          </div>
+          <div class="btn-group">
+            <button style='display:none' class="btn btn-default btn-sm" id="loading-collaboration" type="button">
+              <i class="fa fa-cog fa-spin"></i>
+              <span class="hidden-xs">Loading</span>
+            </button>
+          </div>
+        {% endif %}
 
-            <i class="fa fa-comments-o visible-xs"></i>
-            <span class="hidden-xs">Collaborate</span>
+        <div class="dropdown btn-group">
+          <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="editor-actions"
+                  data-toggle="dropdown" title="Actions">
+            <i class="fa fa-cog"></i>
+            <span class="hidden-xs">Actions <i class="fa fa-caret-down"></i></span>
           </button>
 
-          <a href="#" id="drop6" role="button" class="dropdown-toggle btn btn-default btn-sm" data-toggle="dropdown">
-            <i class="fa fa-paint-brush visible-xs"></i>
-            <span class="hidden-xs">Theme <i class="fa fa-caret-down"></i></span>
-          </a>
-          <ul id="theme-list" class="dropdown-menu" role="menu" aria-labelledby="drop6">
-            <li><a tabindex="-1" href="#" data-value="ace/theme/chrome" >Chrome</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/clouds" >Clouds</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/clouds_midnight" >Clouds Midnight</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/cobalt" >Cobalt</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/crimson_editor" >Crimson Editor</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/dawn" class="selected">Dawn</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/dreamweaver" >Dreamweaver</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/eclipse" >Eclipse</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/idle_fingers" >idleFingers</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/kr_theme" >krTheme</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore" >Merbivore</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/merbivore_soft" >Merbivore Soft</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/mono_industrial" >Mono Industrial</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/monokai" >Monokai</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/pastel_on_dark">Pastel on Dark</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_dark" >Solarized Dark</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/solarized_light" >Solarized Light</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/textmate" >TextMate</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow" >Tomorrow</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night">Tomorrow Night</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_blue" >Tomorrow Night Blue</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_bright" >Tomorrow Night Bright</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/tomorrow_night_eighties" >Tomorrow Night 80s</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/twilight" >Twilight</a></li>
-            <li><a tabindex="-1" href="#" data-value="ace/theme/vibrant_ink" >Vibrant Ink</a></li>
+          <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="editor-actions">
+            <li role="presentation">
+              <a role="menuitem" tabindex="-1" href="#" id="start-collaboration">Collaborate</a>
+            </li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation">
+              <a role="menuitem" tabindex="-1" href="#" id="discard-draft-btn">Delete Draft</a>
+            </li>
+            <li role="presentation">
+              <a role="menuitem" tabindex="-1" href="#" id="delete-page-btn">Delete Page</a>
+            </li>
           </ul>
-          {% if name in config.LOCKED %}
+        </div>
+
+        <div class="dropdown btn-group">
+          <button id="theme-list-btn" type="button" class="dropdown-toggle btn btn-default btn-sm"
+                  data-toggle="dropdown" title="Change Theme">
+            <i class="fa fa-paint-brush"></i>
+            <span class="hidden-xs">Theme <i class="fa fa-caret-down"></i></span>
+          </button>
+          <ul id="theme-list" class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="theme-list">
+            <li><a tabindex="-1" href="#" data-value="chrome" >Chrome</a></li>
+            <li><a tabindex="-1" href="#" data-value="clouds" >Clouds</a></li>
+            <li><a tabindex="-1" href="#" data-value="clouds_midnight" >Clouds Midnight</a></li>
+            <li><a tabindex="-1" href="#" data-value="cobalt" >Cobalt</a></li>
+            <li><a tabindex="-1" href="#" data-value="crimson_editor" >Crimson Editor</a></li>
+            <li><a tabindex="-1" href="#" data-value="dawn" class="selected">Dawn</a></li>
+            <li><a tabindex="-1" href="#" data-value="dreamweaver" >Dreamweaver</a></li>
+            <li><a tabindex="-1" href="#" data-value="eclipse" >Eclipse</a></li>
+            <li><a tabindex="-1" href="#" data-value="idle_fingers" >idleFingers</a></li>
+            <li><a tabindex="-1" href="#" data-value="kr_theme" >krTheme</a></li>
+            <li><a tabindex="-1" href="#" data-value="merbivore" >Merbivore</a></li>
+            <li><a tabindex="-1" href="#" data-value="merbivore_soft" >Merbivore Soft</a></li>
+            <li><a tabindex="-1" href="#" data-value="mono_industrial" >Mono Industrial</a></li>
+            <li><a tabindex="-1" href="#" data-value="monokai" >Monokai</a></li>
+            <li><a tabindex="-1" href="#" data-value="pastel_on_dark">Pastel on Dark</a></li>
+            <li><a tabindex="-1" href="#" data-value="solarized_dark" >Solarized Dark</a></li>
+            <li><a tabindex="-1" href="#" data-value="solarized_light" >Solarized Light</a></li>
+            <li><a tabindex="-1" href="#" data-value="textmate" >TextMate</a></li>
+            <li><a tabindex="-1" href="#" data-value="tomorrow" >Tomorrow</a></li>
+            <li><a tabindex="-1" href="#" data-value="tomorrow_night">Tomorrow Night</a></li>
+            <li><a tabindex="-1" href="#" data-value="tomorrow_night_blue" >Tomorrow Night Blue</a></li>
+            <li><a tabindex="-1" href="#" data-value="tomorrow_night_bright" >Tomorrow Night Bright</a></li>
+            <li><a tabindex="-1" href="#" data-value="tomorrow_night_eighties" >Tomorrow Night 80s</a></li>
+            <li><a tabindex="-1" href="#" data-value="twilight" >Twilight</a></li>
+            <li><a tabindex="-1" href="#" data-value="vibrant_ink" >Vibrant Ink</a></li>
+          </ul>
+        </div>
+
+        <div class="btn-group">
+
+          {% if name in config['LOCKED'] %}
             <a class="btn btn-danger btn-sm">
               <i class="fa fa-lock"></i>
               <span class="hidden-xs">Locked</span>
             </a>
           {% else %}
-            <a id="save-native" class="btn btn-primary btn-sm">
+            <a id="submit-btn" class="btn btn-primary btn-sm">
               <i class="fa fa-save"></i>
-              <span class="hidden-xs">Save</span>
+              <span class="hidden-xs">Publish</span>
             </a>
           {% endif %}
         </div>
+
       </div>
     </div>
 
-  <section class="entry-markdown active">
-    <header class="floatingheader" id="entry-markdown-header">
+    <section class="entry-markdown active">
+      <header class="floatingheader" id="entry-markdown-header">
         <small>Markdown</small>
         <a class="markdown-help" href=""><span class="hidden">What is Markdown?</span></a>
-    </header>
-    <section id="entry-markdown-content" class="entry-markdown-content">
-      <div id="editor" class="ace-editor">{{ content }}</div>
+      </header>
+      <section id="entry-markdown-content" class="entry-markdown-content">
+        <div id="editor-{{ name }}" data-submitbtn='submit-btn' data-themeselect="theme-list" data-mode="markdown"
+             data-preview="preview" class="editor">{{ content }}</div>
+      </section>
     </section>
-  </section>
 
-  <section class="entry-preview">
-    <header class="floatingheader" id="entry-preview-header">
+    <section class="entry-preview">
+      <header class="floatingheader" id="entry-preview-header">
         <small>Preview</small>
-    </header>
-    <section class="entry-preview-content">
-      <div id="preview"></div>
-     </section>
-  </section>
-
-  <input id="sha" type="hidden" name="sha" value="{{ sha }}" />
+      </header>
+      <section class="entry-preview-content">
+        <div id="preview"></div>
+      </section>
+    </section>
 
   </div>
 

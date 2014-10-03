@@ -38,7 +38,11 @@ PORT = 5000
 BASE_URL = 'http://localhost'
 SITE_TITLE = "Realms"
 
+# https://pythonhosted.org/Flask-SQLAlchemy/config.html#connection-uri-format
 DB_URI = 'sqlite:///%s/wiki.db' % USER_HOME
+# DB_URI = 'mysql://scott:tiger@localhost/mydatabase'
+# DB_URI = 'postgresql://scott:tiger@localhost/mydatabase'
+# DB_URI = 'oracle://scott:tiger@127.0.0.1:1521/sidname'
 
 CACHE_TYPE = 'simple'
 
@@ -51,7 +55,6 @@ CACHE_REDIS_DB = '0'
 # Memcached
 #CACHE_TYPE = 'memcached'
 CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
-
 
 # Get ReCaptcha Keys for your domain here:
 # https://www.google.com/recaptcha/admin#whyrecaptcha
@@ -74,6 +77,12 @@ REGISTRATION_ENABLED = True
 
 # Used by Flask-Login
 LOGIN_DISABLED = ALLOW_ANON
+
+# None, firepad, or togetherjs
+COLLABORATION = 'togetherjs'
+
+# Required for firepad
+FIREBASE_HOSTNAME = None
 
 # Page names that can't be modified
 WIKI_LOCKED_PAGES = []

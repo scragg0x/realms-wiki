@@ -36,7 +36,7 @@ def revert():
     commit = request.form.get('commit')
     cname = to_canonical(name)
 
-    if cname.lower() in app.config.WIKI_LOCKED_PAGES:
+    if cname in app.config.WIKI_LOCKED_PAGES:
         flash("Page is locked")
         return redirect(url_for(app.config['ROOT_ENDPOINT']))
 
@@ -59,10 +59,10 @@ def edit(name):
     if request.method == 'POST':
         edit_cname = to_canonical(request.form['name'])
 
-        if edit_cname.lower() in app.config['WIKI_LOCKED_PAGES']:
+        if edit_cname in app.config['WIKI_LOCKED_PAGES']:
             return redirect(url_for(app.config['ROOT_ENDPOINT']))
 
-        if edit_cname.lower() != cname.lower():
+        if edit_cname != cname.lower():
             g.current_wiki.rename_page(cname, edit_cname)
 
         g.current_wiki.write_page(edit_cname,
@@ -74,7 +74,12 @@ def edit(name):
             name = remove_ext(data['name'])
             content = data.get('data')
             g.assets['js'].append('editor.js')
-            return render_template('wiki/edit.html', name=name, content=content, sha=data.get('sha'), partials=data.get('partials'))
+            return render_template('wiki/edit.html',
+                                   name=name,
+                                   content=content,
+                                   info=data.get('info'),
+                                   sha=data.get('sha'),
+                                   partials=data.get('partials'))
         else:
             return redirect(url_for('wiki.create', name=cname))
 
@@ -110,7 +115,10 @@ def create(name):
             return redirect(url_for('wiki.edit', name=cname))
 
         g.assets['js'].append('editor.js')
-        return render_template('wiki/edit.html', name=cname, content="")
+        return render_template('wiki/edit.html',
+                               name=cname,
+                               content="",
+                               info={})
 
 
 @blueprint.route("/", defaults={'name': 'home'})

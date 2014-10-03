@@ -8,7 +8,8 @@ with open('README.md') as f:
 with open('requirements.txt') as f:
     required = f.read().splitlines()
 
-VERSION = '0.2.2'
+with open('VERSION') as f:
+    VERSION = f.read().strip()
 
 CLASSIFIERS = [
     'Intended Audience :: Developers',

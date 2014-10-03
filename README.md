@@ -88,7 +88,7 @@ This will ask you questions and create a config.json file in the app root direct
 Of course you can manually edit this file as well.
 Any config value set in config.json will override values set in ```realms/config/__init__.py```
 
-## Nginx Setup
+### Nginx Setup
 
     sudo apt-get install -y nginx
 
@@ -130,6 +130,23 @@ Reload Nginx
 
     sudo service nginx reload
 
+### Mysql Setup
+    
+    sudo apt-get install -y mysql-server mysql-client libmysqlclient-dev
+    realms-wiki pip install python-memcached
+    
+### MariaDB Setup
+    
+    sudo apt-get install -y mariadb-server mariadb-client libmariadbclient-dev
+    realms-wiki pip install MySQL-Python
+
+### Postgres
+
+    sudo apt-get install -y libpq-dev postgresql postgresql-contrib postgresql-client
+    realms-wiki pip install psycopg2
+
+_Don't forget to create your database._
+
 ## Running
 
 Current there are different ways.
@@ -150,6 +167,21 @@ Access from your browser
 
 http://localhost:5000
 
+## Templating
+
+Realms uses handlebars partials to create templates.
+Each page that you create can be imported as a partial.
+
+This page imports and uses a partial:
+
+    http://realms.io/_edit/hbs
+
+This page contains the content of the partial:
+
+    http://realms.io/_edit/example-tmpl
+    
+I locked these pages to preserve them.  
+You may copy and paste into a new page to test.
 
 ## Author
 

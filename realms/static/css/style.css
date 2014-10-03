@@ -58,9 +58,9 @@
 
 #app-wrap {
   top: 60px;
-  left: -5px;
+  left: 0;
   bottom: 0;
-  right: -5px;
+  right: 0;
   position: fixed;
 }
 
@@ -188,7 +188,6 @@ a.label {
   left: 0;
   padding: 40px 10px 10px 10px;
   overflow: auto;
-  //word-break: break-word;
   cursor: default;
 }
 
@@ -217,7 +216,7 @@ a.label {
   background-color: #eee;
 }
 
-#editor {
+.editor {
   margin-top: 40px;
 }
 
@@ -226,7 +225,7 @@ a.label {
     padding: 3px;
   }
 
-  #editor {
+  .editor {
     margin-top: 0;
   }
 
