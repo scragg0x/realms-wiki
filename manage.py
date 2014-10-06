@@ -4,7 +4,6 @@ from realms.lib.util import random_string
 from subprocess import call
 import click
 import json
-import sys
 
 
 @cli.command()
@@ -85,6 +84,7 @@ def setup_redis(**kw):
 def get_pip():
     """ Get virtualenv path for pip
     """
+    import sys
     return sys.prefix + '/bin/pip'
 
 

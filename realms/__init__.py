@@ -1,10 +1,12 @@
+import sys
+if 'threading' in sys.modules:
+    del sys.modules['threading']
+
 # Monkey patch stdlib.
 import gevent.monkey
 gevent.monkey.patch_all(aggressive=False, subprocess=True)
 
 # Set default encoding to UTF-8
-import sys
-
 reload(sys)
 # noinspection PyUnresolvedReferences
 sys.setdefaultencoding('utf-8')
