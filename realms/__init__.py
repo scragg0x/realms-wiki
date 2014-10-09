@@ -20,12 +20,13 @@ import click
 from flask import Flask, request, render_template, url_for, redirect, g
 from flask.ext.cache import Cache
 from flask.ext.login import LoginManager, current_user
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.sqlalchemy import SQLAlchemy, declarative_base, Model, _QueryProperty
 from flask.ext.assets import Environment, Bundle
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 
 from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
+from realms.lib.hook import HookModelMeta
 
 
 class Application(Flask):
@@ -55,6 +56,7 @@ class Application(Flask):
             'commands',
             'models',
             'views',
+            'hooks'
         )
 
         start_time = time.time()
@@ -86,6 +88,16 @@ class Application(Flask):
             rv[0] = self.response_class(json.dumps(rv[0]), mimetype='application/json')
 
         return super(Application, self).make_response(tuple(rv))
+
+
+class MySQLAlchemy(SQLAlchemy):
+
+    def make_declarative_base(self):
+        """Creates the declarative base."""
+        base = declarative_base(cls=Model, name='Model',
+                                metaclass=HookModelMeta)
+        base.query = _QueryProperty(self)
+        return base
 
 
 class Assets(Environment):
@@ -181,7 +193,7 @@ def cli():
 login_manager = LoginManager(app)
 login_manager.login_view = 'auth.login'
 
-db = SQLAlchemy(app)
+db = MySQLAlchemy(app)
 cache = Cache(app)
 
 assets = Assets(app)
