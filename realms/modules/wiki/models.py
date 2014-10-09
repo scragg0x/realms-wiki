@@ -10,9 +10,10 @@ from dulwich.repo import NotGitRepository
 from werkzeug.utils import escape, unescape
 from realms.lib.util import to_canonical
 from realms import cache
+from realms.lib.hook import HookMixin
 
 
-class Wiki():
+class Wiki(HookMixin):
     path = None
     base_path = '/'
     default_ref = 'master'

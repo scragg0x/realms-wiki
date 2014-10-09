@@ -44,7 +44,6 @@ class Model(db.Model):
         >>> {u'email': u'john@localhost', u'posts': [{u'id': 1, u'title': u'My First Post'}], u'name': u'John', u'id': 1}
     """
     __abstract__ = True
-
     # Stores changes made to this model's attributes. Can be retrieved
     # with model.changes
     _changes = {}
