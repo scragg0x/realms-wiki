@@ -13,6 +13,16 @@ from realms import cache
 from realms.lib.hook import HookMixin
 
 
+def cname_to_filename(cname):
+    return cname.lower() + ".md"
+
+
+def filename_to_cname(filename):
+    """ It's assumed filename is already cname format
+    """
+    return os.path.splitext(filename)[0]
+
+
 class Wiki(HookMixin):
     path = None
     base_path = '/'
@@ -87,7 +97,7 @@ class Wiki(HookMixin):
 
         content = re.sub(r"```(.*?)```", unescape_repl, content, flags=re.DOTALL)
 
-        filename = self.cname_to_filename(cname)
+        filename = cname_to_filename(cname)
         with open(self.path + "/" + filename, 'w') as f:
             f.write(content)
 
@@ -113,7 +123,7 @@ class Wiki(HookMixin):
         return ret
 
     def rename_page(self, old_name, new_name, user=None):
-        old_filename, new_filename = map(self.cname_to_filename, [old_name, new_name])
+        old_filename, new_filename = map(cname_to_filename, [old_name, new_name])
         if old_filename not in self.gittle.index:
             # old doesn't exist
             return None
@@ -140,7 +150,7 @@ class Wiki(HookMixin):
             return cached
 
         # commit = gittle.utils.git.commit_info(self.repo[sha])
-        filename = self.cname_to_filename(name).encode('latin-1')
+        filename = cname_to_filename(name).encode('latin-1')
         sha = sha.encode('latin-1')
 
         try:
@@ -177,8 +187,21 @@ class Wiki(HookMixin):
         new = self.get_page(name, sha=new_sha)
         return ghdiff.diff(old['data'], new['data'])
 
+    def get_index(self):
+        rv = []
+        index = self.repo.open_index()
+        for name in index:
+            rv.append(dict(name=filename_to_cname(name),
+                           filename=name,
+                           ctime=index[name].ctime[0],
+                           mtime=index[name].mtime[0],
+                           sha=index[name].sha,
+                           size=index[name].size))
+
+        return rv
+
     def get_history(self, name, limit=100):
-        file_path = self.cname_to_filename(name)
+        file_path = cname_to_filename(name)
         versions = []
         walker = self.repo.get_walker(paths=[file_path], max_entries=limit)
         for entry in walker:
@@ -198,6 +221,3 @@ class Wiki(HookMixin):
 
         return versions
 
-    @staticmethod
-    def cname_to_filename(cname):
-        return cname.lower() + ".md"

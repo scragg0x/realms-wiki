@@ -81,11 +81,15 @@ def setup_redis(**kw):
     install_redis()
 
 
+def get_prefix():
+    import sys
+    return sys.prefix
+
+
 def get_pip():
     """ Get virtualenv path for pip
     """
-    import sys
-    return sys.prefix + '/bin/pip'
+    return get_prefix() + '/bin/pip'
 
 
 @cli.command()
@@ -171,6 +175,13 @@ def drop_db():
     """
     click.echo("Dropping all tables")
     db.drop_all()
+
+
+@cli.command()
+def test():
+    """ Run tests
+    """
+    call([get_prefix() + "/bin/nosetests", config.APP_PATH])
 
 
 @cli.command()

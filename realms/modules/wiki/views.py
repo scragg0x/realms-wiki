@@ -121,6 +121,11 @@ def create(name):
                                info={})
 
 
+@blueprint.route("/_index")
+def index():
+    return render_template('wiki/index.html', index=g.current_wiki.get_index())
+
+
 @blueprint.route("/", defaults={'name': 'home'})
 @blueprint.route("/<name>")
 def page(name):

@@ -206,6 +206,8 @@ assets.register('main.js',
                 'js/html-sanitizer-minified.js',  # don't minify?
                 'vendor/highlightjs/highlight.pack.js',
                 'vendor/parsleyjs/dist/parsley.js',
+                'vendor/datatables/media/js/jquery.dataTables.js',
+                'vendor/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.js',
                 'js/hbs-helpers.js',
                 'js/mdr.js')
 
@@ -213,6 +215,7 @@ assets.register('main.css',
                 'vendor/bootswatch-dist/css/bootstrap.css',
                 'vendor/components-font-awesome/css/font-awesome.css',
                 'vendor/highlightjs/styles/github.css',
+                'vendor/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css',
                 'css/style.css')
 
 app.discover()
