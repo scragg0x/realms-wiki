@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+{% block js %}
+<script>
+$(document).ready(function() {
+    $('.data-table').dataTable();
+});
+</script>
+{% endblock %}
+
+{% block body %}
+  <table class="table table-bordered data-table">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th class="hidden-xs">Bytes</th>
+      <th>Modified</th>
+      <th class="hidden-xs hidden-sm">Created</th>
+    </tr>
+    </thead>
+    {% for file in index %}
+      <tr>
+        <td><a href="{{ url_for('wiki.page', name=file['name']) }}">{{ file['name'] }}</a></td>
+        <td class="hidden-xs">{{ file['size'] }}</td>
+        <td>{{ file['ctime']|datetime }}</td>
+        <td class="hidden-xs hidden-sm">{{ file['mtime']|datetime }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

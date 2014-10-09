@@ -12,6 +12,6 @@ config.sls
 config.json
 realms/static/vendor
 realms/static/assets/*
-wiki.db
-wiki
+/wiki.db
+/wiki
 npm-debug.log
