@@ -1,8 +1,12 @@
 from setuptools import setup, find_packages
+import os
+
+if os.environ.get('USER', '') == 'vagrant':
+    del os.link
 
 DESCRIPTION = "Simple git based wiki"
 
-with open('README.md') as f:
+with open('README') as f:
     LONG_DESCRIPTION = f.read()
 
 with open('requirements.txt') as f:
@@ -13,15 +17,20 @@ with open('VERSION') as f:
 
 CLASSIFIERS = [
     'Intended Audience :: Developers',
-    'License :: OSI Approved :: GPLv2 License',
-    'Operating System :: OS Independent',
+    'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
+    'Operating System :: POSIX :: Linux',
     'Programming Language :: Python',
-    'Topic :: Software Development :: Libraries :: Python Modules']
+    'Topic :: Internet :: WWW/HTTP :: Dynamic Content']
 
 setup(name='realms-wiki',
       version=VERSION,
       packages=find_packages(),
       install_requires=required,
+      #scripts=['realms-wiki'],
+      entry_points={
+          'console_scripts': [
+              'realms-wiki = realms.cli:cli'
+          ]},
       author='Matthew Scragg',
       author_email='scragg@gmail.com',
       maintainer='Matthew Scragg',

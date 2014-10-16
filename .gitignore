@@ -1,12 +1,14 @@
 .vagrant
 .venv
+.venv-pypy
 .idea
 .webassets-cache
 *.pyc
 *.egg-info
 *.pid
-dist
-build
+pidfile
+/dist
+/build
 config.py
 config.sls
 config.json
