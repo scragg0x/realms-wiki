@@ -4,6 +4,7 @@ import hashlib
 import json
 import string
 import random
+from jinja2 import Template
 
 
 class AttrDict(dict):
@@ -97,3 +98,49 @@ def to_canonical(s):
 
 def gravatar_url(email):
     return "//www.gravatar.com/avatar/" + hashlib.md5(email).hexdigest()
+
+def upstart_script(user='root', app_dir=None, port=5000, workers=2, path=None):
+    script = """
+limit nofile 65335 65335
+
+respawn
+
+description "Realms Wiki"
+author "scragg@gmail.com"
+
+chdir {{ app_dir }}
+
+{% if path %}
+env PATH={{ path }}:/usr/local/bin:/usr/bin:/bin:$PATH
+export PATH
+{% endif %}
+
+env LC_ALL=en_US.UTF-8
+env GEVENT_RESOLVER=ares
+
+export LC_ALL
+export GEVENT_RESOLVER
+
+setuid {{ user }}
+setgid {{ user }}
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+respawn
+
+exec gunicorn \
+  --name realms-wiki \
+  --access-logfile - \
+  --error-logfile - \
+  --worker-class gevent \
+  --workers {{ workers }} \
+  --bind 0.0.0.0:{{ port }} \
+  --user {{ user }} \
+  --group {{ user }} \
+  --chdir {{ app_dir }} \
+  realms:app
+
+"""
+    template = Template(script)
+    return template.render(user=user, app_dir=app_dir, port=port, workers=workers, path=path)

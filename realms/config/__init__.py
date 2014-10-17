@@ -6,27 +6,47 @@ from urlparse import urlparse
 def update(data):
     conf = read()
     conf.update(data)
-    save(data)
+    return save(data)
 
 
 def read():
     conf = dict()
 
-    try:
-        with open(os.path.join(APP_PATH, 'config.json')) as f:
-            conf = json.load(f)
-    except IOError:
-        pass
+    for k, v in os.environ.items():
+        if k.startswith('REALMS_'):
+            conf[k[7:]] = v
+
+    for loc in os.curdir, os.path.expanduser("~"), "/etc/realms-wiki", os.environ.get("REALMS_WIKI_CONF"):
+        try:
+            if not loc:
+                continue
+            with open(os.path.join(loc, "realms-wiki.json")) as f:
+                conf.update(json.load(f))
+            break
+        except IOError:
+            pass
+
+    for k in ['APP_PATH', 'USER_HOME']:
+        if k in conf:
+            del conf[k]
 
     return conf
 
 
 def save(conf):
-    with open(os.path.join(APP_PATH, 'config.json'), 'w') as f:
-        f.write(json.dumps(conf, sort_keys=True, indent=4, separators=(',', ': ')).strip() + '\n')
+    for loc in "/etc/realms-wiki", os.path.expanduser("~"), os.curdir:
+        try:
+            with open(os.path.join(loc, 'realms-wiki.json'), 'w') as f:
+                f.write(json.dumps(conf, sort_keys=True, indent=4, separators=(',', ': ')).strip() + '\n')
+                return os.path.join(loc, 'realms-wiki.json')
+        except IOError:
+            pass
 
 APP_PATH = os.path.abspath(os.path.dirname(__file__) + "/../..")
 USER_HOME = os.path.abspath(os.path.expanduser("~"))
+
+# Best to change to /var/run
+PIDFILE = "/tmp/realms-wiki.pid"
 
 ENV = 'DEV'
 
@@ -39,7 +59,7 @@ BASE_URL = 'http://localhost'
 SITE_TITLE = "Realms"
 
 # https://pythonhosted.org/Flask-SQLAlchemy/config.html#connection-uri-format
-DB_URI = 'sqlite:///%s/wiki.db' % USER_HOME
+DB_URI = 'sqlite:////tmp/wiki.db'
 # DB_URI = 'mysql://scott:tiger@localhost/mydatabase'
 # DB_URI = 'postgresql://scott:tiger@localhost/mydatabase'
 # DB_URI = 'oracle://scott:tiger@127.0.0.1:1521/sidname'
@@ -67,7 +87,7 @@ RECAPTCHA_OPTIONS = {}
 SECRET_KEY = 'CHANGE_ME'
 
 # Path on file system where wiki data will reside
-WIKI_PATH = os.path.join(APP_PATH, 'wiki')
+WIKI_PATH = '/tmp/wiki'
 
 # Name of page that will act as home
 WIKI_HOME = 'home'
@@ -78,7 +98,7 @@ REGISTRATION_ENABLED = True
 # Used by Flask-Login
 LOGIN_DISABLED = ALLOW_ANON
 
-# None, firepad, or togetherjs
+# None, firepad, and/or togetherjs
 COLLABORATION = 'togetherjs'
 
 # Required for firepad
@@ -91,22 +111,7 @@ LOCKED = WIKI_LOCKED_PAGES
 
 ROOT_ENDPOINT = 'wiki.page'
 
-__env = {}
-for k, v in os.environ.items():
-    if k.startswith('REALMS_'):
-        __env[k[7:]] = v
-
-globals().update(__env)
-
-try:
-    with open(os.path.join(APP_PATH, 'config.json')) as f:
-        __settings = json.load(f)
-        for k in ['APP_PATH', 'USER_HOME']:
-            if k in __settings:
-                del __settings[k]
-        globals().update(__settings)
-except IOError:
-    pass
+globals().update(read())
 
 if BASE_URL.endswith('/'):
     BASE_URL = BASE_URL[-1]

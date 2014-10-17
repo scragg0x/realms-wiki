@@ -1,10 +1,4 @@
 import sys
-if 'threading' in sys.modules:
-    del sys.modules['threading']
-
-# Monkey patch stdlib.
-import gevent.monkey
-gevent.monkey.patch_all(aggressive=False, subprocess=True)
 
 # Set default encoding to UTF-8
 reload(sys)
@@ -12,7 +6,6 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 import time
-import sys
 import json
 import httplib
 import traceback
@@ -74,7 +67,7 @@ class Application(Flask):
             if hasattr(sources, 'commands'):
                 cli.add_command(sources.commands.cli, name=module_name)
 
-        print >> sys.stderr, ' * Ready in %.2fms' % (1000.0 * (time.time() - start_time))
+        # print >> sys.stderr, ' * Ready in %.2fms' % (1000.0 * (time.time() - start_time))
 
     def make_response(self, rv):
         if rv is None:
