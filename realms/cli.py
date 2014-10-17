@@ -8,6 +8,15 @@ import sys
 import os
 
 
+def check_su(f):
+    if not in_virtualenv() and not is_su():
+        # This does not account for people the have user level python installs
+        # that aren't virtual environments!  Should be rare I think
+        red("This command requires root privileges, use sudo or run as root.")
+        sys.exit()
+    return f
+
+
 def get_user():
     for name in ('SUDO_USER', 'LOGNAME', 'USER', 'LNAME', 'USERNAME'):
         user = os.environ.get(name)
@@ -41,7 +50,20 @@ def module_exists(module_name):
         return True
 
 
+def green(s):
+    click.secho(s, fg='green')
+
+
+def yellow(s):
+    click.secho(s, fg='yellow')
+
+
+def red(s):
+    click.secho(s, fg='red')
+
+
 @cli.command()
+@check_su
 @click.option('--site-title',
               default=config.SITE_TITLE,
               prompt='Enter site title.')
@@ -56,7 +78,7 @@ def module_exists(module_name):
               prompt='Enter secret key.')
 @click.option('--wiki-path',
               default=config.WIKI_PATH,
-              prompt='Where do you want to store wiki data?',
+              prompt='Enter wiki data directory.',
               help='Wiki Directory (git repo)')
 @click.option('--allow-anon',
               default=config.ALLOW_ANON,
@@ -78,12 +100,6 @@ def setup(ctx, **kw):
     """ Start setup wizard
     """
 
-    if not in_virtualenv() and not is_su():
-        # This does not account for people the have user level python installs
-        # that aren't virtual environments!  Should be rare I think
-        click.secho("Setup requires root privileges, use sudo or run as root")
-        return
-
     conf = {}
 
     for k, v in kw.items():
@@ -96,9 +112,9 @@ def setup(ctx, **kw):
     elif conf['CACHE_TYPE'] == 'memcached':
         ctx.invoke(setup_memcached)
 
-    click.secho('Config saved to %s' % conf_path, fg='green')
-    click.secho('Type "realms-wiki start" to start server', fg='yellow')
-    click.secho('Type "realms-wiki dev" to start server in development mode', fg='yellow')
+    green('Config saved to %s' % conf_path)
+    yellow('Type "realms-wiki start" to start server')
+    yellow('Type "realms-wiki dev" to start server in development mode')
 
 
 @click.command()
@@ -131,10 +147,6 @@ def get_prefix():
 def get_pip():
     """ Get virtualenv path for pip
     """
-    if not in_virtualenv() and not is_su():
-        click.secho("This command requires root, use sudo or run as root")
-        return
-
     if in_virtualenv():
         return get_prefix() + '/bin/pip'
     else:
@@ -142,6 +154,7 @@ def get_pip():
 
 
 @cli.command()
+@check_su
 @click.argument('cmd', nargs=-1)
 def pip(cmd):
     """ Execute pip commands, useful for virtualenvs
@@ -180,6 +193,7 @@ def setup_memcached(**kw):
 
 
 @cli.command()
+@check_su
 @click.option('--user',
               default=get_user(),
               type=click.STRING,
@@ -196,13 +210,6 @@ def setup_upstart(**kwargs):
     """ Start upstart conf creation wizard
     """
     from realms.lib.util import upstart_script
-    import realms
-
-    print os.path.dirname(realms.__file__)
-
-    if not is_su():
-        click.secho("Please run this command as root or use sudo", fg='red')
-        return
 
     if in_virtualenv():
         app_dir = get_prefix()
@@ -219,10 +226,10 @@ def setup_upstart(**kwargs):
     with open('/etc/init/realms-wiki.conf', 'w') as f:
         f.write(upstart_script(**kwargs))
 
-    click.secho('Wrote file to %s' % conf_file, fg='yellow')
-    click.echo("Type 'sudo start realms-wiki' to start")
-    click.echo("Type 'sudo stop realms-wiki' to stop")
-    click.echo("Type 'sudo restart realms-wiki' to restart")
+    green('Wrote file to %s' % conf_file)
+    green("Type 'sudo start realms-wiki' to start")
+    green("Type 'sudo stop realms-wiki' to stop")
+    green("Type 'sudo restart realms-wiki' to restart")
 
 
 @cli.command()
@@ -233,7 +240,7 @@ def configure(json_string):
     try:
         config.update(json.loads(json_string))
     except ValueError, e:
-        click.secho('Config value should be valid JSON', fg='red')
+        red('Config value should be valid JSON')
 
 
 @cli.command()
@@ -241,7 +248,7 @@ def configure(json_string):
 def dev(port):
     """ Run development server
     """
-    click.secho("Starting development server", fg='green')
+    green("Starting development server")
     app.run(host="0.0.0.0",
             port=port,
             debug=True)
@@ -249,12 +256,12 @@ def dev(port):
 
 def start_server():
     if get_pid():
-        click.echo("Server is already running")
+        yellow("Server is already running")
         return
 
     flags = '--daemon --pid %s' % config.PIDFILE
 
-    click.secho("Server started. Port: %s" % config.PORT, fg='green')
+    green("Server started. Port: %s" % config.PORT)
 
     Popen('gunicorn realms:app -b 0.0.0.0:%s -k gevent %s' %
          (config.PORT, flags), shell=True, executable='/bin/bash')
@@ -263,9 +270,9 @@ def start_server():
 def stop_server():
     pid = get_pid()
     if not pid:
-        click.echo("Server is not running")
+        yellow("Server is not running")
     else:
-        click.echo("Shutting down server")
+        yellow("Shutting down server")
         call(['kill', pid])
 
 
@@ -304,16 +311,16 @@ def status():
     """
     pid = get_pid()
     if not pid:
-        click.echo("Server is not running")
+        yellow("Server is not running")
     else:
-        click.echo("Server is running PID: %s" % pid)
+        green("Server is running PID: %s" % pid)
 
 
 @cli.command()
 def create_db():
     """ Creates DB tables
     """
-    click.echo("Creating all tables")
+    green("Creating all tables")
     db.create_all()
 
 
@@ -322,7 +329,7 @@ def create_db():
 def drop_db():
     """ Drops DB tables
     """
-    click.echo("Dropping all tables")
+    yellow("Dropping all tables")
     db.drop_all()
 
 
@@ -345,6 +352,7 @@ def version():
     """
     with open('VERSION') as f:
         return f.read().strip()
+
 
 if __name__ == '__main__':
     cli()

@@ -12,6 +12,7 @@ pidfile
 config.py
 config.sls
 config.json
+realms-wiki.json
 realms/static/vendor
 realms/static/assets/*
 /wiki.db
