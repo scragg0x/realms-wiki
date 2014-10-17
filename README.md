@@ -7,27 +7,28 @@ Basic authentication and registration included.
 Demo: http://realms.io
 This domain is being used temporarily as a demo so expect it to change.
 
+Source: https://github.com/scragg0x/realms-wiki
+
 ## Features
 
 - Built with Bootstrap 3
-- Currently Markdown (w/ HTML) only
+- Markdown (w/ HTML Support)
 - Syntax highlighting (Ace Editor)
 - Live preview
-- Collaboration (TogetherJS)
-- Drafts saved to localstorage
-- Handlebars
+- Collaboration (TogetherJS / Firepad)
+- Drafts saved to local storage
+- Handlebars for templates and logic
 
 ## Screenshots
 
 [<img src="https://db.tt/Q2XHGRnT" width=340 />](https://db.tt/Q2XHGRnT)&nbsp;[<img  width=340 src="https://db.tt/pIZ4w2oN" />](https://db.tt/pIZ4w2oN)&nbsp;[<img  width=340 src="https://db.tt/ERLmDHrk" />](https://db.tt/ERLmDHrk)&nbsp;[<img width=340 src="https://db.tt/Ls08ocLh" />](https://db.tt/Ls08ocLh)&nbsp;[<img width=340 src="https://db.tt/7QVfXFQ4" />](https://db.tt/7QVfXFQ4)&nbsp;[<img width=340 src="https://db.tt/Lna3BOm1" />](https://db.tt/Lna3BOm1)
 
-
 ## Requirements
-- Python 2.7
-- Git
-- NodeJS (needed for bower, distro packages shouldn't need this in future)
 
-**Optional**
+- Python 2.7
+
+### Optional
+
 - Nginx (if you want proxy requests, this is recommended)
 - Memcached or Redis, default is memonization
 - MariaDB, MySQL, Postgresql, or another database supported by SQLAlchemy, default is sqlite.  
@@ -35,19 +36,42 @@ Anon or single user does not require a database.
 
 ## Installation
 
-### Ubuntu
+You will need to following packages to get started
 
-If you are using Ubuntu 14.04, you can use install.sh.
+    sudo apt-get install -y python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev
+
+### Install from Pypi
+
+Easiest way.
+
+    pip install realms-wiki
+
+### Install from Git
+
+Use this method for development.
     
-```
-git clone https://github.com/scragg0x/realms-wiki
-cd realms-wiki
-sudo bash install.sh
-```
+    git clone https://github.com/scragg0x/realms-wiki
+    cd realms-wiki
+
+The included install script should work for Ubuntu.
+
+    sudo bash install.sh
+    
+If it fails and you are running Ubuntu, open an issue.
+Additional packages from the script are as follows:
+
+    sudo apt-get install -y software-properties-common python-software-properties
+    sudo add-apt-repository -y ppa:chris-lea/node.js
+    sudo apt-get update
+    sudo apt-get install -y nodejs python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev
+    sudo npm install -g bower
+    bower install
+    
+NodeJS is for installing [bower](http://bower.io) and it's used for pulling front end dependencies
 
 ### OSX / Windows
 
-This app is designed to run in Linux and I recommend using Vagrant to install on OSX or Windows.
+This app is designed for Linux and I recommend using Vagrant to install on OSX or Windows.
 
 ### Vagrant
 
@@ -79,14 +103,14 @@ The Dockerfile is located in [docker/Dockerfile](docker/Dockerfile)  realms/base
 
 ## Config and Setup
 
-You should be able to run this right out of the box with the default config values.
+You should be able to run the wiki without configuration with the default config values.
 You may want to customize your app and the easiest way is the setup command.
 
     realms-wiki setup
     
-This will ask you questions and create a config.json file in the app root directory.
-Of course you can manually edit this file as well.
-Any config value set in config.json will override values set in ```realms/config/__init__.py```
+This will ask you questions and create a realms-wiki.json file in where it can find it.
+You can manually edit this file as well.
+Any config value set in realms-wiki.json will override values set in ```realms/config/__init__.py```
 
 ### Nginx Setup
 
@@ -149,19 +173,52 @@ _Don't forget to create your database._
 
 ## Running
 
-Current there are different ways.
+    realms-wiki start
+    
+### Upstart
+    
+Setup upstart with this command.
 
-- Daemon mode using upstart
+    sudo realms-wiki setup_upstart
 
-```sudo start realms-wiki```
+This command requires root privs because it creates an upstart script.
+Also note that ports below 1024 require user root.
+After your config is in place use the following commands:
 
-- Foreground mode
+    sudo start realms-wiki
+    sudo stop realms-wiki
+    sudo restart realms-wiki
+    
 
-```realms-wiki run```
+### Developement mode
 
-- Debug mode
+This will start the server in the foreground with auto reloaded enabled
 
-```realms-wiki dev```
+    realms-wiki dev
+
+### Other commands
+
+    Usage: realms-wiki [OPTIONS] COMMAND [ARGS]...
+    
+    Options:
+      --help  Show this message and exit.
+    
+    Commands:
+      auth
+      configure      Set config.json, expects JSON encoded string
+      create_db      Creates DB tables
+      dev            Run development server
+      drop_db        Drops DB tables
+      pip            Execute pip commands, useful for virtualenvs
+      restart        Restart server
+      run            Run production server (alias for start)
+      setup          Start setup wizard
+      setup_upstart  Start upstart conf creation wizard
+      start          Run server daemon
+      status         Get server status
+      stop           Stop server
+      test           Run tests
+      version        Output version
 
 Access from your browser
 
@@ -174,21 +231,26 @@ Each page that you create can be imported as a partial.
 
 This page imports and uses a partial:
 
-    http://realms.io/_edit/hbs
+http://realms.io/_edit/hbs
 
 This page contains the content of the partial:
 
-    http://realms.io/_edit/example-tmpl
+http://realms.io/_edit/example-tmpl
     
 I locked these pages to preserve them.  
 You may copy and paste into a new page to test.
+
+
+## Contributing
+
+Issues and pull requests are welcome.
+
+[Python style guide](http://google-styleguide.googlecode.com/svn/trunk/pyguide.html)
 
 ## Author
 
 Matthew Scragg <scragg@gmail.com>
 
-
 [gollum]: https://github.com/gollum/gollum
 [ghost]: https://github.com/tryghost/Ghost
 [dillinger]: https://github.com/joemccann/dillinger/
-
