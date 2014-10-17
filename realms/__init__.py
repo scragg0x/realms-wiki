@@ -20,6 +20,7 @@ from werkzeug.exceptions import HTTPException
 
 from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
 from realms.lib.hook import HookModelMeta
+from realms.lib.util import is_su, in_virtualenv
 
 
 class Application(Flask):
@@ -179,8 +180,15 @@ if app.config['RELATIVE_PATH']:
 
 
 @click.group()
-def cli():
-    pass
+@click.pass_context
+def cli(ctx):
+    # This could probably done better
+    if ctx.invoked_subcommand in ['setup', 'setup_upstart', 'pip']:
+        if not in_virtualenv() and not is_su():
+            # This does not account for people the have user level python installs
+            # that aren't virtual environments!  Should be rare I think
+            click.secho("This command requires root privileges, use sudo or run as root.", fg='red')
+            sys.exit()
 
 # Init plugins here if possible
 login_manager = LoginManager(app)

@@ -6,7 +6,7 @@ if os.environ.get('USER', '') == 'vagrant':
 
 DESCRIPTION = "Simple git based wiki"
 
-with open('README') as f:
+with open('README.md') as f:
     LONG_DESCRIPTION = f.read()
 
 with open('requirements.txt') as f:

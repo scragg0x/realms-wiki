@@ -1,5 +1,5 @@
-from realms import config, app, cli, db
-from realms.lib.util import random_string
+from realms import config, app, db, cli
+from realms.lib.util import random_string, in_virtualenv
 from subprocess import call, Popen
 from multiprocessing import cpu_count
 import click
@@ -8,28 +8,11 @@ import sys
 import os
 
 
-def check_su(f):
-    if not in_virtualenv() and not is_su():
-        # This does not account for people the have user level python installs
-        # that aren't virtual environments!  Should be rare I think
-        red("This command requires root privileges, use sudo or run as root.")
-        sys.exit()
-    return f
-
-
 def get_user():
     for name in ('SUDO_USER', 'LOGNAME', 'USER', 'LNAME', 'USERNAME'):
         user = os.environ.get(name)
         if user:
             return user
-
-
-def in_virtualenv():
-    return hasattr(sys, 'real_prefix')
-
-
-def is_su():
-    return os.geteuid() == 0
 
 
 def get_pid():
@@ -63,7 +46,6 @@ def red(s):
 
 
 @cli.command()
-@check_su
 @click.option('--site-title',
               default=config.SITE_TITLE,
               prompt='Enter site title.')
@@ -154,7 +136,6 @@ def get_pip():
 
 
 @cli.command()
-@check_su
 @click.argument('cmd', nargs=-1)
 def pip(cmd):
     """ Execute pip commands, useful for virtualenvs
@@ -193,7 +174,6 @@ def setup_memcached(**kw):
 
 
 @cli.command()
-@check_su
 @click.option('--user',
               default=get_user(),
               type=click.STRING,

@@ -4,6 +4,7 @@ import hashlib
 import json
 import string
 import random
+import sys
 from jinja2 import Template
 
 
@@ -98,6 +99,15 @@ def to_canonical(s):
 
 def gravatar_url(email):
     return "//www.gravatar.com/avatar/" + hashlib.md5(email).hexdigest()
+
+
+def in_virtualenv():
+    return hasattr(sys, 'real_prefix')
+
+
+def is_su():
+    return os.geteuid() == 0
+
 
 def upstart_script(user='root', app_dir=None, port=5000, workers=2, path=None):
     script = """
