@@ -210,7 +210,8 @@ assets.register('main.js',
                 'vendor/datatables/media/js/jquery.dataTables.js',
                 'vendor/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.js',
                 'js/hbs-helpers.js',
-                'js/mdr.js')
+                'js/mdr.js',
+                'js/main.js')
 
 assets.register('main.css',
                 'vendor/bootswatch-dist/css/bootstrap.css',

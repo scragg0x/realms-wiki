@@ -2,6 +2,8 @@ var $entry_markdown_header = $("#entry-markdown-header");
 var $entry_preview_header = $("#entry-preview-header");
 var $entry_markdown = $(".entry-markdown");
 var $entry_preview = $(".entry-preview");
+var $page_name = $("#page-name");
+var $page_message = $("#page-message");
 
 // Tabs
 $entry_markdown_header.click(function(){
@@ -66,12 +68,26 @@ var aced = new Aced({
   info: Commit.info,
   submit: function(content) {
     var data = {
-      name: $("#page-name").val(),
-      message: $("#page-message").val(),
+      name: $page_name.val(),
+      message: $page_message.val(),
       content: content
     };
-    $.post(window.location, data, function() {
-      location.href = Config['RELATIVE_PATH'] + '/' + data['name'];
+
+    var path = Config['RELATIVE_PATH'] + '/' + data['name'];
+    var type = (Commit.info['sha']) ? "PUT" : "POST";
+
+    $.ajax({
+      type: type,
+      url: path,
+      data: data,
+      dataType: 'json'
+    }).always(function(data, status, error) {
+      if (data && data['error']) {
+        $page_name.addClass('parsley-error');
+        bootbox.alert("<h3>" + data['message'] + "</h3>");
+      } else {
+        location.href = path;
+      }
     });
   }
 });

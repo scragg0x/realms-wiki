@@ -330,8 +330,8 @@ def test():
 def version():
     """ Output version
     """
-    with open('VERSION') as f:
-        return f.read().strip()
+    with open(os.path.join(config.APP_PATH, 'VERSION')) as f:
+        click.echo(f.read().strip())
 
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@
 {% block body %}
   {% if commit %}
     <div id="page-action-bar">
-      <form method="POST" action="{{ url_for('wiki.revert') }}">
+      <form method="POST" action="{{ url_for('wiki.revert') }}" class="ajax-form" data-redirect="{{ url_for('wiki.page', name=name) }}">
         <input type="hidden" value="{{ name }}" name="name" />
         <input type="hidden" value="{{ commit }}" name="commit" />
         <input type="submit" class="btn btn-danger btn-sm" title="Revert back to this revision" value="Revert" />
