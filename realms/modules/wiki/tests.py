@@ -1,15 +1,10 @@
 from nose.tools import *
 from flask import url_for
-from realms import app, g
 from realms.modules.wiki.models import Wiki, cname_to_filename, filename_to_cname
-from flask.ext.testing import TestCase
+from realms.lib.test import BaseTest
 
 
-class WikiTest(TestCase):
-
-    def create_app(self):
-        app.config['TESTING'] = True
-        return app
+class WikiTest(BaseTest):
 
     def test_wiki_routes(self):
 
@@ -22,7 +17,17 @@ class WikiTest(TestCase):
         """
 
     def test_write_page(self):
-        pass
+        self.assert_200(
+            self.client.post(url_for('wiki.page_write', name='test'), data=dict(
+                content='testing',
+                message='test message'
+            )))
+
+        self.assert_200(self.client.get(url_for('wiki.page', name='test')))
+
+    def test_delete_page(self):
+        self.assert_200(self.client.delete(url_for('wiki.page_write', name='test')))
+        self.assert_status(self.client.get(url_for('wiki.page', name='test')), 302)
 
     def test_revert(self):
         pass

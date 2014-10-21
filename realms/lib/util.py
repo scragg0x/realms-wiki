@@ -1,3 +1,4 @@
+import click
 import re
 import os
 import hashlib
@@ -107,6 +108,18 @@ def in_virtualenv():
 
 def is_su():
     return os.geteuid() == 0
+
+
+def green(s):
+    click.secho(s, fg='green')
+
+
+def yellow(s):
+    click.secho(s, fg='yellow')
+
+
+def red(s):
+    click.secho(s, fg='red')
 
 
 def upstart_script(user='root', app_dir=None, port=5000, workers=2, path=None):

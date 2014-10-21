@@ -1,7 +1,9 @@
 import json
-from realms import db
 from sqlalchemy import not_
 from datetime import datetime
+from flask.ext.sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 
 class Model(db.Model):

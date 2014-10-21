@@ -1,15 +1,9 @@
 from flask import abort, g, render_template, request, redirect, Blueprint, flash, url_for, current_app
-from flask.ext.login import login_required
+from flask.ext.login import login_required, current_user
 from realms.lib.util import to_canonical, remove_ext
-from realms.modules.wiki.models import Wiki
-from realms import current_user, app
-
-blueprint = Blueprint('wiki', __name__, url_prefix=app.config['RELATIVE_PATH'])
 
 
-@app.before_request
-def init_wiki():
-    g.current_wiki = Wiki(app.config['WIKI_PATH'])
+blueprint = Blueprint('wiki', __name__)
 
 
 @blueprint.route("/_commit/<sha>/<name>")
@@ -27,7 +21,8 @@ def commit(name, sha):
 @blueprint.route("/_compare/<name>/<regex('[^.]+'):fsha><regex('\.{2,3}'):dots><regex('.+'):lsha>")
 def compare(name, fsha, dots, lsha):
     diff = g.current_wiki.compare(name, fsha, lsha)
-    return render_template('wiki/compare.html', name=name, diff=diff, old=fsha, new=lsha)
+    return render_template('wiki/compare.html',
+                           name=name, diff=diff, old=fsha, new=lsha)
 
 
 @blueprint.route("/_revert", methods=['POST'])
@@ -38,11 +33,14 @@ def revert():
     cname = to_canonical(name)
     message = request.form.get('message', "Reverting %s" % cname)
 
-    if cname in app.config.get('WIKI_LOCKED_PAGES'):
+    if cname in current_app.config.get('WIKI_LOCKED_PAGES'):
         return dict(error=True, message="Page is locked")
 
-    sha = g.current_wiki.revert_page(name, commit, message=message,
-                                     username=current_user.username)
+    sha = g.current_wiki.revert_page(name,
+                                     commit,
+                                     message=message,
+                                     username=current_user.username,
+                                     email=current_user.email)
     if sha:
         flash("Page reverted")
 
@@ -101,23 +99,24 @@ def page_write(name):
     cname = to_canonical(name)
 
     if not cname:
-            return dict(error=True, message="Invalid name")
+        return dict(error=True, message="Invalid name")
 
     if request.method == 'POST':
         # Create
-        if cname in app.config.get('WIKI_LOCKED_PAGES'):
+        if cname in current_app.config.get('WIKI_LOCKED_PAGES'):
             return dict(error=True, message="Page is locked")
 
         sha = g.current_wiki.write_page(cname,
                                         request.form['content'],
                                         message=request.form['message'],
                                         create=True,
-                                        username=current_user.username)
+                                        username=current_user.username,
+                                        email=current_user.email)
 
     elif request.method == 'PUT':
         edit_cname = to_canonical(request.form['name'])
 
-        if edit_cname in app.config.get('WIKI_LOCKED_PAGES'):
+        if edit_cname in current_app.config.get('WIKI_LOCKED_PAGES'):
             return dict(error=True, message="Page is locked")
 
         if edit_cname != cname.lower():
@@ -126,13 +125,16 @@ def page_write(name):
         sha = g.current_wiki.write_page(edit_cname,
                                         request.form['content'],
                                         message=request.form['message'],
-                                        username=current_user.username)
+                                        username=current_user.username,
+                                        email=current_user.email)
 
         return dict(sha=sha)
 
     else:
         # DELETE
-        sha = g.current_wiki.delete_page(name, user=current_user)
+        sha = g.current_wiki.delete_page(name,
+                                         username=current_user.username,
+                                         email=current_user.email)
 
     return dict(sha=sha)
 

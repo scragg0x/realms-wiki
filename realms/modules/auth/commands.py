@@ -1,6 +1,7 @@
 import click
 from realms.lib.util import random_string
 from realms.modules.auth.models import User
+from realms.lib.util import green, red, yellow
 
 
 @click.group()
@@ -21,15 +22,15 @@ def create_user(username, email, password):
         password = random_string(12)
 
     if User.get_by_username(username):
-        click.secho("Username %s already exists" % username, fg='red')
+        red("Username %s already exists" % username)
         return
 
     if User.get_by_email(email):
-        click.secho("Email %s already exists" % email, fg='red')
+        red("Email %s already exists" % email)
         return
 
     User.create(username, email, password)
-    click.secho("User %s created" % username, fg='green')
+    green("User %s created" % username)
 
     if show_pass:
-        click.secho("Password: %s" % password, fg='yellow')
+        yellow("Password: %s" % password)

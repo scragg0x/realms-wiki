@@ -60,15 +60,26 @@ class Application(Flask):
         for module_name in self.config['MODULES']:
             sources = __import__('%s.%s' % (import_name, module_name), fromlist=fromlist)
 
+            if hasattr(sources, 'init'):
+                sources.init(self)
+
             # Blueprint
             if hasattr(sources, 'views'):
-                self.register_blueprint(sources.views.blueprint)
+                self.register_blueprint(sources.views.blueprint, url_prefix=self.config['RELATIVE_PATH'])
 
             # Click
             if hasattr(sources, 'commands'):
                 cli.add_command(sources.commands.cli, name=module_name)
 
-        # print >> sys.stderr, ' * Ready in %.2fms' % (1000.0 * (time.time() - start_time))
+            # Hooks
+            if hasattr(sources, 'hooks'):
+                if hasattr(sources.hooks, 'before_request'):
+                    self.before_request(sources.hooks.before_request)
+
+                if hasattr(sources.hooks, 'before_first_request'):
+                    self.before_first_request(sources.hooks.before_first_request)
+
+                # print >> sys.stderr, ' * Ready in %.2fms' % (1000.0 * (time.time() - start_time))
 
     def make_response(self, rv):
         if rv is None:
@@ -148,35 +159,45 @@ def error_handler(e):
     return response, status_code
 
 
+def create_app(config=None):
+    app = Application(__name__)
+    app.config.from_object('realms.config')
+    app.url_map.converters['regex'] = RegexConverter
+    app.url_map.strict_slashes = False
 
-app = Application(__name__)
-app.config.from_object('realms.config')
-app.url_map.converters['regex'] = RegexConverter
-app.url_map.strict_slashes = False
+    login_manager.init_app(app)
+    db.init_app(app)
+    cache.init_app(app)
+    assets.init_app(app)
 
-for status_code in httplib.responses:
-    if status_code >= 400:
-        app.register_error_handler(status_code, error_handler)
+    for status_code in httplib.responses:
+        if status_code >= 400:
+            app.register_error_handler(status_code, error_handler)
 
+    @app.before_request
+    def init_g():
+        g.assets = dict(css=['main.css'], js=['main.js'])
 
-@app.before_request
-def init_g():
-    g.assets = dict(css=['main.css'], js=['main.js'])
+    @app.template_filter('datetime')
+    def _jinja2_filter_datetime(ts):
+        return time.strftime('%b %d, %Y %I:%M %p', time.localtime(ts))
 
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('errors/404.html'), 404
 
-@app.template_filter('datetime')
-def _jinja2_filter_datetime(ts):
-    return time.strftime('%b %d, %Y %I:%M %p', time.localtime(ts))
+    if app.config['RELATIVE_PATH']:
+        @app.route("/")
+        def root():
+            return redirect(url_for(app.config['ROOT_ENDPOINT']))
 
+    app.discover()
 
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('errors/404.html'), 404
+    # This will be removed at some point
+    with app.app_context():
+        db.create_all()
 
-if app.config['RELATIVE_PATH']:
-    @app.route("/")
-    def root():
-        return redirect(url_for(app.config['ROOT_ENDPOINT']))
+    return app
 
 
 @click.group()
@@ -191,13 +212,13 @@ def cli(ctx):
             sys.exit()
 
 # Init plugins here if possible
-login_manager = LoginManager(app)
+login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 
-db = MySQLAlchemy(app)
-cache = Cache(app)
+db = MySQLAlchemy()
+cache = Cache()
+assets = Assets()
 
-assets = Assets(app)
 assets.register('main.js',
                 'vendor/jquery/dist/jquery.js',
                 'vendor/components-bootstrap/js/bootstrap.js',
@@ -220,10 +241,7 @@ assets.register('main.css',
                 'vendor/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css',
                 'css/style.css')
 
-app.discover()
 
-# This will be removed at some point
-db.create_all()
 
 
 

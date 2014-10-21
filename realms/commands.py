@@ -1,11 +1,14 @@
-from realms import config, app, db, cli
-from realms.lib.util import random_string, in_virtualenv
+from realms import config, create_app, db, cli
+from realms.lib.util import random_string, in_virtualenv, green, yellow, red
 from subprocess import call, Popen
 from multiprocessing import cpu_count
 import click
 import json
 import sys
 import os
+
+
+app = create_app()
 
 
 def get_user():
@@ -31,18 +34,6 @@ def module_exists(module_name):
         return False
     else:
         return True
-
-
-def green(s):
-    click.secho(s, fg='green')
-
-
-def yellow(s):
-    click.secho(s, fg='yellow')
-
-
-def red(s):
-    click.secho(s, fg='red')
 
 
 @cli.command()
@@ -243,7 +234,7 @@ def start_server():
 
     green("Server started. Port: %s" % config.PORT)
 
-    Popen('gunicorn realms:app -b 0.0.0.0:%s -k gevent %s' %
+    Popen("gunicorn 'realms:create_app()' -b 0.0.0.0:%s -k gevent %s" %
          (config.PORT, flags), shell=True, executable='/bin/bash')
 
 

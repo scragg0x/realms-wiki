@@ -42,7 +42,6 @@ class HookMixin(object):
             return f
         return outer
 
-
     @classmethod
     def before(cls, method_name):
         def outer(f, *args, **kwargs):

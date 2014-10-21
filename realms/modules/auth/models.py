@@ -1,5 +1,6 @@
+from flask import current_app
 from flask.ext.login import UserMixin, logout_user, login_user, AnonymousUserMixin
-from realms import config, login_manager, db
+from realms import login_manager, db
 from realms.lib.model import Model
 from realms.lib.util import gravatar_url
 from itsdangerous import URLSafeSerializer, BadSignature
@@ -15,7 +16,7 @@ def load_user(user_id):
 @login_manager.token_loader
 def load_token(token):
     # Load unsafe because payload is needed for sig
-    sig_okay, payload = URLSafeSerializer(config.SECRET_KEY).loads_unsafe(token)
+    sig_okay, payload = URLSafeSerializer(current_app.config['SECRET_KEY']).loads_unsafe(token)
 
     if not payload:
         return None
@@ -81,7 +82,7 @@ class User(Model, UserMixin):
         """
         Signed with app secret salted with sha256 of password hash of user (client secret)
         """
-        return URLSafeSerializer(config.SECRET_KEY + salt)
+        return URLSafeSerializer(current_app.config['SECRET_KEY'] + salt)
 
     @staticmethod
     def auth(email, password):
