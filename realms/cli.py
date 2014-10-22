@@ -25,13 +25,8 @@ def cli(ctx):
     if ctx.invoked_subcommand in ['setup', 'pip']:
         if not in_virtualenv() and not is_su():
             # This does not account for people the have user level python installs
-            # that aren't virtual environments!  Should be rare I think
-            click.secho("This command requires root privileges, use sudo or run as root.", fg='red')
-            sys.exit()
-
-    if ctx.invoked_subcommand in ['setup_upstart']:
-        if not is_su():
-            click.secho("This command requires root privileges, use sudo or run as root.", fg='red')
+            # that aren't virtual environments!  Should be rare I think.
+            red("This command requires root privileges, use sudo or run as root.")
             sys.exit()
 
 cli.add_command(cli_)
@@ -112,9 +107,14 @@ def setup(ctx, **kw):
         ctx.invoke(setup_memcached)
 
     green('Config saved to %s' % conf_path)
+
+    if not conf_path.startswith('/etc/realms-wiki'):
+        yellow('Note: You can move file to /etc/realms-wiki/realms-wiki.conf')
+        click.echo()
+
     yellow('Type "realms-wiki start" to start server')
     yellow('Type "realms-wiki dev" to start server in development mode')
-
+    yellow('Full usage: realms-wiki --help')
 
 @click.command()
 @click.option('--cache-redis-host',
@@ -210,14 +210,24 @@ def setup_upstart(**kwargs):
     kwargs.update(dict(app_dir=app_dir, path=path))
 
     conf_file = '/etc/init/realms-wiki.conf'
+    script = upstart_script(**kwargs)
 
-    with open('/etc/init/realms-wiki.conf', 'w') as f:
-        f.write(upstart_script(**kwargs))
+    try:
+        with open(conf_file, 'w') as f:
+            f.write(script)
+        green('Wrote file to %s' % conf_file)
+    except IOError:
+        with open('/tmp/realms-wiki.conf', 'w') as f:
+            f.write(script)
+        yellow("Wrote file to /tmp/realms-wiki.conf, to install type:")
+        yellow("sudo mv /tmp/realms-wiki.conf /etc/init/realms-wiki.conf")
 
-    green('Wrote file to %s' % conf_file)
-    green("Type 'sudo start realms-wiki' to start")
-    green("Type 'sudo stop realms-wiki' to stop")
-    green("Type 'sudo restart realms-wiki' to restart")
+    click.echo()
+    click.echo("Upstart usage:")
+    green("sudo start realms-wiki")
+    green("sudo stop realms-wiki")
+    green("sudo restart realms-wiki")
+    green("sudo status realms-wiki")
 
 
 @cli.command()
