@@ -1,7 +1,7 @@
 from flask import abort, g, render_template, request, redirect, Blueprint, flash, url_for, current_app
 from flask.ext.login import login_required, current_user
 from realms.lib.util import to_canonical, remove_ext
-
+from .models import PageNotFound
 
 blueprint = Blueprint('wiki', __name__)
 
@@ -28,19 +28,22 @@ def compare(name, fsha, dots, lsha):
 @blueprint.route("/_revert", methods=['POST'])
 @login_required
 def revert():
-    name = request.form.get('name')
+    cname = to_canonical(request.form.get('name'))
     commit = request.form.get('commit')
-    cname = to_canonical(name)
     message = request.form.get('message', "Reverting %s" % cname)
 
     if cname in current_app.config.get('WIKI_LOCKED_PAGES'):
-        return dict(error=True, message="Page is locked")
+        return dict(error=True, message="Page is locked"), 403
 
-    sha = g.current_wiki.revert_page(name,
-                                     commit,
-                                     message=message,
-                                     username=current_user.username,
-                                     email=current_user.email)
+    try:
+        sha = g.current_wiki.revert_page(cname,
+                                         commit,
+                                         message=message,
+                                         username=current_user.username,
+                                         email=current_user.email)
+    except PageNotFound as e:
+        return dict(error=True, message=e.message), 404
+
     if sha:
         flash("Page reverted")
 
@@ -104,7 +107,7 @@ def page_write(name):
     if request.method == 'POST':
         # Create
         if cname in current_app.config.get('WIKI_LOCKED_PAGES'):
-            return dict(error=True, message="Page is locked")
+            return dict(error=True, message="Page is locked"), 403
 
         sha = g.current_wiki.write_page(cname,
                                         request.form['content'],
@@ -117,7 +120,7 @@ def page_write(name):
         edit_cname = to_canonical(request.form['name'])
 
         if edit_cname in current_app.config.get('WIKI_LOCKED_PAGES'):
-            return dict(error=True, message="Page is locked")
+            return dict(error=True, message="Page is locked"), 403
 
         if edit_cname != cname.lower():
             g.current_wiki.rename_page(cname, edit_cname)
@@ -132,6 +135,9 @@ def page_write(name):
 
     else:
         # DELETE
+        if cname in current_app.config.get('WIKI_LOCKED_PAGES'):
+            return dict(error=True, message="Page is locked"), 403
+
         sha = g.current_wiki.delete_page(name,
                                          username=current_user.username,
                                          email=current_user.email)

@@ -18,9 +18,10 @@ from flask.ext.assets import Environment, Bundle
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 
-from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
-from realms.lib.hook import HookModelMeta
-from realms.lib.util import is_su, in_virtualenv
+from .lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
+from .lib.hook import HookModelMeta
+from .lib.util import is_su, in_virtualenv
+from .version import __version__
 
 
 class Application(Flask):
@@ -79,7 +80,7 @@ class Application(Flask):
                 if hasattr(sources.hooks, 'before_first_request'):
                     self.before_first_request(sources.hooks.before_first_request)
 
-                # print >> sys.stderr, ' * Ready in %.2fms' % (1000.0 * (time.time() - start_time))
+                    # print >> sys.stderr, ' * Ready in %.2fms' % (1000.0 * (time.time() - start_time))
 
     def make_response(self, rv):
         if rv is None:
@@ -200,17 +201,6 @@ def create_app(config=None):
     return app
 
 
-@click.group()
-@click.pass_context
-def cli(ctx):
-    # This could probably done better
-    if ctx.invoked_subcommand in ['setup', 'setup_upstart', 'pip']:
-        if not in_virtualenv() and not is_su():
-            # This does not account for people the have user level python installs
-            # that aren't virtual environments!  Should be rare I think
-            click.secho("This command requires root privileges, use sudo or run as root.", fg='red')
-            sys.exit()
-
 # Init plugins here if possible
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
@@ -242,9 +232,6 @@ assets.register('main.css',
                 'css/style.css')
 
 
-
-
-
-
-
-
+@click.group()
+def cli():
+    pass

@@ -20,7 +20,7 @@ def cname_to_filename(cname):
     :return: str -- Filename
 
     """
-    return cname.lower() + ".md"
+    return cname + ".md"
 
 
 def filename_to_cname(filename):
@@ -71,25 +71,26 @@ class Wiki(HookMixin):
 
         return username, email
 
-    def revert_page(self, name, commit_sha, message, username):
+    def revert_page(self, name, commit_sha, message, username, email):
         """Revert page to passed commit sha1
 
         :param name:  Name of page to revert.
         :param commit_sha: Commit Sha1 to revert to.
         :param message: Commit message.
-        :param username:
+        :param username: Committer name.
+        :param email: Committer email.
         :return: Git commit sha1
 
         """
         page = self.get_page(name, commit_sha)
         if not page:
-            raise PageNotFound()
+            raise PageNotFound('Commit not found')
 
         if not message:
             commit_info = gittle.utils.git.commit_info(self.gittle[commit_sha.encode('latin-1')])
             message = commit_info['message']
 
-        return self.write_page(name, page['data'], message=message, username=username)
+        return self.write_page(name, page['data'], message=message, username=username, email=email)
 
     def write_page(self, name, content, message=None, create=False, username=None, email=None):
         """Write page to git repo

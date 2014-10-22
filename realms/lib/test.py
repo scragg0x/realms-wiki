@@ -12,7 +12,11 @@ class BaseTest(TestCase):
         app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = False
         app.config['WIKI_PATH'] = '/tmp/%s' % random_string(12)
         app.config['DB_URI'] = 'sqlite:////tmp/%s.db' % random_string(12)
+        app.config.update(self.configure())
         return app
+
+    def configure(self):
+        return {}
 
     def tearDown(self):
         call(['rm', '-rf', self.app.config['WIKI_PATH']])

@@ -1,14 +1,40 @@
-from realms import config, create_app, db, cli
-from realms.lib.util import random_string, in_virtualenv, green, yellow, red
+from realms import config, create_app, db, cli as cli_, __version__
+from realms.lib.util import is_su, random_string, in_virtualenv, green, yellow, red
 from subprocess import call, Popen
 from multiprocessing import cpu_count
 import click
 import json
 import sys
 import os
+import pip
 
 
-app = create_app()
+def print_version(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    green(__version__)
+    ctx.exit()
+
+
+@click.group()
+@click.option('--version', is_flag=True, callback=print_version,
+              expose_value=False, is_eager=True)
+@click.pass_context
+def cli(ctx):
+    # This could probably done better
+    if ctx.invoked_subcommand in ['setup', 'pip']:
+        if not in_virtualenv() and not is_su():
+            # This does not account for people the have user level python installs
+            # that aren't virtual environments!  Should be rare I think
+            click.secho("This command requires root privileges, use sudo or run as root.", fg='red')
+            sys.exit()
+
+    if ctx.invoked_subcommand in ['setup_upstart']:
+        if not is_su():
+            click.secho("This command requires root privileges, use sudo or run as root.", fg='red')
+            sys.exit()
+
+cli.add_command(cli_)
 
 
 def get_user():
@@ -117,37 +143,28 @@ def get_prefix():
     return sys.prefix
 
 
-def get_pip():
-    """ Get virtualenv path for pip
-    """
-    if in_virtualenv():
-        return get_prefix() + '/bin/pip'
-    else:
-        return 'pip'
-
-
-@cli.command()
+@cli.command(name='pip')
 @click.argument('cmd', nargs=-1)
-def pip(cmd):
+def pip_(cmd):
     """ Execute pip commands, useful for virtualenvs
     """
-    call(get_pip() + ' ' + ' '.join(cmd), shell=True)
+    pip.main(cmd)
 
 
 def install_redis():
-    call([get_pip(), 'install', 'redis'])
+    pip.main(['install', 'redis'])
 
 
 def install_mysql():
-    call([get_pip(), 'install', 'MySQL-Python'])
+    pip.main(['install', 'MySQL-Python'])
 
 
 def install_postgres():
-    call([get_pip(), 'install', 'psycopg2'])
+    pip.main(['install', 'psycopg2'])
 
 
 def install_memcached():
-    call([get_pip(), 'install', 'python-memcached'])
+    pip.main(['install', 'python-memcached'])
 
 
 @click.command()
@@ -220,9 +237,9 @@ def dev(port):
     """ Run development server
     """
     green("Starting development server")
-    app.run(host="0.0.0.0",
-            port=port,
-            debug=True)
+    create_app().run(host="0.0.0.0",
+                     port=port,
+                     debug=True)
 
 
 def start_server():
@@ -235,7 +252,7 @@ def start_server():
     green("Server started. Port: %s" % config.PORT)
 
     Popen("gunicorn 'realms:create_app()' -b 0.0.0.0:%s -k gevent %s" %
-         (config.PORT, flags), shell=True, executable='/bin/bash')
+          (config.PORT, flags), shell=True, executable='/bin/bash')
 
 
 def stop_server():
@@ -308,21 +325,20 @@ def drop_db():
 def test():
     """ Run tests
     """
-    for mod in [('flask.ext.testing', 'Flask-Testing'), ('nose', 'nose')]:
+    for mod in [('flask.ext.testing', 'Flask-Testing'), ('nose', 'nose'), ('blinker', 'blinker')]:
         if not module_exists(mod[0]):
-            call([get_pip(), 'install', mod[1]])
+            pip.main(['install', mod[1]])
 
     nosetests = get_prefix() + "/bin/nosetests" if in_virtualenv() else "nosetests"
 
-    call([nosetests, config.APP_PATH])
+    call([nosetests, 'realms'])
 
 
 @cli.command()
 def version():
     """ Output version
     """
-    with open(os.path.join(config.APP_PATH, 'VERSION')) as f:
-        click.echo(f.read().strip())
+    green(__version__)
 
 
 if __name__ == '__main__':
