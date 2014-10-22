@@ -162,7 +162,7 @@ exec gunicorn \
   --user {{ user }} \
   --group {{ user }} \
   --chdir {{ app_dir }} \
-  realms:app
+  'realms:create_app()'
 
 """
     template = Template(script)
