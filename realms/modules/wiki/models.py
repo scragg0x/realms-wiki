@@ -20,7 +20,7 @@ def cname_to_filename(cname):
     :return: str -- Filename
 
     """
-    return cname.lower() + ".md"
+    return cname + ".md"
 
 
 def filename_to_cname(filename):
@@ -62,25 +62,35 @@ class Wiki(HookMixin):
     def __repr__(self):
         return "Wiki: %s" % self.path
 
-    def revert_page(self, name, commit_sha, message, username):
+    def _get_user(self, username, email):
+        if not username:
+            username = self.default_committer_name
+
+        if not email:
+            email = self.default_committer_email
+
+        return username, email
+
+    def revert_page(self, name, commit_sha, message, username, email):
         """Revert page to passed commit sha1
 
         :param name:  Name of page to revert.
         :param commit_sha: Commit Sha1 to revert to.
         :param message: Commit message.
-        :param username:
+        :param username: Committer name.
+        :param email: Committer email.
         :return: Git commit sha1
 
         """
         page = self.get_page(name, commit_sha)
         if not page:
-            raise PageNotFound()
+            raise PageNotFound('Commit not found')
 
         if not message:
             commit_info = gittle.utils.git.commit_info(self.gittle[commit_sha.encode('latin-1')])
             message = commit_info['message']
 
-        return self.write_page(name, page['data'], message=message, username=username)
+        return self.write_page(name, page['data'], message=message, username=username, email=email)
 
     def write_page(self, name, content, message=None, create=False, username=None, email=None):
         """Write page to git repo
@@ -108,11 +118,7 @@ class Wiki(HookMixin):
         if not message:
             message = "Updated %s" % name
 
-        if not username:
-            username = self.default_committer_name
-
-        if not email:
-            email = self.default_committer_email
+        username, email = self._get_user(username, email)
 
         ret = self.gittle.commit(name=username,
                                  email=email,
@@ -168,12 +174,13 @@ class Wiki(HookMixin):
         content = re.sub(r"```(.*?)```", unescape_repl, content, flags=re.DOTALL)
         return content
 
-    def rename_page(self, old_name, new_name, user=None):
+    def rename_page(self, old_name, new_name, username=None, email=None, message=None):
         """Rename page.
 
         :param old_name: Page that will be renamed.
         :param new_name: New name of page.
-        :param user: User object if any.
+        :param username: Committer name
+        :param email: Committer email
         :return: str -- Commit sha1
 
         """
@@ -186,32 +193,45 @@ class Wiki(HookMixin):
             # file is being overwritten, but that is ok, it's git!
             pass
 
+        username, email = self._get_user(username, email)
+
+        if not message:
+            message = "Moved %s to %s" % (old_name, new_name)
+
         os.rename(os.path.join(self.path, old_filename), os.path.join(self.path, new_filename))
 
         self.gittle.add(new_filename)
         self.gittle.rm(old_filename)
 
-        commit = self.gittle.commit(name=getattr(user, 'username', self.default_committer_name),
-                                    email=getattr(user, 'email', self.default_committer_email),
-                                    message="Moved %s to %s" % (old_name, new_name),
+        commit = self.gittle.commit(name=username,
+                                    email=email,
+                                    message=message,
                                     files=[old_filename, new_filename])
 
-        cache.delete_many(old_filename, new_filename)
+        cache.delete_many(old_name, new_name)
 
         return commit
 
-    def delete_page(self, name, user=None):
+    def delete_page(self, name, username=None, email=None, message=None):
         """Delete page.
         :param name: Page that will be deleted
-        :param user: User object if any
+        :param username: Committer name
+        :param email: Committer email
         :return: str -- Commit sha1
 
         """
-        self.gittle.rm(name)
-        commit = self.gittle.commit(name=getattr(user, 'username', self.default_committer_name),
-                                    email=getattr(user, 'email', self.default_committer_email),
-                                    message="Deleted %s" % name,
-                                    files=[name])
+
+        username, email = self._get_user(username, email)
+
+        if not message:
+            message = "Deleted %s" % name
+
+        filename = cname_to_filename(name)
+        self.gittle.rm(filename)
+        commit = self.gittle.commit(name=username,
+                                    email=email,
+                                    message=message,
+                                    files=[str(filename)])
         cache.delete_many(name)
         return commit
 

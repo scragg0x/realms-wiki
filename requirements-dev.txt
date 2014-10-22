@@ -1,3 +1,4 @@
 -r requirements.txt
 Flask-Testing==0.4.2
 nose==1.3.4
+blinker==1.3

@@ -1,6 +1,14 @@
 #!/usr/bin/env python
-
+import pip
 from realms.cli import cli
 
 if __name__ == '__main__':
+    print
+    print "----------------------------------"
+    print "This script is for development.\n" \
+          "If you installed via pip, " \
+          "you should have realms-wiki in your PATH that should be used instead."
+    print "----------------------------------"
+    print
+
     cli()
