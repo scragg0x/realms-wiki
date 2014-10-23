@@ -47,7 +47,7 @@ setup(name='realms-wiki',
       ],
       entry_points={
           'console_scripts': [
-              'realms-wiki = realms.cli:cli'
+              'realms-wiki = realms.commands:cli'
           ]},
       author='Matthew Scragg',
       author_email='scragg@gmail.com',

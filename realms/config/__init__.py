@@ -16,15 +16,9 @@ def read():
         if k.startswith('REALMS_'):
             conf[k[7:]] = v
 
-    for loc in os.curdir, os.path.expanduser("~"), "/etc/realms-wiki", os.environ.get("REALMS_WIKI_CONF"):
-        try:
-            if not loc:
-                continue
-            with open(os.path.join(loc, "realms-wiki.json")) as f:
-                conf.update(json.load(f))
-            break
-        except IOError:
-            pass
+    loc = get_path()
+    with open(loc) as f:
+        conf.update(json.load(f))
 
     for k in ['APP_PATH', 'USER_HOME']:
         if k in conf:
@@ -34,13 +28,35 @@ def read():
 
 
 def save(conf):
+    loc = get_path(check_write=True)
+    with open(loc, 'w') as f:
+        f.write(json.dumps(conf, sort_keys=True, indent=4, separators=(',', ': ')).strip() + '\n')
+    return loc
+
+
+def get_path(check_write=False):
+    """Find config path
+    """
     for loc in "/etc/realms-wiki", os.path.expanduser("~"), os.curdir:
-        try:
-            with open(os.path.join(loc, 'realms-wiki.json'), 'w') as f:
-                f.write(json.dumps(conf, sort_keys=True, indent=4, separators=(',', ': ')).strip() + '\n')
-                return os.path.join(loc, 'realms-wiki.json')
-        except IOError:
-            pass
+        if not loc:
+            continue
+        path = os.path.join(loc, "realms-wiki.json")
+        if os.path.isfile(path):
+            # file exists
+            if not check_write:
+                # Don't care if I can write
+                return path
+
+            if os.access(path, os.W_OK):
+                # Has write access, ok!
+                return path
+        elif os.path.isdir(loc) and check_write:
+            # dir exists file doesn't
+            if os.access(loc, os.W_OK):
+                # can write file
+                return path
+    return None
+
 
 APP_PATH = os.path.abspath(os.path.dirname(__file__) + "/../..")
 USER_HOME = os.path.abspath(os.path.expanduser("~"))
@@ -63,6 +79,7 @@ DB_URI = 'sqlite:////tmp/wiki.db'
 # DB_URI = 'mysql://scott:tiger@localhost/mydatabase'
 # DB_URI = 'postgresql://scott:tiger@localhost/mydatabase'
 # DB_URI = 'oracle://scott:tiger@127.0.0.1:1521/sidname'
+# DB_URI = 'crate://'
 
 CACHE_TYPE = 'simple'
 

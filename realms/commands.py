@@ -1,4 +1,4 @@
-from realms import config, create_app, db, cli as cli_, __version__
+from realms import config, create_app, db, __version__, cli
 from realms.lib.util import is_su, random_string, in_virtualenv, green, yellow, red
 from subprocess import call, Popen
 from multiprocessing import cpu_count
@@ -7,29 +7,10 @@ import json
 import sys
 import os
 import pip
+import time
 
-
-def print_version(ctx, param, value):
-    if not value or ctx.resilient_parsing:
-        return
-    green(__version__)
-    ctx.exit()
-
-
-@click.group()
-@click.option('--version', is_flag=True, callback=print_version,
-              expose_value=False, is_eager=True)
-@click.pass_context
-def cli(ctx):
-    # This could probably done better
-    if ctx.invoked_subcommand in ['setup', 'pip']:
-        if not in_virtualenv() and not is_su():
-            # This does not account for people the have user level python installs
-            # that aren't virtual environments!  Should be rare I think.
-            red("This command requires root privileges, use sudo or run as root.")
-            sys.exit()
-
-cli.add_command(cli_)
+# called to discover commands in modules
+app = create_app()
 
 
 def get_user():
@@ -42,10 +23,23 @@ def get_user():
 def get_pid():
     try:
         with file(config.PIDFILE) as f:
-            pid = f.read().strip()
-            return pid if pid and int(pid) > 0 and not call(['kill', '-s', '0', pid]) else False
+            return f.read().strip()
     except IOError:
+        return None
+
+
+def is_running(pid):
+    if not pid:
         return False
+
+    pid = int(pid)
+
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+
+    return True
 
 
 def module_exists(module_name):
@@ -94,6 +88,11 @@ def setup(ctx, **kw):
     """ Start setup wizard
     """
 
+    try:
+        os.mkdir('/etc/realms-wiki')
+    except OSError:
+        pass
+
     conf = {}
 
     for k, v in kw.items():
@@ -115,6 +114,7 @@ def setup(ctx, **kw):
     yellow('Type "realms-wiki start" to start server')
     yellow('Type "realms-wiki dev" to start server in development mode')
     yellow('Full usage: realms-wiki --help')
+
 
 @click.command()
 @click.option('--cache-redis-host',
@@ -161,6 +161,10 @@ def install_mysql():
 
 def install_postgres():
     pip.main(['install', 'psycopg2'])
+
+
+def install_crate():
+    pip.main(['install', 'crate'])
 
 
 def install_memcached():
@@ -233,7 +237,7 @@ def setup_upstart(**kwargs):
 @cli.command()
 @click.argument('json_string')
 def configure(json_string):
-    """ Set config.json, expects JSON encoded string
+    """ Set config, expects JSON encoded string
     """
     try:
         config.update(json.loads(json_string))
@@ -242,18 +246,25 @@ def configure(json_string):
 
 
 @cli.command()
-@click.option('--port', default=5000)
+@click.option('--port', default=config.PORT)
 def dev(port):
     """ Run development server
     """
     green("Starting development server")
+
+    config_path = config.get_path()
+    if config_path:
+        green("Using config: %s" % config_path)
+    else:
+        yellow("Using default configuration")
+
     create_app().run(host="0.0.0.0",
                      port=port,
                      debug=True)
 
 
 def start_server():
-    if get_pid():
+    if is_running(get_pid()):
         yellow("Server is already running")
         return
 
@@ -261,17 +272,25 @@ def start_server():
 
     green("Server started. Port: %s" % config.PORT)
 
+    config_path = config.get_path()
+    if config_path:
+        green("Using config: %s" % config_path)
+    else:
+        yellow("Using default configuration")
+
     Popen("gunicorn 'realms:create_app()' -b 0.0.0.0:%s -k gevent %s" %
           (config.PORT, flags), shell=True, executable='/bin/bash')
 
 
 def stop_server():
     pid = get_pid()
-    if not pid:
+    if not is_running(pid):
         yellow("Server is not running")
     else:
         yellow("Shutting down server")
         call(['kill', pid])
+        while is_running(pid):
+            time.sleep(1)
 
 
 @cli.command()
@@ -307,7 +326,7 @@ def restart():
 def status():
     """ Get server status
     """
-    pid = get_pid()
+    pid = is_running(get_pid())
     if not pid:
         yellow("Server is not running")
     else:

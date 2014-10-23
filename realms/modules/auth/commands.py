@@ -4,7 +4,7 @@ from realms.modules.auth.models import User
 from realms.lib.util import green, red, yellow
 
 
-@click.group()
+@click.group(short_help="Auth Module")
 def cli():
     pass
 
