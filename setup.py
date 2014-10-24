@@ -9,9 +9,6 @@ DESCRIPTION = "Simple git based wiki"
 with open('README.md') as f:
     LONG_DESCRIPTION = f.read()
 
-with open('requirements.txt') as f:
-    required = f.read().splitlines()
-
 __version__ = None
 exec(open('realms/version.py').read())
 

@@ -46,19 +46,10 @@ Easiest way.
 
     pip install realms-wiki
 
-### Install from Git
+### Installing from Git (Ubuntu)
 
-Use this method for development.
-    
     git clone https://github.com/scragg0x/realms-wiki
     cd realms-wiki
-
-The included install script should work for Ubuntu.
-
-    sudo bash install.sh
-    
-If it fails and you are running Ubuntu, open an issue.
-Additional packages from the script are as follows:
 
     sudo apt-get install -y software-properties-common python-software-properties
     sudo add-apt-repository -y ppa:chris-lea/node.js
@@ -66,6 +57,12 @@ Additional packages from the script are as follows:
     sudo apt-get install -y nodejs python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev
     sudo npm install -g bower
     bower install
+
+    virtualenv .venv
+    source .venv/bin/activate
+
+    pip install -r requirements.txt
+    realms-wiki start
     
 NodeJS is for installing [bower](http://bower.io) and it's used for pulling front end dependencies
 
@@ -86,8 +83,6 @@ Then execute the following in the terminal:
     git clone https://github.com/scragg0x/realms-wiki
     cd realms-wiki
     vagrant up
-    vagrant ssh
-    realms-wiki dev
 
 Check ```http://127.0.0.1:5000/``` to make sure it's running.
 

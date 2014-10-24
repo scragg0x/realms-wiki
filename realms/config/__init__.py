@@ -17,8 +17,10 @@ def read():
             conf[k[7:]] = v
 
     loc = get_path()
-    with open(loc) as f:
-        conf.update(json.load(f))
+
+    if loc:
+        with open(loc) as f:
+            conf.update(json.load(f))
 
     for k in ['APP_PATH', 'USER_HOME']:
         if k in conf:
