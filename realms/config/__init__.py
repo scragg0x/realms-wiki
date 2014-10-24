@@ -125,12 +125,13 @@ FIREBASE_HOSTNAME = None
 
 # Page names that can't be modified
 WIKI_LOCKED_PAGES = []
-# Depreciated variable name
-LOCKED = WIKI_LOCKED_PAGES[:]
 
 ROOT_ENDPOINT = 'wiki.page'
 
 globals().update(read())
+
+# Depreciated variable name
+LOCKED = WIKI_LOCKED_PAGES[:]
 
 if BASE_URL.endswith('/'):
     BASE_URL = BASE_URL[-1]
