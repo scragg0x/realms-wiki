@@ -126,7 +126,7 @@ FIREBASE_HOSTNAME = None
 # Page names that can't be modified
 WIKI_LOCKED_PAGES = []
 # Depreciated variable name
-LOCKED = WIKI_LOCKED_PAGES
+LOCKED = WIKI_LOCKED_PAGES[:]
 
 ROOT_ENDPOINT = 'wiki.page'
 
