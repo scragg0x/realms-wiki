@@ -1,21 +1,15 @@
 FROM realms/base
 
 # Packages
-RUN add-apt-repository -y ppa:chris-lea/node.js && apt-get update
-RUN apt-get install -y python build-essential git libpcre3-dev python-software-properties \
-    python-pip python-virtualenv python-dev pkg-config curl libxml2-dev libxslt1-dev zlib1g-dev \
-    libffi-dev nodejs libyaml-dev
+RUN apt-get update && apt-get install -y build-essential python-pip python-virtualenv python-dev zlib1g-dev libffi-dev libyaml-dev
 
-# Realms Code
-RUN cd /home/deploy && git clone https://github.com/scragg0x/realms-wiki
+# lxml deps
+# libxml2-dev libxslt1-dev
 
-# Bower stuff for frontend assets
-RUN npm install -g bower
-RUN bower --allow-root --config.cwd=/home/deploy/realms-wiki --config.directory=realms/static/vendor --config.interactive=false install
-
-# Virtualenv building
+# Virtualenv
 RUN virtualenv /home/deploy/realms-wiki/.venv
-RUN /home/deploy/realms-wiki/.venv/bin/pip install /home/deploy/realms-wiki
+
+RUN cd /home/deploy/realms-wiki && .venv/bin/pip install realms-wiki
 
 # Logging
 RUN mkdir /var/log/realms-wiki && chown deploy.deploy /var/log/realms-wiki

@@ -326,8 +326,8 @@ def restart():
 def status():
     """ Get server status
     """
-    pid = is_running(get_pid())
-    if not pid:
+    pid = get_pid()
+    if not is_running(pid):
         yellow("Server is not running")
     else:
         green("Server is running PID: %s" % pid)

@@ -1,13 +1,10 @@
 import os
 import re
-import lxml.html
-from lxml.html.clean import Cleaner
 import ghdiff
 import gittle.utils
 import yaml
 from gittle import Gittle
 from dulwich.repo import NotGitRepository
-from werkzeug.utils import escape, unescape
 from realms.lib.util import to_canonical
 from realms import cache
 from realms.lib.hook import HookMixin
@@ -107,8 +104,6 @@ class Wiki(HookMixin):
         cname = to_canonical(name)
         filename = cname_to_filename(cname)
 
-        content = self.clean(content)
-
         with open(self.path + "/" + filename, 'w') as f:
             f.write(content)
 
@@ -129,50 +124,6 @@ class Wiki(HookMixin):
 
         return ret
 
-    def clean(self, content):
-        """Clean any HTML, this might not be necessary.
-
-        :param content: Content of page.
-        :return: str
-
-        """
-        def escape_repl(m):
-            if m.group(1):
-                return "```" + escape(m.group(1)) + "```"
-
-        def unescape_repl(m):
-            if m.group(1):
-                return "```" + unescape(m.group(1)) + "```"
-
-        # prevents p tag from being added, we remove this later
-        content = '<div>' + content + '</div>'
-        content = re.sub(r"```(.*?)```", escape_repl, content, flags=re.DOTALL)
-
-        tree = lxml.html.fromstring(content)
-
-        cleaner = Cleaner(remove_unknown_tags=False,
-                          kill_tags={'style'},
-                          safe_attrs_only=False)
-        tree = cleaner.clean_html(tree)
-
-        content = lxml.html.tostring(tree, encoding='utf-8', method='html')
-
-        # remove added div tags
-        content = content[5:-6]
-
-        # FIXME this is for block quotes, doesn't work for double ">"
-        content = re.sub(r"(\n&gt;)", "\n>", content)
-        content = re.sub(r"(^&gt;)", ">", content)
-
-        # Handlebars partial ">"
-        content = re.sub(r"\{\{&gt;(.*?)\}\}", r'{{>\1}}', content)
-
-        # Handlebars, allow {{}} inside HTML links
-        content = content.replace("%7B", "{")
-        content = content.replace("%7D", "}")
-
-        content = re.sub(r"```(.*?)```", unescape_repl, content, flags=re.DOTALL)
-        return content
 
     def rename_page(self, old_name, new_name, username=None, email=None, message=None):
         """Rename page.

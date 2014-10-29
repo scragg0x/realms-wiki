@@ -38,7 +38,6 @@ setup(name='realms-wiki',
           'gittle==0.4.0',
           'gunicorn==19.1.1',
           'itsdangerous==0.24',
-          'lxml==3.4.0',
           'markdown2==2.3.0',
           'simplejson==3.6.3'
       ],

@@ -15,8 +15,11 @@ sudo apt-get install -y software-properties-common python-software-properties
 sudo add-apt-repository -y ppa:chris-lea/node.js
 sudo apt-get update
 sudo apt-get install -y python build-essential pkg-config git  \
-python-pip python-virtualenv python-dev libxml2-dev libxslt1-dev zlib1g-dev \
+python-pip python-virtualenv python-dev zlib1g-dev \
 libffi-dev libyaml-dev libssl-dev nodejs
+
+# lxml deps
+# libxml2-dev libxslt1-dev
 
 # Default cache is memoization
 
