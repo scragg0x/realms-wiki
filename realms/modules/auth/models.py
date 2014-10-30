@@ -71,22 +71,19 @@ class User(Model, UserMixin):
 
     @staticmethod
     def get_by_username(username):
-        return User.query.filter_by(username=username).first()
+        return User.query().filter_by(username=username).first()
 
     @staticmethod
     def get_by_email(email):
-        return User.query.filter_by(email=email).first()
+        return User.query().filter_by(email=email).first()
 
     @staticmethod
     def signer(salt):
-        """
-        Signed with app secret salted with sha256 of password hash of user (client secret)
-        """
         return URLSafeSerializer(current_app.config['SECRET_KEY'] + salt)
 
     @staticmethod
     def auth(email, password):
-        user = User.query.filter_by(email=email).first()
+        user = User.get_by_email(email)
 
         if not user:
             # User doesn't exist

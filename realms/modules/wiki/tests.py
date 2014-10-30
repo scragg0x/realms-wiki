@@ -6,7 +6,11 @@ from realms.lib.test import BaseTest
 
 
 class WikiBaseTest(BaseTest):
-    def write_page(self, name, message=None, content=None):
+    def update_page(self, name, message=None, content=None):
+        return self.client.post(url_for('wiki.page_write', name=name),
+                                data=dict(message=message, content=content))
+
+    def create_page(self, name, message=None, content=None):
         return self.client.post(url_for('wiki.page_write', name=name),
                                 data=dict(message=message, content=content))
 
@@ -22,7 +26,7 @@ class UtilTest(WikiBaseTest):
 class WikiTest(WikiBaseTest):
     def test_routes(self):
         self.assert_200(self.client.get(url_for("wiki.create")))
-        self.write_page('test', message='test message', content='testing')
+        self.create_page('test', message='test message', content='testing')
 
         for route in ['page', 'edit', 'history']:
             rv = self.client.get(url_for("wiki.%s" % route, name='test'))
@@ -31,7 +35,7 @@ class WikiTest(WikiBaseTest):
         self.assert_200(self.client.get(url_for('wiki.index')))
 
     def test_write_page(self):
-        self.assert_200(self.write_page('test', message='test message', content='testing'))
+        self.assert_200(self.create_page('test', message='test message', content='testing'))
 
         rv = self.client.get(url_for('wiki.page', name='test'))
         self.assert_200(rv)
@@ -54,8 +58,8 @@ class WikiTest(WikiBaseTest):
         self.assert_status(rv, 302)
 
     def test_revert(self):
-        rv1 = self.write_page('test', message='test message', content='testing_old')
-        self.write_page('test', message='test message', content='testing_new')
+        rv1 = self.create_page('test', message='test message', content='testing_old')
+        self.update_page('test', message='test message', content='testing_new')
         data = json.loads(rv1.data)
         self.client.post(url_for('wiki.revert'), data=dict(name='test', commit=data['sha']))
         self.client.get(url_for('wiki.page', name='test'))
@@ -65,6 +69,14 @@ class WikiTest(WikiBaseTest):
         self.app.config['WIKI_LOCKED_PAGES'] = ['test']
         self.assert_403(self.client.post(url_for('wiki.revert'), data=dict(name='test', commit=data['sha'])))
         self.app.config['WIKI_LOCKED_PAGES'] = []
+
+    def test_anon(self):
+        rv1 = self.create_page('test', message='test message', content='testing_old')
+        self.update_page('test', message='test message', content='testing_new')
+        data = json.loads(rv1.data)
+        self.app.config['ALLOW_ANON'] = False
+        self.assert_403(self.update_page('test', message='test message', content='testing_again'))
+        self.assert_403(self.client.post(url_for('wiki.revert'), data=dict(name='test', commit=data['sha'])))
 
 
 class RelativePathTest(WikiTest):

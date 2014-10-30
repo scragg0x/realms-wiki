@@ -96,16 +96,6 @@ class Application(Flask):
         return super(Application, self).make_response(tuple(rv))
 
 
-class MySQLAlchemy(SQLAlchemy):
-
-    def make_declarative_base(self):
-        """Creates the declarative base."""
-        base = declarative_base(cls=Model, name='Model',
-                                metaclass=HookModelMeta)
-        base.query = _QueryProperty(self)
-        return base
-
-
 class Assets(Environment):
     default_filters = {'js': 'rjsmin', 'css': 'cleancss'}
     default_output = {'js': 'assets/%(version)s.js', 'css': 'assets/%(version)s.css'}
@@ -203,9 +193,8 @@ def create_app(config=None):
 
 # Init plugins here if possible
 login_manager = LoginManager()
-login_manager.login_view = 'auth.login'
 
-db = MySQLAlchemy()
+db = SQLAlchemy()
 cache = Cache()
 assets = Assets()
 

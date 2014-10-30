@@ -1,12 +1,14 @@
 import json
-from sqlalchemy import not_
+from sqlalchemy import not_, and_
+from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
-from flask.ext.sqlalchemy import SQLAlchemy
+from realms import db
+from .hook import HookModelMeta, HookMixin
 
-db = SQLAlchemy()
+Base = declarative_base(metaclass=HookModelMeta, cls=HookMixin)
 
 
-class Model(db.Model):
+class Model(Base):
     """Base SQLAlchemy Model for automatic serialization and
     deserialization of columns and nested relationships.
 
@@ -53,6 +55,11 @@ class Model(db.Model):
     def __init__(self, **kwargs):
         kwargs['_force'] = True
         self._set_columns(**kwargs)
+
+    def filter_by(self, **kwargs):
+        clauses = [key == value
+                   for key, value in kwargs.items()]
+        return self.filter(and_(*clauses))
 
     def _set_columns(self, **kwargs):
         force = kwargs.get('_force')
@@ -284,5 +291,9 @@ class Model(db.Model):
         db.session.commit()
 
     @classmethod
+    def query(cls):
+        return db.session.query(cls)
+
+    @classmethod
     def get_by_id(cls, id_):
-        return cls.query.filter_by(id=id_).first()
+        return cls.query().filter_by(id=id_).first()

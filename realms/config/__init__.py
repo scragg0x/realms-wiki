@@ -114,9 +114,6 @@ WIKI_HOME = 'home'
 ALLOW_ANON = True
 REGISTRATION_ENABLED = True
 
-# Used by Flask-Login
-LOGIN_DISABLED = ALLOW_ANON
-
 # None, firepad, and/or togetherjs
 COLLABORATION = 'togetherjs'
 
@@ -129,6 +126,9 @@ WIKI_LOCKED_PAGES = []
 ROOT_ENDPOINT = 'wiki.page'
 
 globals().update(read())
+
+# Used by Flask-Login
+LOGIN_DISABLED = ALLOW_ANON
 
 # Depreciated variable name
 LOCKED = WIKI_LOCKED_PAGES[:]

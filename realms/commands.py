@@ -338,7 +338,8 @@ def create_db():
     """ Creates DB tables
     """
     green("Creating all tables")
-    db.create_all()
+    with app.app_context():
+        db.create_all()
 
 
 @cli.command()
@@ -347,7 +348,8 @@ def drop_db():
     """ Drops DB tables
     """
     yellow("Dropping all tables")
-    db.drop_all()
+    with app.app_context():
+        db.create_all()
 
 
 @cli.command()
