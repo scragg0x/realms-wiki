@@ -43,20 +43,24 @@ libffi-dev libyaml-dev libssl-dev nodejs
 # Install frontend assets
 sudo npm install -g bower
 
-cd ${APP_DIR}
+cd /home/vagrant
 
-bower --config.interactive=false install
+
 virtualenv .venv
 source .venv/bin/activate
 
+cd /vagrant
+bower --config.interactive=false install
 pip install -r requirements.txt
 
 echo "Installing start scripts"
 
-cat << EOF > /usr/local/bin/realms-wiki
+cat << EOF > /tmp/realms-wiki
 #!/bin/bash
-${APP_DIR}/.venv/bin/realms-wiki "\$@"
+/home/vagrant/.venv/bin/realms-wiki "\$@"
 EOF
+
+sudo mv /tmp/realms-wiki /usr/local/bin
 
 sudo chmod +x /usr/local/bin/realms-wiki
 

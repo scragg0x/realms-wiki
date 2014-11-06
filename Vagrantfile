@@ -5,11 +5,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provider :virtualbox do |vb|
     vb.name = "realms-wiki"
-    vb.memory = 2048
-    vb.cpus = 4
+    vb.memory = 512
+    vb.cpus = 2
   end
 
-  config.vm.provision "shell", path: "install.sh"
+  config.vm.provision "shell", path: "install.sh", privileged: "false"
 end
 
 Vagrant::Config.run do |config|
