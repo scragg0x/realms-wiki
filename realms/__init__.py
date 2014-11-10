@@ -11,6 +11,7 @@ import httplib
 import traceback
 import click
 from flask import Flask, request, render_template, url_for, redirect, g
+from flask.ext.elastic import Elastic
 from flask.ext.cache import Cache
 from flask.ext.login import LoginManager, current_user
 from flask.ext.sqlalchemy import SQLAlchemy, declarative_base, Model, _QueryProperty
@@ -160,6 +161,7 @@ def create_app(config=None):
     db.init_app(app)
     cache.init_app(app)
     assets.init_app(app)
+    elastic.init_app(app)
 
     for status_code in httplib.responses:
         if status_code >= 400:
@@ -197,6 +199,7 @@ login_manager = LoginManager()
 db = SQLAlchemy()
 cache = Cache()
 assets = Assets()
+elastic = Elastic()
 
 assets.register('main.js',
                 'vendor/jquery/dist/jquery.js',

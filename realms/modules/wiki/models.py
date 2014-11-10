@@ -124,7 +124,6 @@ class Wiki(HookMixin):
 
         return ret
 
-
     def rename_page(self, old_name, new_name, username=None, email=None, message=None):
         """Rename page.
 

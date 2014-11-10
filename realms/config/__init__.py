@@ -95,6 +95,8 @@ CACHE_REDIS_DB = '0'
 #CACHE_TYPE = 'memcached'
 CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
 
+ELASTICSEARCH_URL = 'http://127.0.0.1:9200'
+
 # Get ReCaptcha Keys for your domain here:
 # https://www.google.com/recaptcha/admin#whyrecaptcha
 RECAPTCHA_ENABLE = False
@@ -146,4 +148,4 @@ if ENV != "DEV":
     ASSETS_DEBUG = False
     SQLALCHEMY_ECHO = False
 
-MODULES = ['wiki', 'auth']
+MODULES = ['wiki', 'auth', 'search']

@@ -9,7 +9,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.cpus = 2
   end
 
-  config.vm.provision "shell", path: "install.sh", privileged: "false"
+  config.vm.provision "shell", path: "install.sh", privileged: false
 end
 
 Vagrant::Config.run do |config|
