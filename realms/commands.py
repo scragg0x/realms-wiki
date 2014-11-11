@@ -8,6 +8,7 @@ import sys
 import os
 import pip
 import time
+import subprocess
 
 # called to discover commands in modules
 app = create_app()
@@ -372,6 +373,16 @@ def version():
     """
     green(__version__)
 
+
+@cli.command(add_help_option=False)
+def deploy():
+    """ Deploy to PyPI and docker hub
+    """
+    call("python setup.py sdist upload", shell=True)
+    call("sudo docker build --no-cache -t realms/realms-wiki %s/docker" % app.config['APP_PATH'], shell=True)
+    id_ = json.loads(Popen("sudo docker inspect realms/realms-wiki".split(), stdout=subprocess.PIPE).communicate()[0])[0]['Id']
+    call("sudo docker tag %s realms/realms-wiki:%s" % (id_, __version__), shell=True)
+    call("sudo docker push realms/realms-wiki", shell=True)
 
 if __name__ == '__main__':
     cli()
