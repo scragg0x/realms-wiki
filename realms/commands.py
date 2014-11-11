@@ -1,5 +1,5 @@
 from realms import config, create_app, db, __version__, cli
-from realms.lib.util import is_su, random_string, in_virtualenv, green, yellow, red
+from realms.lib.util import random_string, in_virtualenv, green, yellow, red
 from subprocess import call, Popen
 from multiprocessing import cpu_count
 import click
@@ -108,7 +108,7 @@ def setup(ctx, **kw):
     green('Config saved to %s' % conf_path)
 
     if not conf_path.startswith('/etc/realms-wiki'):
-        yellow('Note: You can move file to /etc/realms-wiki/realms-wiki.conf')
+        yellow('Note: You can move file to /etc/realms-wiki/realms-wiki.json')
         click.echo()
 
     yellow('Type "realms-wiki start" to start server')
@@ -339,7 +339,8 @@ def create_db():
     """
     green("Creating all tables")
     with app.app_context():
-        db.create_all()
+        green('DB_URI: %s' % app.config.get('DB_URI'))
+        db.metadata.create_all(db.get_engine(app))
 
 
 @cli.command()
@@ -349,7 +350,7 @@ def drop_db():
     """
     yellow("Dropping all tables")
     with app.app_context():
-        db.create_all()
+        db.metadata.drop_all(db.get_engine(app))
 
 
 @cli.command()

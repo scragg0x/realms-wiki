@@ -45,7 +45,6 @@ sudo npm install -g bower
 
 cd /home/vagrant
 
-
 virtualenv .venv
 source .venv/bin/activate
 

@@ -32,7 +32,7 @@ def revert():
     commit = request.form.get('commit')
     message = request.form.get('message', "Reverting %s" % cname)
 
-    if not current_app.config.get('ALLOW_ANON') and current_user.is_anonymous:
+    if not current_app.config.get('ALLOW_ANON') and current_user.is_anonymous():
         return dict(error=True, message="Anonymous posting not allowed"), 403
 
     if cname in current_app.config.get('WIKI_LOCKED_PAGES'):
@@ -107,7 +107,7 @@ def page_write(name):
     if not cname:
         return dict(error=True, message="Invalid name")
 
-    if not current_app.config.get('ALLOW_ANON') and current_user.is_anonymous:
+    if not current_app.config.get('ALLOW_ANON') and current_user.is_anonymous():
         return dict(error=True, message="Anonymous posting not allowed"), 403
 
     if request.method == 'POST':

@@ -13,13 +13,14 @@ import click
 from flask import Flask, request, render_template, url_for, redirect, g
 from flask.ext.cache import Cache
 from flask.ext.login import LoginManager, current_user
-from flask.ext.sqlalchemy import SQLAlchemy, declarative_base, Model, _QueryProperty
+from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.assets import Environment, Bundle
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
+from sqlalchemy.ext.declarative import declarative_base
 
 from .lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
-from .lib.hook import HookModelMeta
+from .lib.hook import HookModelMeta, HookMixin
 from .lib.util import is_su, in_virtualenv
 from .version import __version__
 
@@ -161,6 +162,8 @@ def create_app(config=None):
     cache.init_app(app)
     assets.init_app(app)
 
+    db.Model = declarative_base(metaclass=HookModelMeta, cls=HookMixin)
+
     for status_code in httplib.responses:
         if status_code >= 400:
             app.register_error_handler(status_code, error_handler)
@@ -186,10 +189,9 @@ def create_app(config=None):
 
     # This will be removed at some point
     with app.app_context():
-        db.create_all()
+        db.metadata.create_all(db.get_engine(app))
 
     return app
-
 
 # Init plugins here if possible
 login_manager = LoginManager()

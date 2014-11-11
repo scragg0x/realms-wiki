@@ -1,14 +1,10 @@
 import json
 from sqlalchemy import not_, and_
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 from realms import db
-from .hook import HookModelMeta, HookMixin
-
-Base = declarative_base(metaclass=HookModelMeta, cls=HookMixin)
 
 
-class Model(Base):
+class Model(db.Model):
     """Base SQLAlchemy Model for automatic serialization and
     deserialization of columns and nested relationships.
 
