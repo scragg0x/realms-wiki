@@ -57,7 +57,7 @@ $(function(){
     aced.editor.focus();
   });
 
-  $("#delete-draft-btn").click(function() {
+  $("#delete-page-btn").click(function() {
     bootbox.alert("Not Done Yet! Sorry");
   });
 });
@@ -82,9 +82,10 @@ var aced = new Aced({
       data: data,
       dataType: 'json'
     }).always(function(data, status, error) {
-      if (data && data['error']) {
+      var res = data['responseJSON'];
+      if (res && res['error']) {
         $page_name.addClass('parsley-error');
-        bootbox.alert("<h3>" + data['message'] + "</h3>");
+        bootbox.alert("<h3>" + res['message'] + "</h3>");
       } else {
         location.href = path;
       }
