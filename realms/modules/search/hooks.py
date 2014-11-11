@@ -3,11 +3,13 @@ from realms.modules.search.models import Search
 
 
 @Wiki.after('write_page')
-def wiki_write_page(name, content, **kwargs):
+def wiki_write_page(name, content, message=None, username=None, email=None, **kwargs):
     body = dict(name=name,
-                content=content)
-    body.update(kwargs)
-    return Search.index('wiki', 'page', body=body)
+                content=content,
+                message=message,
+                email=email,
+                username=username)
+    return Search.index('wiki', 'page', id_=name, body=body)
 
 
 @Wiki.after('rename_page')

@@ -10,7 +10,16 @@ class Search(HookMixin):
 
     @classmethod
     def wiki(cls, query):
-        return elastic.search(index='wiki', body={"query": {"match_all": {}}})
+        if not query:
+            return []
+
+        res = elastic.search(index='wiki', body={"query": {
+            "multi_match": {
+                "query": query,
+                "fields": ["name^3", "content"]
+            }}})
+
+        return [hit["_source"] for hit in res['hits']['hits']]
 
     @classmethod
     def users(cls, query):

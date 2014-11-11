@@ -51,6 +51,10 @@
   border-radius: 0;
 }
 
+.navbar .form-control {
+  max-height: 33px;
+}
+
 .checkbox-cell {
   width: 4em;
   padding: 0.3em;

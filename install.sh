@@ -10,13 +10,28 @@ if [ -d "/vagrant" ]; then
 fi
 
 echo "Provisioning..."
-sudo apt-get update
-sudo apt-get install -y software-properties-common python-software-properties
+
+if ! type "add-apt-repository" > /dev/null; then
+    sudo apt-get update
+    sudo apt-get install -y software-properties-common python-software-properties
+fi
+
+# Elastic Search
+wget -qO - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo apt-key add -
+echo 'deb http://packages.elasticsearch.org/elasticsearch/1.4/debian stable main' | sudo tee /etc/apt/sources.list.d/elastic.list
+
 sudo add-apt-repository -y ppa:chris-lea/node.js
 sudo apt-get update
+
 sudo apt-get install -y python build-essential pkg-config git  \
 python-pip python-virtualenv python-dev zlib1g-dev \
-libffi-dev libyaml-dev libssl-dev nodejs
+libffi-dev libyaml-dev libssl-dev nodejs openjdk-7-jre-headless elasticsearch
+
+# Create swap file because ES eats up RAM and 14.04 doesn't have swap by default
+sudo fallocate -l 1G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
 
 # lxml deps
 # libxml2-dev libxslt1-dev
@@ -45,7 +60,6 @@ sudo npm install -g bower
 
 cd /home/vagrant
 
-
 virtualenv .venv
 source .venv/bin/activate
 
@@ -63,5 +77,7 @@ EOF
 sudo mv /tmp/realms-wiki /usr/local/bin
 
 sudo chmod +x /usr/local/bin/realms-wiki
+
+sudo service elasticsearch start
 
 realms-wiki start
