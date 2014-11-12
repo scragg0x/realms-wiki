@@ -11,14 +11,14 @@ import httplib
 import traceback
 import click
 from flask import Flask, request, render_template, url_for, redirect, g
-from flask.ext.elastic import Elastic
 from flask.ext.cache import Cache
 from flask.ext.login import LoginManager, current_user
-from flask.ext.sqlalchemy import SQLAlchemy, declarative_base, Model, _QueryProperty
+from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.assets import Environment, Bundle
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 
+from .modules.search.models import Search
 from .lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
 from .lib.hook import HookModelMeta
 from .lib.util import is_su, in_virtualenv
@@ -161,7 +161,7 @@ def create_app(config=None):
     db.init_app(app)
     cache.init_app(app)
     assets.init_app(app)
-    elastic.init_app(app)
+    search.init_app(app)
 
     for status_code in httplib.responses:
         if status_code >= 400:
@@ -199,7 +199,7 @@ login_manager = LoginManager()
 db = SQLAlchemy()
 cache = Cache()
 assets = Assets()
-elastic = Elastic()
+search = Search()
 
 assets.register('main.js',
                 'vendor/jquery/dist/jquery.js',

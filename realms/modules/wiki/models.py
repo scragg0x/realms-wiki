@@ -5,30 +5,9 @@ import gittle.utils
 import yaml
 from gittle import Gittle
 from dulwich.repo import NotGitRepository
-from realms.lib.util import to_canonical
+from realms.lib.util import to_canonical, cname_to_filename, filename_to_cname
 from realms import cache
 from realms.lib.hook import HookMixin
-
-
-def cname_to_filename(cname):
-    """ Convert canonical name to filename
-
-    :param cname: Canonical name
-    :return: str -- Filename
-
-    """
-    return cname + ".md"
-
-
-def filename_to_cname(filename):
-    """Convert filename to canonical name.
-
-    .. note::
-
-    It's assumed filename is already canonical format
-
-    """
-    return os.path.splitext(filename)[0]
 
 
 class PageNotFound(Exception):

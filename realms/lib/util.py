@@ -97,6 +97,25 @@ def to_canonical(s):
     s = s.lower()
     return s
 
+def cname_to_filename(cname):
+    """ Convert canonical name to filename
+
+    :param cname: Canonical name
+    :return: str -- Filename
+
+    """
+    return cname + ".md"
+
+
+def filename_to_cname(filename):
+    """Convert filename to canonical name.
+
+    .. note::
+
+    It's assumed filename is already canonical format
+
+    """
+    return os.path.splitext(filename)[0]
 
 def gravatar_url(email):
     return "//www.gravatar.com/avatar/" + hashlib.md5(email).hexdigest()
