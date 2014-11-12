@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+{% block body %}
+  {% if results %}
+    <div class="list-group">
+    {% for r in results %}
+      <a href="{{ url_for('wiki.page', name=r['name']) }}" class="list-group-item">
+      <h4 class="list-group-item-heading">{{ r['name'] }}</h4>
+      <p class="list-group-item-text">
+        {{ r['content'][:100] }}
+      </p>
+      </a>
+    {% endfor %}
+    </div>
+  {% else %}
+    No Results Found
+  {% endif %}
+{% endblock %}

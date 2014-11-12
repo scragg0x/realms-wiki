@@ -19,6 +19,7 @@ from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 from sqlalchemy.ext.declarative import declarative_base
 
+from .modules.search.models import Search
 from .lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
 from .lib.hook import HookModelMeta, HookMixin
 from .lib.util import is_su, in_virtualenv
@@ -161,6 +162,7 @@ def create_app(config=None):
     db.init_app(app)
     cache.init_app(app)
     assets.init_app(app)
+    search.init_app(app)
 
     db.Model = declarative_base(metaclass=HookModelMeta, cls=HookMixin)
 
@@ -199,6 +201,7 @@ login_manager = LoginManager()
 db = SQLAlchemy()
 cache = Cache()
 assets = Assets()
+search = Search()
 
 assets.register('main.js',
                 'vendor/jquery/dist/jquery.js',
