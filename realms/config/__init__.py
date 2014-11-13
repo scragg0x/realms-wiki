@@ -86,19 +86,22 @@ DB_URI = 'sqlite:////tmp/wiki.db'
 CACHE_TYPE = 'simple'
 
 # Redis
-#CACHE_TYPE = 'redis'
+# CACHE_TYPE = 'redis'
 CACHE_REDIS_HOST = '127.0.0.1'
 CACHE_REDIS_PORT = 6379
 CACHE_REDIS_DB = '0'
 
 # Memcached
-#CACHE_TYPE = 'memcached'
+# CACHE_TYPE = 'memcached'
 CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
 
-SEARCH_TYPE = 'simple'  # simple is not good for large wikis
+# SEARCH_TYPE = 'simple'  # simple is not good for large wikis
 
 # SEARCH_TYPE = 'elasticsearch'
 ELASTICSEARCH_URL = 'http://127.0.0.1:9200'
+
+SEARCH_TYPE = 'whoosh'
+WHOOSH_INDEX = '/tmp/whoosh'
 
 # Get ReCaptcha Keys for your domain here:
 # https://www.google.com/recaptcha/admin#whyrecaptcha
