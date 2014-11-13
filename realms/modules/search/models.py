@@ -33,7 +33,7 @@ class SimpleSearch(BaseSearch):
         res = []
         for entry in g.current_wiki.get_index():
             name = filename_to_cname(entry['name'])
-            if query in name.split('-'):
+            if set(query.split()).intersection(name.split('-')):
                 page = g.current_wiki.get_page(name)
                 res.append(dict(name=name, content=page['data']))
         return res
