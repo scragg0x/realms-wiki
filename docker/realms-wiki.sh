@@ -9,11 +9,11 @@ author "scragg@gmail.com"
 
 chdir /home/deploy/realms-wiki
 
-env PATH=/home/deploy/realms-wiki/.venv/bin:/usr/local/bin:/usr/bin:/bin:$PATH
+PATH=/home/deploy/realms-wiki/.venv/bin:/usr/local/bin:/usr/bin:/bin:$PATH
 export PATH
 
-env LC_ALL=en_US.UTF-8
-env GEVENT_RESOLVER=ares
+LC_ALL=en_US.UTF-8
+GEVENT_RESOLVER=ares
 
 export LC_ALL
 export GEVENT_RESOLVER
