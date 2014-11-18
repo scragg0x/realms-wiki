@@ -149,6 +149,51 @@ Reload Nginx
 
     sudo service nginx reload
 
+### Apache + mod_wsgi Setup
+
+    sudo apt-get install -y apache2 libapache2-mod-wsgi
+
+Create a virtual host configuration in /etc/apache2/sites-available/realms_vhost:
+
+    <VirtualHost *:80>
+        ServerName wiki.example.org
+
+        WSGIDaemonProcess realms_wsgi display-name=%{GROUP}
+        WSGIProcessGroup realms_wsgi
+        WSGIScriptAlias / /var/www/my-realms-dir/wsgi.py
+
+        Alias /static /full/path/to/realms/static
+    </VirtualHost>
+
+Create /var/www/my-realms-dir/wsgi.py
+
+    import os
+    import site
+
+    # Uncomment the following lines if you are using a virtual environment
+
+    # ----------------------------------
+    # Enter path to your virtualenv's site-packages directory
+    # VENV_SITE_DIR = ".venv/lib/python2.7/site-packages"
+    # PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+    # site.addsitedir(os.path.abspath(os.path.join(PROJECT_ROOT, VENV_SITE_DIR)))
+    # ----------------------------------
+
+    from realms import create_app
+    application = create_app()
+
+Enable the virtual host
+
+    sudo a2ensite realms_vhost
+
+Test your configuration
+
+    apache2ctl configtest
+
+Reload apache
+
+    sudo service apache2 reload
+
 ### Mysql Setup
     
     sudo apt-get install -y mysql-server mysql-client libmysqlclient-dev
