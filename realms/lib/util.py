@@ -97,6 +97,7 @@ def to_canonical(s):
     s = s.lower()
     return s
 
+
 def cname_to_filename(cname):
     """ Convert canonical name to filename
 
@@ -116,6 +117,7 @@ def filename_to_cname(filename):
 
     """
     return os.path.splitext(filename)[0]
+
 
 def gravatar_url(email):
     return "//www.gravatar.com/avatar/" + hashlib.md5(email).hexdigest()

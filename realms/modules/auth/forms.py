@@ -15,5 +15,3 @@ class RegistrationForm(Form):
 class LoginForm(Form):
     email = StringField('Email', [validators.DataRequired()])
     password = PasswordField('Password', [validators.DataRequired()])
-
-

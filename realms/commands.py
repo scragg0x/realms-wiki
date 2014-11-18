@@ -81,6 +81,10 @@ def module_exists(module_name):
               default=config.CACHE_TYPE,
               type=click.Choice([None, 'simple', 'redis', 'memcached']),
               prompt='Cache type?')
+@click.option('--search-type',
+              default=config.CACHE_TYPE,
+              type=click.Choice(['simple', 'elasticsearch']),
+              prompt='Search type?')
 @click.option('--db-uri',
               default=config.DB_URI,
               prompt='Database URI? Examples: http://goo.gl/RyW0cl')
@@ -105,6 +109,9 @@ def setup(ctx, **kw):
         ctx.invoke(setup_redis)
     elif conf['CACHE_TYPE'] == 'memcached':
         ctx.invoke(setup_memcached)
+
+    if conf['SEARCH_TYPE'] == 'elasticsearch':
+        ctx.invoke(setup_elasticsearch)
 
     green('Config saved to %s' % conf_path)
 
@@ -138,6 +145,19 @@ def setup_redis(**kw):
 
     config.update(conf)
     install_redis()
+
+
+@click.command()
+@click.option('--elasticsearch-url',
+              default=getattr(config, 'ELASTICSEARCH_URL', 'http://127.0.0.1:9200'),
+              prompt='Elasticsearch URL')
+def setup_elasticsearch(**kw):
+    conf = {}
+
+    for k, v in kw.items():
+        conf[k.upper()] = v
+
+    config.update(conf)
 
 
 def get_prefix():
