@@ -204,12 +204,40 @@ Reload apache
     sudo apt-get install -y mariadb-server mariadb-client libmariadbclient-dev
     realms-wiki pip install MySQL-Python
 
-### Postgres
+### Postgres Setup
 
     sudo apt-get install -y libpq-dev postgresql postgresql-contrib postgresql-client
     realms-wiki pip install psycopg2
 
 _Don't forget to create your database._
+
+## Search
+
+Realms wiki comes with basic search capabilities but it is not recommended
+for large wikis or if you require more advanced search capabilities.  The only
+backend we currently support is ElasticSearch
+
+### Elasticsearch Setup
+
+There are multiple ways to install/run elasticsearch. An easy way is to use your their
+repositories.  
+
+**apt**
+
+    wget -qO - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo apt-key add -
+    echo "deb http://packages.elasticsearch.org/elasticsearch/1.4/debian stable main" | sudo tee /etc/apt/sources.list.d/elasticsearch.list
+    apt-get update && apt-get install elasticsearch
+    
+For yum instructions or more details, follow the link below:
+
+http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-repositories.html
+
+**Configuring Elasticsearch**
+
+In your Realms Config, have the following options set:
+
+    "SEARCH_TYPE": "elasticsearch"
+    "ELASTICSEARCH_URL": "http://127.0.0.1:9200"
 
 ## Running
 
