@@ -95,12 +95,12 @@ CACHE_REDIS_DB = '0'
 # CACHE_TYPE = 'memcached'
 CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
 
-# SEARCH_TYPE = 'simple'  # simple is not good for large wikis
+SEARCH_TYPE = 'simple'  # simple is not good for large wikis
 
 # SEARCH_TYPE = 'elasticsearch'
 ELASTICSEARCH_URL = 'http://127.0.0.1:9200'
 
-SEARCH_TYPE = 'whoosh'
+# SEARCH_TYPE = 'whoosh'
 WHOOSH_INDEX = '/tmp/whoosh'
 WHOOSH_LANGUAGE = 'en'
 
