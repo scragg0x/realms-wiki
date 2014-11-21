@@ -102,6 +102,7 @@ ELASTICSEARCH_URL = 'http://127.0.0.1:9200'
 
 SEARCH_TYPE = 'whoosh'
 WHOOSH_INDEX = '/tmp/whoosh'
+WHOOSH_LANGUAGE = 'en'
 
 # Get ReCaptcha Keys for your domain here:
 # https://www.google.com/recaptcha/admin#whyrecaptcha
