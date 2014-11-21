@@ -1,3 +1,5 @@
+import sys
+
 from flask import g, current_app
 from realms.lib.util import filename_to_cname
 
@@ -7,13 +9,6 @@ def simple(app):
 
 
 def whoosh(app):
-    import os
-    import sys
-    for mode in [os.W_OK, os.R_OK]:
-        if not os.access(app.config['WHOOSH_INDEX'], mode):
-            sys.exit('Read and write access to WHOOSH_INDEX is required (%s)' %
-                     app.config['WHOOSH_INDEX'])
-
     return WhooshSearch(app.config['WHOOSH_INDEX'], app.config['WHOOSH_LANGUAGE'])
 
 
@@ -61,7 +56,7 @@ class WhooshSearch(BaseSearch):
         from whoosh.highlight import UppercaseFormatter
         from whoosh.analysis import SimpleAnalyzer, LanguageAnalyzer
         from whoosh.lang import has_stemmer, has_stopwords
-        import os.path
+        import os
 
         if not has_stemmer(language) or not has_stopwords(language):
             # TODO Display a warning?
@@ -73,10 +68,19 @@ class WhooshSearch(BaseSearch):
         self.formatter = UppercaseFormatter()
 
         self.index_path = index_path
-        if os.path.exists(index_path):
-            self.search_index = whoosh_index.open_dir(index_path)
+
+        if not os.path.exists(index_path):
+            try:
+                os.mkdir(index_path)
+            except OSError as e:
+                sys.exit("Error creating Whoosh index: %s" % e)
+
+        if whoosh_index.exists_in(index_path):
+            try:
+                self.search_index = whoosh_index.open_dir(index_path)
+            except whoosh_index.IndexError as e:
+                sys.exit("Error opening whoosh index: %s" % (e))
         else:
-            os.mkdir(index_path)
             self.search_index = whoosh_index.create_in(index_path, self.schema)
 
         self.query_parser = qparser.MultifieldParser(["body", "path"], schema=self.schema)
