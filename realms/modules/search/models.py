@@ -7,6 +7,13 @@ def simple(app):
 
 
 def whoosh(app):
+    import os
+    import sys
+    for mode in [os.W_OK, os.R_OK]:
+        if not os.access(app.config['WHOOSH_INDEX'], mode):
+            sys.exit('Read and write access to WHOOSH_INDEX is required (%s)' %
+                     app.config['WHOOSH_INDEX'])
+
     return WhooshSearch(app.config['WHOOSH_INDEX'], app.config['WHOOSH_LANGUAGE'])
 
 
@@ -57,7 +64,7 @@ class WhooshSearch(BaseSearch):
         import os.path
 
         if not has_stemmer(language) or not has_stopwords(language):
-            print("Language '%s' not supported by Whoosh, falling back to default analyzer." % (language))
+            # TODO Display a warning?
             analyzer = SimpleAnalyzer()
         else:
             analyzer = LanguageAnalyzer(language)
