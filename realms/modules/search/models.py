@@ -99,7 +99,7 @@ class WhooshSearch(BaseSearch):
         if not query:
             return []
 
-        q = self.query_parser.parse("%s~2" % (query,))
+        q = self.query_parser.parse(query)
 
         with self.search_index.searcher() as s:
             results = s.search(q)
