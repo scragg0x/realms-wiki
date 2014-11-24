@@ -214,8 +214,8 @@ _Don't forget to create your database._
 ## Search
 
 Realms wiki comes with basic search capabilities but it is not recommended
-for large wikis or if you require more advanced search capabilities.  The only
-backend we currently support is ElasticSearch
+for large wikis or if you require more advanced search capabilities.  The 
+backends we currently support are ElasticSearch and Whoosh.
 
 ### Elasticsearch Setup
 
@@ -238,6 +238,25 @@ In your Realms Config, have the following options set:
 
     "SEARCH_TYPE": "elasticsearch"
     "ELASTICSEARCH_URL": "http://127.0.0.1:9200"
+
+### Whoosh Setup
+
+Simply install Whoosh to your Python environment, e.g.
+
+    pip install Whoosh
+
+**Configuring Whoosh**
+
+To use Whoosh, set the following in your Realms config:
+
+    "SEARCH_TYPE": "whoosh"
+    "WHOOSH_INDEX": "/path/to/your/whoosh/index"
+    "WHOOSH_LANGUAGE": "en"
+
+WHOOSH_INDEX has to be a path read- and writeable by Realm's user. It will be created automatically if it doesn't exist.
+
+Whoosh is set up to use language optimization, so set WHOOSH_LANGUAGE to the language used in your wiki. For available languages, check whoosh.lang.languages.
+If your language is not supported, Realms will fall back to a simple text analyzer.
 
 ## Running
 
