@@ -149,6 +149,51 @@ Reload Nginx
 
     sudo service nginx reload
 
+### Apache + mod_wsgi Setup
+
+    sudo apt-get install -y apache2 libapache2-mod-wsgi
+
+Create a virtual host configuration in /etc/apache2/sites-available/realms_vhost:
+
+    <VirtualHost *:80>
+        ServerName wiki.example.org
+
+        WSGIDaemonProcess realms_wsgi display-name=%{GROUP}
+        WSGIProcessGroup realms_wsgi
+        WSGIScriptAlias / /var/www/my-realms-dir/wsgi.py
+
+        Alias /static /full/path/to/realms/static
+    </VirtualHost>
+
+Create /var/www/my-realms-dir/wsgi.py
+
+    import os
+    import site
+
+    # Uncomment the following lines if you are using a virtual environment
+
+    # ----------------------------------
+    # Enter path to your virtualenv's site-packages directory
+    # VENV_SITE_DIR = ".venv/lib/python2.7/site-packages"
+    # PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+    # site.addsitedir(os.path.abspath(os.path.join(PROJECT_ROOT, VENV_SITE_DIR)))
+    # ----------------------------------
+
+    from realms import create_app
+    application = create_app()
+
+Enable the virtual host
+
+    sudo a2ensite realms_vhost
+
+Test your configuration
+
+    apache2ctl configtest
+
+Reload apache
+
+    sudo service apache2 reload
+
 ### Mysql Setup
     
     sudo apt-get install -y mysql-server mysql-client libmysqlclient-dev
@@ -159,12 +204,59 @@ Reload Nginx
     sudo apt-get install -y mariadb-server mariadb-client libmariadbclient-dev
     realms-wiki pip install MySQL-Python
 
-### Postgres
+### Postgres Setup
 
     sudo apt-get install -y libpq-dev postgresql postgresql-contrib postgresql-client
     realms-wiki pip install psycopg2
 
 _Don't forget to create your database._
+
+## Search
+
+Realms wiki comes with basic search capabilities but it is not recommended
+for large wikis or if you require more advanced search capabilities.  The 
+backends we currently support are ElasticSearch and Whoosh.
+
+### Elasticsearch Setup
+
+There are multiple ways to install/run elasticsearch. An easy way is to use your their
+repositories.  
+
+**apt**
+
+    wget -qO - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo apt-key add -
+    echo "deb http://packages.elasticsearch.org/elasticsearch/1.4/debian stable main" | sudo tee /etc/apt/sources.list.d/elasticsearch.list
+    apt-get update && apt-get install elasticsearch
+    
+For yum instructions or more details, follow the link below:
+
+http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-repositories.html
+
+**Configuring Elasticsearch**
+
+In your Realms Config, have the following options set:
+
+    "SEARCH_TYPE": "elasticsearch"
+    "ELASTICSEARCH_URL": "http://127.0.0.1:9200"
+
+### Whoosh Setup
+
+Simply install Whoosh to your Python environment, e.g.
+
+    pip install Whoosh
+
+**Configuring Whoosh**
+
+To use Whoosh, set the following in your Realms config:
+
+    "SEARCH_TYPE": "whoosh"
+    "WHOOSH_INDEX": "/path/to/your/whoosh/index"
+    "WHOOSH_LANGUAGE": "en"
+
+WHOOSH_INDEX has to be a path read- and writeable by Realm's user. It will be created automatically if it doesn't exist.
+
+Whoosh is set up to use language optimization, so set WHOOSH_LANGUAGE to the language used in your wiki. For available languages, check whoosh.lang.languages.
+If your language is not supported, Realms will fall back to a simple text analyzer.
 
 ## Running
 
