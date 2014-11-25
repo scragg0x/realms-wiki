@@ -85,6 +85,7 @@ def to_canonical(s):
     """
     Double space -> single dash
     Double dash -> single dash
+    Remove .md file extension
     Remove all non alphanumeric and dash
     Limit to first 64 chars
     """
