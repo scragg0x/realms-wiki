@@ -126,7 +126,7 @@ Put the following sample configuration in that file.
       # Settings to by-pass for static files 
       location ^~ /static/  {
         # Example:
-        root /full/path/to/realms/static/;
+        root /full/path/to/realms/;
       }
         
       location / {
