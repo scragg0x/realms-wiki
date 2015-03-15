@@ -2,7 +2,6 @@ from flask import abort, g, render_template, request, redirect, Blueprint, flash
 from flask.ext.login import login_required, current_user
 from realms.lib.util import to_canonical, remove_ext
 from .models import PageNotFound
-import markdown
 
 blueprint = Blueprint('wiki', __name__)
 
@@ -16,8 +15,7 @@ def commit(name, sha):
     if not data:
         abort(404)
 
-    html = markdown.markdown(data['data'])	
-    return render_template('wiki/page.html', name=name, page=data, commit=sha, page_content=html)
+    return render_template('wiki/page.html', name=name, page=data, commit=sha)
 
 
 @blueprint.route("/_compare/<name>/<regex('[^.]+'):fsha><regex('\.{2,3}'):dots><regex('.+'):lsha>")
@@ -163,7 +161,6 @@ def page(name):
     data = g.current_wiki.get_page(cname)
 
     if data:
-        html = markdown.markdown(data['data'])
-        return render_template('wiki/page.html', name=cname, page=data, partials=data.get('partials'), page_content = html)
+        return render_template('wiki/page.html', name=cname, page=data, partials=data.get('partials'))
     else:
         return redirect(url_for('wiki.create', name=cname))
