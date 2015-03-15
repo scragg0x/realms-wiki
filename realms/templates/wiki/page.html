@@ -16,7 +16,7 @@
       </form>
     </div>
   {% endif %}
-  <div id="page-content"></div>
+  <div id="page-content">{{ page_content | safe }}</div>
 
 {% endblock %}
 
