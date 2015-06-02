@@ -1,14 +1,5 @@
 #!/bin/bash
 
-limit nofile 65335 65335
-
-respawn
-
-description "Realms Wiki"
-author "scragg@gmail.com"
-
-chdir /home/deploy/realms-wiki
-
 PATH=/home/deploy/realms-wiki/.venv/bin:/usr/local/bin:/usr/bin:/bin:$PATH
 export PATH
 
@@ -29,14 +20,6 @@ fi
 if [ "${REALMS_WIKI_PORT}" == "" ]; then
     REALMS_WIKI_PORT=5000
 fi
-
-setuid deploy
-setgid deploy
-
-start on runlevel [2345]
-stop on runlevel [!2345]
-
-respawn
 
 exec gunicorn \
   --name realms-wiki \
