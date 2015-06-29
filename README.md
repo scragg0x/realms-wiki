@@ -36,7 +36,7 @@ Anon or single user does not require a database.
 
 ## Installation
 
-You will need to following packages to get started
+You will need the following packages to get started
 
     sudo apt-get install -y python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev
 
@@ -64,7 +64,7 @@ Easiest way.
     pip install -r requirements.txt
     realms-wiki start
     
-NodeJS is for installing [bower](http://bower.io) and it's used for pulling front end dependencies
+NodeJS is required for installing [bower](http://bower.io) and it's used for pulling front end dependencies
 
 ### OSX / Windows
 
