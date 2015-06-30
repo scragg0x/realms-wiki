@@ -36,17 +36,31 @@ Anon or single user does not require a database.
 
 ## Installation
 
-You will need to following packages to get started
+### Requirements installation
+
+You will need the following packages to get started:
+
+#### Ubuntu
 
     sudo apt-get install -y python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev
 
-### Install from Pypi
+#### CentOS / RHEL
 
-Easiest way.
+    yum install -y python-pip python-devel.x86_64 libxslt-devel.x86_64 libxml2-devel.x86_64 libffi-devel.x86_64 libyaml-devel.x86_64 libxslt-devel.x86_64 zlib-devel.x86_64 openssl-devel.x86_64 python-pbr gcc
+    
+#### OSX / Windows
+
+This app is designed for Linux and I recommend using Vagrant to install on OSX or Windows.
+
+### Realms Wiki installation via PyPI
+
+The easiest way. Install it using Python Package Index
 
     pip install realms-wiki
 
-### Installing from Git (Ubuntu)
+### Realms Wiki installation via Git
+
+#### Ubuntu
 
     git clone https://github.com/scragg0x/realms-wiki
     cd realms-wiki
@@ -64,16 +78,12 @@ Easiest way.
     pip install -r requirements.txt
     realms-wiki start
     
-NodeJS is for installing [bower](http://bower.io) and it's used for pulling front end dependencies
+NodeJS is required for installing [bower](http://bower.io) and it's used for pulling front end dependencies
 
-### OSX / Windows
-
-This app is designed for Linux and I recommend using Vagrant to install on OSX or Windows.
-
-### Vagrant
+### Realms Wiki via Vagrant
 
 Vagrantfile is included for development or running locally.
-To get started with Vagrant, download and install Vagrant and Virtualbox for your platform with the links provided
+To get started with Vagrant, download and install Vagrant and VirtualBox for your platform with the links provided
 
 https://www.vagrantup.com/downloads.html
 https://www.virtualbox.org/wiki/Downloads
@@ -84,9 +94,9 @@ Then execute the following in the terminal:
     cd realms-wiki
     vagrant up
 
-Check ```http://127.0.0.1:5000/``` to make sure it's running.
+Check [http://127.0.0.1:5000/](http://127.0.0.1:5000/) to make sure it's running.
 
-### Docker
+### Realms Wiki via Docker
 
 Make sure you have docker installed. http://docs.docker.com/installation/
 Here is an example run command, it will pull the image from docker hub initially.
@@ -105,13 +115,13 @@ You may want to customize your app and the easiest way is the setup command.
     
 This will ask you questions and create a realms-wiki.json file in where it can find it.
 You can manually edit this file as well.
-Any config value set in realms-wiki.json will override values set in ```realms/config/__init__.py```
+Any config value set in realms-wiki.json will override values set in `realms/config/__init__.py`
 
 ### Nginx Setup
 
     sudo apt-get install -y nginx
 
-Create a file called realms.conf in /etc/nginx/conf.d
+Create a file called realms.conf in `/etc/nginx/conf.d`
 
     sudo nano /etc/nginx/conf.d/realms.conf
 
@@ -153,7 +163,7 @@ Reload Nginx
 
     sudo apt-get install -y apache2 libapache2-mod-wsgi
 
-Create a virtual host configuration in /etc/apache2/sites-available/realms_vhost:
+Create a virtual host configuration in `/etc/apache2/sites-available/realms_vhost`
 
     <VirtualHost *:80>
         ServerName wiki.example.org
@@ -165,7 +175,7 @@ Create a virtual host configuration in /etc/apache2/sites-available/realms_vhost
         Alias /static /full/path/to/realms/static
     </VirtualHost>
 
-Create /var/www/my-realms-dir/wsgi.py
+Create `/var/www/my-realms-dir/wsgi.py`
 
     import os
     import site
@@ -214,7 +224,7 @@ _Don't forget to create your database._
 ## Search
 
 Realms wiki comes with basic search capabilities but it is not recommended
-for large wikis or if you require more advanced search capabilities.  The 
+for large wikis or if you require more advanced search capabilities. The 
 backends we currently support are ElasticSearch and Whoosh.
 
 ### Elasticsearch Setup
