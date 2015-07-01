@@ -203,7 +203,7 @@ Reload apache:
 
     sudo service apache2 reload
 
-### Mysql Setup
+### MySQL Setup
     
     sudo apt-get install -y mysql-server mysql-client libmysqlclient-dev
     realms-wiki pip install python-memcached
