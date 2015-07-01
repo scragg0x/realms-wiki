@@ -11,13 +11,13 @@ Source: https://github.com/scragg0x/realms-wiki
 
 ## Features
 
-- Built with Bootstrap 3
-- Markdown (w/ HTML Support)
-- Syntax highlighting (Ace Editor)
-- Live preview
-- Collaboration (TogetherJS / Firepad)
-- Drafts saved to local storage
-- Handlebars for templates and logic
+- Built with Bootstrap 3.
+- Markdown (w/ HTML Support).
+- Syntax highlighting (Ace Editor).
+- Live preview.
+- Collaboration (TogetherJS / Firepad).
+- Drafts saved to local storage.
+- Handlebars for templates and logic.
 
 ## Screenshots
 
@@ -29,10 +29,10 @@ Source: https://github.com/scragg0x/realms-wiki
 
 ### Optional
 
-- Nginx (if you want proxy requests, this is recommended)
-- Memcached or Redis, default is memonization
-- MariaDB, MySQL, Postgresql, or another database supported by SQLAlchemy, default is sqlite.  
-Anon or single user does not require a database.
+- Nginx (if you want proxy requests, this is recommended).
+- Memcached or Redis, default is memonization.
+- MariaDB, MySQL, Postgresql, or another database supported by SQLAlchemy, default is sqlite.
+    Anon or single user does not require a database.
 
 ## Installation
 
@@ -54,7 +54,7 @@ This app is designed for Linux and I recommend using Vagrant to install on OSX o
 
 ### Realms Wiki installation via PyPI
 
-The easiest way. Install it using Python Package Index
+The easiest way. Install it using Python Package Index:
 
     pip install realms-wiki
 
@@ -78,15 +78,15 @@ The easiest way. Install it using Python Package Index
     pip install -r requirements.txt
     realms-wiki start
     
-NodeJS is required for installing [bower](http://bower.io) and it's used for pulling front end dependencies
+NodeJS is required for installing [bower](http://bower.io) and it's used for pulling front end dependencies.
 
 ### Realms Wiki via Vagrant
 
 Vagrantfile is included for development or running locally.
-To get started with Vagrant, download and install Vagrant and VirtualBox for your platform with the links provided
+To get started with Vagrant, download and install Vagrant and VirtualBox for your platform with the links provided:
 
-https://www.vagrantup.com/downloads.html
-https://www.virtualbox.org/wiki/Downloads
+- https://www.vagrantup.com/downloads.html
+- https://www.virtualbox.org/wiki/Downloads
 
 Then execute the following in the terminal:
 
@@ -103,29 +103,29 @@ Here is an example run command, it will pull the image from docker hub initially
 
     docker run --name realms-wiki -p 5000:5000 -d realms/realms-wiki
     
-You can build your own image if you want.  Mine is based off https://github.com/phusion/baseimage-docker
-The Dockerfile is located in [docker/Dockerfile](docker/Dockerfile)  realms/base just creates the deploy user.
+You can build your own image if you want. Mine is based off https://github.com/phusion/baseimage-docker
+The Dockerfile is located in [docker/Dockerfile](docker/Dockerfile) `realms/base` just creates the deploy user.
 
 ## Config and Setup
 
-You should be able to run the wiki without configuration with the default config values.
-You may want to customize your app and the easiest way is the setup command.
+You should be able to run the wiki without configuration using the default config values.
+You may want to customize your app and the easiest way is the setup command:
 
     realms-wiki setup
     
-This will ask you questions and create a realms-wiki.json file in where it can find it.
+This will ask you questions and create a `realms-wiki.json` file in where you can find it.
 You can manually edit this file as well.
-Any config value set in realms-wiki.json will override values set in `realms/config/__init__.py`
+Any config value set in `realms-wiki.json` will override values set in `realms/config/__init__.py`.
 
 ### Nginx Setup
 
     sudo apt-get install -y nginx
 
-Create a file called realms.conf in `/etc/nginx/conf.d`
+Create a file called `realms.conf` in `/etc/nginx/conf.d`
 
     sudo nano /etc/nginx/conf.d/realms.conf
 
-Put the following sample configuration in that file.
+Put the following sample configuration in that file:
 
     server {
       listen 80;
@@ -146,16 +146,15 @@ Put the following sample configuration in that file.
       
         proxy_pass http://127.0.0.1:5000/;
         proxy_redirect off;
-        
       }
     }
 
 
-Test Nginx config
+Test Nginx config:
     
     sudo nginx -t
 
-Reload Nginx
+Reload Nginx:
 
     sudo service nginx reload
 
@@ -192,15 +191,15 @@ Create `/var/www/my-realms-dir/wsgi.py`
     from realms import create_app
     application = create_app()
 
-Enable the virtual host
+Enable the virtual host:
 
     sudo a2ensite realms_vhost
 
-Test your configuration
+Test your configuration:
 
     apache2ctl configtest
 
-Reload apache
+Reload apache:
 
     sudo service apache2 reload
 
@@ -223,13 +222,13 @@ _Don't forget to create your database._
 
 ## Search
 
-Realms wiki comes with basic search capabilities but it is not recommended
-for large wikis or if you require more advanced search capabilities. The 
-backends we currently support are ElasticSearch and Whoosh.
+Realms wiki comes with basic search capabilities, however this is not recommended
+for large wikis or if you require more advanced search capabilities.
+We currently support Elasticsearch and Whoosh as alternative backend.
 
 ### Elasticsearch Setup
 
-There are multiple ways to install/run elasticsearch. An easy way is to use your their
+There are multiple ways to install/run Elasticsearch. An easy way is to use your their
 repositories.  
 
 **apt**
@@ -238,7 +237,7 @@ repositories.
     echo "deb http://packages.elasticsearch.org/elasticsearch/1.4/debian stable main" | sudo tee /etc/apt/sources.list.d/elasticsearch.list
     apt-get update && apt-get install elasticsearch
     
-For yum instructions or more details, follow the link below:
+For `yum` instructions or more details, follow the link below:
 
 http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-repositories.html
 
@@ -263,9 +262,9 @@ To use Whoosh, set the following in your Realms config:
     "WHOOSH_INDEX": "/path/to/your/whoosh/index"
     "WHOOSH_LANGUAGE": "en"
 
-WHOOSH_INDEX has to be a path read- and writeable by Realm's user. It will be created automatically if it doesn't exist.
+WHOOSH_INDEX has to be a path readable and writeable by Realm's user. It will be created automatically if it doesn't exist.
 
-Whoosh is set up to use language optimization, so set WHOOSH_LANGUAGE to the language used in your wiki. For available languages, check whoosh.lang.languages.
+Whoosh is set up to use language optimization, so set WHOOSH_LANGUAGE to the language used in your wiki. For available languages, check `whoosh.lang.languages`.
 If your language is not supported, Realms will fall back to a simple text analyzer.
 
 ## Running
@@ -274,12 +273,12 @@ If your language is not supported, Realms will fall back to a simple text analyz
     
 ### Upstart
     
-Setup upstart with this command.
+Setup upstart with this command:
 
     sudo realms-wiki setup_upstart
 
-This command requires root privs because it creates an upstart script.
-Also note that ports below 1024 require user root.
+This command requires root priveleges because it creates an upstart script.
+Also note that ports below `1024` require user root.
 After your config is in place use the following commands:
 
     sudo start realms-wiki
@@ -289,7 +288,7 @@ After your config is in place use the following commands:
 
 ### Developement mode
 
-This will start the server in the foreground with auto reloaded enabled
+This will start the server in the foreground with auto reloaded enabled:
 
     realms-wiki dev
 
@@ -317,13 +316,13 @@ This will start the server in the foreground with auto reloaded enabled
       test           Run tests
       version        Output version
 
-Access from your browser
+Access from your browser:
 
 http://localhost:5000
 
 ## Templating
 
-Realms uses handlebars partials to create templates.
+Realms uses Handlebars partials to create templates.
 Each page that you create can be imported as a partial.
 
 This page imports and uses a partial:
@@ -335,12 +334,12 @@ This page contains the content of the partial:
 http://realms.io/_edit/example-tmpl
     
 I locked these pages to preserve them.  
-You may copy and paste into a new page to test.
-
+You can copy and paste into a new page for testing purposes.
 
 ## Contributing
 
 Issues and pull requests are welcome.
+Please follow the code style guide.
 
 [Python style guide](http://google-styleguide.googlecode.com/svn/trunk/pyguide.html)
 
