@@ -79,10 +79,12 @@
           </button>
 
           <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="editor-actions">
-            <li role="presentation">
-              <a role="menuitem" tabindex="-1" href="#" id="start-collaboration">Collaborate</a>
-            </li>
-            <li role="presentation" class="divider"></li>
+            {% if config.get('COLLABORATION') %}
+              <li role="presentation">
+                <a role="menuitem" tabindex="-1" href="#" id="start-collaboration">Collaborate</a>
+              </li>
+              <li role="presentation" class="divider"></li>
+            {% endif %}
             <li role="presentation">
               <a role="menuitem" tabindex="-1" href="#" id="discard-draft-btn">Delete Draft</a>
             </li>
