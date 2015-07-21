@@ -8,6 +8,9 @@ blueprint = Blueprint('wiki', __name__)
 
 @blueprint.route("/_commit/<sha>/<name>")
 def commit(name, sha):
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+        return current_app.login_manager.unauthorized()
+
     cname = to_canonical(name)
 
     data = g.current_wiki.get_page(cname, sha=sha)
@@ -20,6 +23,9 @@ def commit(name, sha):
 
 @blueprint.route("/_compare/<name>/<regex('[^.]+'):fsha><regex('\.{2,3}'):dots><regex('.+'):lsha>")
 def compare(name, fsha, dots, lsha):
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+        return current_app.login_manager.unauthorized()
+
     diff = g.current_wiki.compare(name, fsha, lsha)
     return render_template('wiki/compare.html',
                            name=name, diff=diff, old=fsha, new=lsha)
@@ -55,6 +61,9 @@ def revert():
 
 @blueprint.route("/_history/<name>")
 def history(name):
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+        return current_app.login_manager.unauthorized()
+
     return render_template('wiki/history.html', name=name, history=g.current_wiki.get_history(name))
 
 
@@ -96,6 +105,9 @@ def create(name):
 
 @blueprint.route("/_index")
 def index():
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+        return current_app.login_manager.unauthorized()
+
     return render_template('wiki/index.html', index=g.current_wiki.get_index())
 
 
@@ -154,6 +166,9 @@ def page_write(name):
 @blueprint.route("/", defaults={'name': 'home'})
 @blueprint.route("/<name>")
 def page(name):
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+        return current_app.login_manager.unauthorized()
+
     cname = to_canonical(name)
     if cname != name:
         return redirect(url_for('wiki.page', name=cname))

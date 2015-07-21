@@ -122,6 +122,7 @@ WIKI_HOME = 'home'
 
 ALLOW_ANON = True
 REGISTRATION_ENABLED = True
+PRIVATE_WIKI = False
 
 # None, firepad, and/or togetherjs
 COLLABORATION = 'togetherjs'
