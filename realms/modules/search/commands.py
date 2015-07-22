@@ -1,10 +1,10 @@
 import click
-from realms import create_app, search
+from realms import create_app, search, flask_cli
 from realms.modules.wiki.models import Wiki
 from realms.lib.util import filename_to_cname
 
 
-@click.group(short_help="Search Module")
+@flask_cli.group(short_help="Search Module")
 def cli():
     pass
 
