@@ -14,7 +14,8 @@ def whoosh(app):
 
 def elasticsearch(app):
     from flask.ext.elastic import Elastic
-    return ElasticSearch(Elastic(app))
+    fields = app.config.get('ELASTICSEARCH_FIELDS')
+    return ElasticSearch(Elastic(app), fields)
 
 
 class Search(object):
@@ -125,8 +126,9 @@ class WhooshSearch(BaseSearch):
 
 
 class ElasticSearch(BaseSearch):
-    def __init__(self, elastic):
+    def __init__(self, elastic, fields):
         self.elastic = elastic
+        self.fields = fields
 
     def index(self, index, doc_type, id_=None, body=None):
         return self.elastic.index(index=index, doc_type=doc_type, id=id_, body=body)
@@ -144,7 +146,7 @@ class ElasticSearch(BaseSearch):
         res = self.elastic.search(index='wiki', body={"query": {
             "multi_match": {
                 "query": query,
-                "fields": ["name"]
+                "fields": self.fields
             }}})
 
         return [hit["_source"] for hit in res['hits']['hits']]

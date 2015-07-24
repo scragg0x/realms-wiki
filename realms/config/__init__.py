@@ -99,6 +99,7 @@ SEARCH_TYPE = 'simple'  # simple is not good for large wikis
 
 # SEARCH_TYPE = 'elasticsearch'
 ELASTICSEARCH_URL = 'http://127.0.0.1:9200'
+ELASTICSEARCH_FIELDS = ["name"]
 
 # SEARCH_TYPE = 'whoosh'
 WHOOSH_INDEX = '/tmp/whoosh'
