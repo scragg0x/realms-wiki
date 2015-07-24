@@ -248,6 +248,12 @@ In your Realms Config, have the following options set:
     "SEARCH_TYPE": "elasticsearch"
     "ELASTICSEARCH_URL": "http://127.0.0.1:9200"
 
+Optionally, also set the following option to configure which fields are searchable:
+
+    "ELASTICSEARCH_FIELDS": ["name"]
+
+Allowable values are `"name"`, `"content"`, `"username"`, `"message"`. The default is `["name"]`.
+
 ### Whoosh Setup
 
 Simply install Whoosh to your Python environment, e.g.
