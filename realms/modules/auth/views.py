@@ -1,6 +1,7 @@
 from flask import current_app, render_template, request, redirect, Blueprint, flash, url_for
 from realms.modules.auth.models import User
 from realms.modules.auth.forms import LoginForm, RegistrationForm
+from flask.ext.login import current_user
 
 blueprint = Blueprint('auth', __name__)
 
@@ -70,3 +71,31 @@ def settings():
 def logout():
     User.logout()
     return redirect("/")
+
+@blueprint.route("/create_user", methods=['GET', 'POST'])
+def create_user():
+
+    if current_user.is_anonymous():
+        return redirect(url_for('auth.login'))
+
+    form = RegistrationForm()
+
+    if request.method == "POST":
+
+        if not form.validate():
+            flash('Form invalid', 'warning')
+            return redirect(url_for('auth.register'))
+
+        if User.get_by_username(request.form['username']):
+            flash('Username is taken', 'warning')
+            return redirect(url_for('auth.register'))
+
+        if User.get_by_email(request.form['email']):
+            flash('Email is taken', 'warning')
+            return redirect(url_for('auth.register'))
+
+        User.create(request.form['username'], request.form['email'], request.form['password'])
+
+        flash("User %s created" % request.form['username'])
+
+    return render_template("auth/create_user.html", form=form)
