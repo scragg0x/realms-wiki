@@ -84,15 +84,15 @@ def create_user():
 
         if not form.validate():
             flash('Form invalid', 'warning')
-            return redirect(url_for('auth.register'))
+            return redirect(url_for('auth.create_user'))
 
         if User.get_by_username(request.form['username']):
             flash('Username is taken', 'warning')
-            return redirect(url_for('auth.register'))
+            return redirect(url_for('auth.create_user'))
 
         if User.get_by_email(request.form['email']):
             flash('Email is taken', 'warning')
-            return redirect(url_for('auth.register'))
+            return redirect(url_for('auth.create_user'))
 
         User.create(request.form['username'], request.form['email'], request.form['password'])
 
