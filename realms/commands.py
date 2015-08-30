@@ -288,6 +288,12 @@ def start_server():
         yellow("Server is already running")
         return
 
+    try:
+        open(config.PIDFILE, 'w')
+    except IOError:
+        red("PID file not writeable (%s) " % config.PIDFILE)
+        return
+
     flags = '--daemon --pid %s' % config.PIDFILE
 
     green("Server started. Port: %s" % config.PORT)
@@ -298,8 +304,12 @@ def start_server():
     else:
         yellow("Using default configuration")
 
-    Popen("gunicorn 'realms:create_app()' -b 0.0.0.0:%s -k gevent %s" %
-          (config.PORT, flags), shell=True, executable='/bin/bash')
+    prefix = ''
+    if in_virtualenv():
+        prefix = get_prefix() + "/bin/"
+
+    Popen("%sgunicorn 'realms:create_app()' -b 0.0.0.0:%s -k gevent %s" %
+          (prefix, config.PORT, flags), shell=True, executable='/bin/bash')
 
 
 def stop_server():
