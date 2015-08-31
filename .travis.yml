@@ -2,9 +2,18 @@ language: python
 python:
   - "2.7"
 
-before_install:
-  - sudo apt-get install -y libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev
+addons:
+  apt:
+    packages:
+    - libxml2-dev
+    - libxslt1-dev
+    - zlib1g-dev
+    - libffi-dev
+    - libyaml-dev
+    - libssl-dev
 
 install: "pip install -r requirements-dev.txt"
 
 script: nosetests
+
+sudo: false
