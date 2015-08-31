@@ -1,7 +1,7 @@
 import os
 import json
 from urlparse import urlparse
-
+from realms.lib.util import in_vagrant
 
 def update(data):
     conf = read()
@@ -151,6 +151,10 @@ SQLALCHEMY_DATABASE_URI = DB_URI
 
 _url = urlparse(BASE_URL)
 RELATIVE_PATH = _url.path
+
+if in_vagrant():
+    # sendfile doesn't work well with Virtualbox shared folders
+    USE_X_SENDFILE = False
 
 if ENV != "DEV":
     DEBUG = False

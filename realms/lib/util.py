@@ -126,6 +126,10 @@ def in_virtualenv():
     return hasattr(sys, 'real_prefix')
 
 
+def in_vagrant():
+    return os.path.isdir("/vagrant")
+
+
 def is_su():
     return os.geteuid() == 0
 
