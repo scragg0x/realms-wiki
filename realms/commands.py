@@ -51,6 +51,20 @@ def module_exists(module_name):
         return True
 
 
+def prompt_and_invoke(ctx, fn):
+    # This is a workaround for a bug in click.
+    # See https://github.com/mitsuhiko/click/issues/429
+    # This isn't perfect - we are ignoring some information (type mostly)
+
+    kw = {}
+
+    for p in fn.params:
+        v = click.prompt(p.prompt, p.default, p.hide_input,
+                         p.confirmation_prompt, p.type)
+        kw[p.name.upper()] = v
+
+    ctx.invoke(fn, **kw)
+
 @cli.command()
 @click.option('--site-title',
               default=config.SITE_TITLE,
@@ -81,8 +95,8 @@ def module_exists(module_name):
               type=click.Choice([None, 'simple', 'redis', 'memcached']),
               prompt='Cache type?')
 @click.option('--search-type',
-              default=config.CACHE_TYPE,
-              type=click.Choice(['simple', 'elasticsearch']),
+              default=config.SEARCH_TYPE,
+              type=click.Choice(['simple', 'whoosh', 'elasticsearch']),
               prompt='Search type?')
 @click.option('--db-uri',
               default=config.DB_URI,
@@ -105,12 +119,14 @@ def setup(ctx, **kw):
     conf_path = config.update(conf)
 
     if conf['CACHE_TYPE'] == 'redis':
-        ctx.invoke(setup_redis)
+        prompt_and_invoke(ctx, setup_redis)
     elif conf['CACHE_TYPE'] == 'memcached':
-        ctx.invoke(setup_memcached)
+        prompt_and_invoke(ctx, setup_memcached)
 
     if conf['SEARCH_TYPE'] == 'elasticsearch':
-        ctx.invoke(setup_elasticsearch)
+        prompt_and_invoke(ctx, setup_elasticsearch)
+    elif conf['SEARCH_TYPE'] == 'whoosh':
+        install_whoosh()
 
     green('Config saved to %s' % conf_path)
 
@@ -129,15 +145,17 @@ def setup(ctx, **kw):
               prompt='Redis host')
 @click.option('--cache-redis-port',
               default=getattr(config, 'CACHE_REDIS_POST', 6379),
-              prompt='Redis port')
+              prompt='Redis port',
+              type=int)
 @click.option('--cache-redis-password',
               default=getattr(config, 'CACHE_REDIS_PASSWORD', None),
               prompt='Redis password')
 @click.option('--cache-redis-db',
               default=getattr(config, 'CACHE_REDIS_DB', 0),
               prompt='Redis db')
-def setup_redis(**kw):
-    conf = {}
+@click.pass_context
+def setup_redis(ctx, **kw):
+    conf = config.read()
 
     for k, v in kw.items():
         conf[k.upper()] = v
@@ -145,18 +163,20 @@ def setup_redis(**kw):
     config.update(conf)
     install_redis()
 
-
 @click.command()
 @click.option('--elasticsearch-url',
               default=getattr(config, 'ELASTICSEARCH_URL', 'http://127.0.0.1:9200'),
               prompt='Elasticsearch URL')
 def setup_elasticsearch(**kw):
-    conf = {}
+    conf = config.read()
 
     for k, v in kw.items():
         conf[k.upper()] = v
 
     config.update(conf)
+
+cli.add_command(setup_redis)
+cli.add_command(setup_elasticsearch)
 
 
 def get_prefix():
@@ -173,6 +193,10 @@ def pip_(cmd):
 
 def install_redis():
     pip.main(['install', 'redis'])
+
+
+def install_whoosh():
+    pip.main(['install', 'Whoosh'])
 
 
 def install_mysql():
