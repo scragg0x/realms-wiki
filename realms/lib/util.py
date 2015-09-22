@@ -119,7 +119,7 @@ def filename_to_cname(filename):
 
 
 def gravatar_url(email):
-    return "//www.gravatar.com/avatar/" + hashlib.md5(email).hexdigest()
+    return "https://www.gravatar.com/avatar/" + hashlib.md5(email).hexdigest()
 
 
 def in_virtualenv():

@@ -69,4 +69,4 @@ def settings():
 @blueprint.route("/logout")
 def logout():
     User.logout()
-    return redirect("/")
+    return redirect(url_for(current_app.config['ROOT_ENDPOINT']))
