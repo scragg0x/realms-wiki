@@ -76,12 +76,17 @@ PORT = 5000
 BASE_URL = 'http://localhost'
 SITE_TITLE = "Realms"
 
+USER_BACKEND = 'db'
+
 # https://pythonhosted.org/Flask-SQLAlchemy/config.html#connection-uri-format
 DB_URI = 'sqlite:////tmp/wiki.db'
 # DB_URI = 'mysql://scott:tiger@localhost/mydatabase'
 # DB_URI = 'postgresql://scott:tiger@localhost/mydatabase'
 # DB_URI = 'oracle://scott:tiger@127.0.0.1:1521/sidname'
 # DB_URI = 'crate://'
+
+LDAP_URI = 'ldap://localhost'
+LDAP_BASE = 'ou=users, dc=example, dc=com'
 
 CACHE_TYPE = 'simple'
 
@@ -136,6 +141,8 @@ WIKI_LOCKED_PAGES = []
 
 ROOT_ENDPOINT = 'wiki.page'
 
+MODULES = ['wiki', 'search']
+
 globals().update(read())
 
 # Used by Flask-Login
@@ -161,4 +168,3 @@ if ENV != "DEV":
     ASSETS_DEBUG = False
     SQLALCHEMY_ECHO = False
 
-MODULES = ['wiki', 'auth', 'search']

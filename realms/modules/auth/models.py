@@ -38,6 +38,7 @@ def load_token(token):
 
 class AnonUser(AnonymousUserMixin):
     username = 'Anon'
+    fullname = 'Anonymous User'
     email = ''
     admin = False
 
@@ -60,6 +61,10 @@ class User(Model, UserMixin):
     @property
     def avatar(self):
         return gravatar_url(self.email)
+
+    @property
+    def fullname(self):
+        return self.username
 
     @staticmethod
     def create(username, email, password):
