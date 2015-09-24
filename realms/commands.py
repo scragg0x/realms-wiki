@@ -61,7 +61,7 @@ def prompt_and_invoke(ctx, fn):
     for p in fn.params:
         v = click.prompt(p.prompt, p.default, p.hide_input,
                          p.confirmation_prompt, p.type)
-        kw[p.name.upper()] = v
+        kw[p.name] = v
 
     ctx.invoke(fn, **kw)
 
