@@ -25,6 +25,9 @@ def rebuild_index():
         wiki = Wiki(app.config['WIKI_PATH'])
         for entry in wiki.get_index():
             page = wiki.get_page(entry['name'])
+            if not page:
+                # Some non-markdown files may have issues
+                continue
             name = filename_to_cname(page['name'])
             # TODO add email?
             body = dict(name=name,
