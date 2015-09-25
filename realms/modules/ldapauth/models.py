@@ -93,8 +93,8 @@ class User(UserMixin):
         # but then we'd have to construct the uid
         # from the email address, which involves assumptions
         # Also, we need anonymous lookups anyway for load_user
-        ld = ldap.initialize(current_app.config['DB_URI'])
-        v = ld.search_s('ou=users, dc=ibp, dc=de',
+        ld = ldap.initialize(current_app.config['LDAP_URI'])
+        v = ld.search_s(current_app.config['LDAP_BASE'],
                         ldap.SCOPE_SUBTREE, 'mail=%s' % email, None)
 
         if v is None:
