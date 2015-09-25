@@ -13,7 +13,7 @@ import click
 from urlparse import urlparse
 from flask import Flask, request, render_template, url_for, redirect, g
 from flask.ext.cache import Cache
-from flask.ext.login import LoginManager, current_user
+from flask.ext.login import LoginManager, current_user, AnonymousUserMixin
 from flask.ext.assets import Environment, Bundle
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
@@ -25,6 +25,11 @@ from .lib.hook import HookModelMeta, HookMixin
 from .lib.util import is_su, in_virtualenv
 from .version import __version__
 
+class AnonUser(AnonymousUserMixin):
+    username = 'Anon'
+    email = ''
+    admin = False
+    fullname = 'Anonymous'
 
 class Application(Flask):
 
@@ -159,6 +164,7 @@ def create_app(config=None):
     app.url_map.strict_slashes = False
 
     login_manager.init_app(app)
+    login_manager.anonymous_user = AnonUser
     global db
     if app.config['USER_BACKEND'] =='db':
         from flask.ext.sqlalchemy import SQLAlchemy
@@ -167,7 +173,6 @@ def create_app(config=None):
         db.Model = declarative_base(metaclass=HookModelMeta, cls=HookMixin)
     else:
         db = None
-    
 
     cache.init_app(app)
     assets.init_app(app)

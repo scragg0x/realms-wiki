@@ -71,7 +71,7 @@
                     <li><a href="{{ url_for('auth.logout') }}"><i class="fa fa-power-off"></i> Logout</a></li>
                 </ul>
                 </li>
-            {% else %}
+            {% elif config.USER_BACKEND %}
               <li><a href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i> &nbsp;Login</a></li>
               {% if config.REGISTRATION_ENABLED %}
                 <li><a href="{{ url_for('auth.register') }}"><i class="fa fa-users"></i> &nbsp;Register</a></li>

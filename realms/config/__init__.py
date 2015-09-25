@@ -76,7 +76,7 @@ PORT = 5000
 BASE_URL = 'http://localhost'
 SITE_TITLE = "Realms"
 
-USER_BACKEND = 'db'
+USER_BACKEND = None
 
 # https://pythonhosted.org/Flask-SQLAlchemy/config.html#connection-uri-format
 DB_URI = 'sqlite:////tmp/wiki.db'

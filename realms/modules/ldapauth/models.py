@@ -1,5 +1,5 @@
 from flask import current_app
-from flask.ext.login import UserMixin, logout_user, login_user, AnonymousUserMixin
+from flask.ext.login import UserMixin, logout_user, login_user
 from realms import login_manager
 from realms.lib.util import gravatar_url
 from itsdangerous import URLSafeSerializer, BadSignature
@@ -34,12 +34,6 @@ def load_token(token):
     except BadSignature:
         return None
     
-
-class AnonUser(AnonymousUserMixin):
-    username = 'Anon'
-    email = ''
-    admin = False
-
 
 class User(UserMixin):
 
@@ -114,4 +108,3 @@ class User(UserMixin):
     def logout(cls):
         logout_user()
         
-login_manager.anonymous_user = AnonUser

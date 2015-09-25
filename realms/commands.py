@@ -117,7 +117,7 @@ def prompt_and_invoke(ctx, fn):
               prompt='Search type?')
 @click.option('--user-backend',
               default=config.USER_BACKEND,
-              type=click.Choice(['db', 'ldap']),
+              type=click.Choice([None, 'db', 'ldap']),
               prompt='User backend?')
 @click.pass_context
 def setup(ctx, **kw):
