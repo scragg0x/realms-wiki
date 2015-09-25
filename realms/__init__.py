@@ -12,6 +12,7 @@ import traceback
 import click
 from flask import Flask, request, render_template, url_for, redirect, g
 from flask.ext.cache import Cache
+from flask.ext.github import GitHub
 from flask.ext.login import LoginManager, current_user
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.assets import Environment, Bundle
@@ -163,6 +164,7 @@ def create_app(config=None):
     cache.init_app(app)
     assets.init_app(app)
     search.init_app(app)
+    github.init_app(app)
 
     db.Model = declarative_base(metaclass=HookModelMeta, cls=HookMixin)
 
@@ -202,6 +204,7 @@ db = SQLAlchemy()
 cache = Cache()
 assets = Assets()
 search = Search()
+github = GitHub()
 
 assets.register('main.js',
                 'vendor/jquery/dist/jquery.js',

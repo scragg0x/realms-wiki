@@ -136,6 +136,13 @@ WIKI_LOCKED_PAGES = []
 
 ROOT_ENDPOINT = 'wiki.page'
 
+# Can be one of ("default", "github")
+USER_AUTHENTICATION_METHOD = 'default'
+
+GITHUB_CLIENT_ID = None
+GITHUB_CLIENT_SECRET = None
+GITHUB_AUTHORIZED_ORG = None
+
 globals().update(read())
 
 # Used by Flask-Login
@@ -161,4 +168,8 @@ if ENV != "DEV":
     ASSETS_DEBUG = False
     SQLALCHEMY_ECHO = False
 
-MODULES = ['wiki', 'auth', 'search']
+MODULES = ['wiki', 'search']
+if USER_AUTHENTICATION_METHOD == 'github':
+    MODULES.append('github')
+else:
+    MODULES.append('auth')

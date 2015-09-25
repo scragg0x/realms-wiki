@@ -40,7 +40,8 @@ setup(name='realms-wiki',
           'gunicorn==19.3',
           'itsdangerous==0.24',
           'markdown2==2.3.0',
-          'simplejson==3.6.3'
+          'simplejson==3.6.3',
+          'GitHub-Flask==3.0.1',
       ],
       entry_points={
           'console_scripts': [
