@@ -38,10 +38,12 @@ def load_token(token):
 
 class AnonUser(AnonymousUserMixin):
     username = 'Anon'
-    fullname = 'Anonymous User'
     email = ''
     admin = False
 
+    @property
+    def fullname(self):
+        return 'Anonymous'
 
 class User(Model, UserMixin):
     __tablename__ = 'users'
