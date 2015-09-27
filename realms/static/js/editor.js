@@ -73,7 +73,11 @@ var aced = new Aced({
       content: content
     };
 
-    var path = Config['RELATIVE_PATH'] + '/' + data['name'];
+    // If renaming an existing page, use the old page name for the URL to PUT to
+    var subPath = (PAGE_NAME) ? PAGE_NAME : data['name']
+    var path = Config['RELATIVE_PATH'] + '/' + subPath;
+    var newPath = Config['RELATIVE_PATH'] + '/' + data['name'];
+
     var type = (Commit.info['sha']) ? "PUT" : "POST";
 
     $.ajax({
@@ -87,7 +91,7 @@ var aced = new Aced({
         $page_name.addClass('parsley-error');
         bootbox.alert("<h3>" + res['message'] + "</h3>");
       } else {
-        location.href = path;
+        location.href = newPath;
       }
     });
   }

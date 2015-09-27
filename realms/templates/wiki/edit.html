@@ -3,6 +3,8 @@
   <script>
     var Commit = {};
     Commit.info = {{ info|tojson }};
+
+    var PAGE_NAME = '{{ name }}';
   </script>
   <script src="{{ url_for('static', filename='js/editor.js') }}"></script>
 
