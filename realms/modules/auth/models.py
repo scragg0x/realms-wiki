@@ -1,5 +1,5 @@
 from flask import current_app
-from flask.ext.login import UserMixin, logout_user, login_user, AnonymousUserMixin
+from flask.ext.login import UserMixin, logout_user, login_user
 from realms import login_manager, db
 from realms.lib.model import Model
 from realms.lib.util import gravatar_url
@@ -36,12 +36,6 @@ def load_token(token):
         return None
 
 
-class AnonUser(AnonymousUserMixin):
-    username = 'Anon'
-    email = ''
-    admin = False
-
-
 class User(Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -60,6 +54,10 @@ class User(Model, UserMixin):
     @property
     def avatar(self):
         return gravatar_url(self.email)
+
+    @property
+    def fullname(self):
+        return self.username
 
     @staticmethod
     def create(username, email, password):
@@ -108,5 +106,3 @@ class User(Model, UserMixin):
     @classmethod
     def logout(cls):
         logout_user()
-
-login_manager.anonymous_user = AnonUser

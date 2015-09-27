@@ -1,4 +1,4 @@
-from realms import config, create_app, db, __version__, flask_cli as cli
+from realms import config, create_app, __version__, flask_cli as cli
 from realms.lib.util import random_string, in_virtualenv, green, yellow, red
 from subprocess import call, Popen
 from multiprocessing import cpu_count
@@ -50,6 +50,27 @@ def module_exists(module_name):
     else:
         return True
 
+def update_config(**kw):
+    conf = config.read()
+
+    for k, v in kw.items():
+        conf[k.upper()] = v
+
+    config.update(conf)
+
+def prompt_and_invoke(ctx, fn):
+    # This is a workaround for a bug in click.
+    # See https://github.com/mitsuhiko/click/issues/429
+    # This isn't perfect - we are ignoring some information (type mostly)
+
+    kw = {}
+
+    for p in fn.params:
+        v = click.prompt(p.prompt, p.default, p.hide_input,
+                         p.confirmation_prompt, p.type)
+        kw[p.name] = v
+
+    ctx.invoke(fn, **kw)
 
 def prompt_and_invoke(ctx, fn):
     # This is a workaround for a bug in click.
@@ -86,10 +107,6 @@ def prompt_and_invoke(ctx, fn):
               default=config.ALLOW_ANON,
               is_flag=True,
               prompt='Allow anonymous edits?')
-@click.option('--registration-enabled',
-              default=config.REGISTRATION_ENABLED,
-              is_flag=True,
-              prompt='Enable registration?')
 @click.option('--cache-type',
               default=config.CACHE_TYPE,
               type=click.Choice([None, 'simple', 'redis', 'memcached']),
@@ -98,9 +115,10 @@ def prompt_and_invoke(ctx, fn):
               default=config.SEARCH_TYPE,
               type=click.Choice(['simple', 'whoosh', 'elasticsearch']),
               prompt='Search type?')
-@click.option('--db-uri',
-              default=config.DB_URI,
-              prompt='Database URI? Examples: http://goo.gl/RyW0cl')
+@click.option('--user-backend',
+              default=config.USER_BACKEND,
+              type=click.Choice([None, 'db', 'ldap']),
+              prompt='User backend?')
 @click.pass_context
 def setup(ctx, **kw):
     """ Start setup wizard
@@ -116,7 +134,19 @@ def setup(ctx, **kw):
     for k, v in kw.items():
         conf[k.upper()] = v
 
+    if conf['USER_BACKEND'] == 'db':
+        conf['MODULES'] = ['wiki', 'auth', 'search']
+        fn_backend = setup_db
+    else:
+        # LDAP does not support registration yet
+        # so disable this regardless of the config defaults
+        conf['REGISTRATION_ENABLED'] = False
+        # swap the modules
+        conf['MODULES'] = ['wiki', 'ldapauth', 'search']
+        fn_backend = setup_ldap
+
     conf_path = config.update(conf)
+    prompt_and_invoke(ctx, fn_backend)
 
     if conf['CACHE_TYPE'] == 'redis':
         prompt_and_invoke(ctx, setup_redis)
@@ -140,6 +170,29 @@ def setup(ctx, **kw):
 
 
 @click.command()
+@click.option('--db-uri',
+              default=config.DB_URI,
+              prompt='Database URI? Examples: http://goo.gl/RyW0cl')
+@click.option('--registration-enabled',
+              default=config.REGISTRATION_ENABLED,
+              is_flag=True,
+              prompt='Enable registration?')
+def setup_db(**kw):
+    update_config(**kw)
+
+
+@click.command()
+@click.option('--ldap-uri',
+              default=config.LDAP_URI,
+              prompt='LDAP URI?')
+@click.option('--ldap-base',
+              default=config.LDAP_BASE,
+              prompt='LDAP search base DN?')
+def setup_ldap(**kw):
+    update_config(**kw)
+
+
+@click.command()
 @click.option('--cache-redis-host',
               default=getattr(config, 'CACHE_REDIS_HOST', "127.0.0.1"),
               prompt='Redis host')
@@ -153,27 +206,21 @@ def setup(ctx, **kw):
 @click.option('--cache-redis-db',
               default=getattr(config, 'CACHE_REDIS_DB', 0),
               prompt='Redis db')
-@click.pass_context
-def setup_redis(ctx, **kw):
-    conf = config.read()
-
-    for k, v in kw.items():
-        conf[k.upper()] = v
-
-    config.update(conf)
+def setup_redis(**kw):
+    update_config(**kw)
     install_redis()
+
 
 @click.command()
 @click.option('--elasticsearch-url',
               default=getattr(config, 'ELASTICSEARCH_URL', 'http://127.0.0.1:9200'),
               prompt='Elasticsearch URL')
 def setup_elasticsearch(**kw):
-    conf = config.read()
+    update_config(**kw)
 
-    for k, v in kw.items():
-        conf[k.upper()] = v
 
-    config.update(conf)
+cli.add_command(setup_redis)
+cli.add_command(setup_elasticsearch)
 
 cli.add_command(setup_redis)
 cli.add_command(setup_elasticsearch)
@@ -221,12 +268,7 @@ def install_memcached():
               type=click.STRING,
               prompt='Memcached servers, separate with a space')
 def setup_memcached(**kw):
-    conf = {}
-
-    for k, v in kw.items():
-        conf[k.upper()] = v
-
-    config.update(conf)
+    update_config(**kw)
 
 
 @cli.command()
@@ -391,6 +433,9 @@ def status():
 def create_db():
     """ Creates DB tables
     """
+
+    from realms import db
+
     green("Creating all tables")
     with app.app_context():
         green('DB_URI: %s' % app.config.get('DB_URI'))

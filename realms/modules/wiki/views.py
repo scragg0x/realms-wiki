@@ -48,7 +48,7 @@ def revert():
         sha = g.current_wiki.revert_page(cname,
                                          commit,
                                          message=message,
-                                         username=current_user.username,
+                                         username=current_user.fullname,
                                          email=current_user.email)
     except PageNotFound as e:
         return dict(error=True, message=e.message), 404
@@ -131,7 +131,7 @@ def page_write(name):
                                         request.form['content'],
                                         message=request.form['message'],
                                         create=True,
-                                        username=current_user.username,
+                                        username=current_user.fullname,
                                         email=current_user.email)
 
     elif request.method == 'PUT':
@@ -146,7 +146,7 @@ def page_write(name):
         sha = g.current_wiki.write_page(edit_cname,
                                         request.form['content'],
                                         message=request.form['message'],
-                                        username=current_user.username,
+                                        username=current_user.fullname,
                                         email=current_user.email)
 
         return dict(sha=sha)
@@ -157,7 +157,7 @@ def page_write(name):
             return dict(error=True, message="Page is locked"), 403
 
         sha = g.current_wiki.delete_page(name,
-                                         username=current_user.username,
+                                         username=current_user.fullname,
                                          email=current_user.email)
 
     return dict(sha=sha)

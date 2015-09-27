@@ -31,8 +31,10 @@ Source: https://github.com/scragg0x/realms-wiki
 
 - Nginx (if you want proxy requests, this is recommended).
 - Memcached or Redis, default is memonization.
-- MariaDB, MySQL, Postgresql, or another database supported by SQLAlchemy, default is sqlite.
-    Anon or single user does not require a database.
+- User database backends (Anon or single user does not require a database):
+  - MariaDB, MySQL, Postgresql, or another database supported by SQLAlchemy, default is sqlite.
+  - LDAP
+    
 
 ## Installation
 
@@ -220,6 +222,23 @@ Reload apache:
 
 _Don't forget to create your database._
 
+### LDAP setup
+
+    realms-wiki pip install python-ldap
+
+The LDAP backend assumes that the user schema is a superset of `inetOrgPerson`.
+
+Your configuration needs to contain the URI for your LDAP service, and the
+LDAP search base. 
+
+User registration is not possible with the LDAP backend, so make sure it is
+disabled (the setup wizard will do this automatically for you).
+
+
+    "LDAP_BASE": "ou=users, dc=example, dc=com",
+    "LDAP_URI": "ldap://localhost",
+    "REGISTRATION_ENABLED": false,
+
 ## Search
 
 Realms wiki comes with basic search capabilities, however this is not recommended
@@ -268,9 +287,9 @@ To use Whoosh, set the following in your Realms config:
     "WHOOSH_INDEX": "/path/to/your/whoosh/index"
     "WHOOSH_LANGUAGE": "en"
 
-WHOOSH_INDEX has to be a path readable and writeable by Realm's user. It will be created automatically if it doesn't exist.
+`WHOOSH_INDEX` has to be a path readable and writeable by Realm's user. It will be created automatically if it doesn't exist.
 
-Whoosh is set up to use language optimization, so set WHOOSH_LANGUAGE to the language used in your wiki. For available languages, check `whoosh.lang.languages`.
+Whoosh is set up to use language optimization, so set `WHOOSH_LANGUAGE` to the language used in your wiki. For available languages, check `whoosh.lang.languages`.
 If your language is not supported, Realms will fall back to a simple text analyzer.
 
 ## Running
