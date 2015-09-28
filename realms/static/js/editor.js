@@ -58,9 +58,30 @@ $(function(){
   });
 
   $("#delete-page-btn").click(function() {
-    bootbox.alert("Not Done Yet! Sorry");
+    bootbox.confirm('Are you sure you want to delete this page?', function(result) {
+      if (result) {
+        deletePage();
+      }
+    });
   });
 });
+
+var deletePage = function() {
+  var pageName = $page_name.val();
+  var path = Config['RELATIVE_PATH'] + '/' + pageName;
+
+  $.ajax({
+    type: 'DELETE',
+    url: path,
+  }).done(function(data) {
+    var msg = 'Deleted page: ' + pageName;
+    bootbox.alert(msg, function() {
+      location.href = '/';
+    });
+  }).fail(function(data, status, error) {
+    bootbox.alert('Error deleting page!');
+  });
+};
 
 var aced = new Aced({
   editor: $('#entry-markdown-content').find('.editor').attr('id'),

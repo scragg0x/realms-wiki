@@ -24,3 +24,12 @@ def wiki_rename_page(old_name, *args, **kwargs):
         return
 
     return search.delete_wiki(old_name)
+
+
+@Wiki.after('delete_page')
+def wiki_delete_page(name, *args, **kwargs):
+
+    if not hasattr(search, 'index_wiki'):
+        return
+
+    return search.delete_wiki(name)
