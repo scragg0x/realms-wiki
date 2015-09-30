@@ -156,11 +156,14 @@ class Wiki(HookMixin):
             message = "Deleted %s" % name
 
         filename = cname_to_filename(name)
+
+        # gittle.rm won't actually remove the file, have to do it ourselves
+        os.remove(os.path.join(self.path, filename))
         self.gittle.rm(filename)
         commit = self.gittle.commit(name=username,
                                     email=email,
                                     message=message,
-                                    files=[str(filename)])
+                                    files=[filename])
         cache.delete_many(name)
         return commit
 

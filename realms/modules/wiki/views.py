@@ -151,12 +151,12 @@ def page_write(name):
 
         return dict(sha=sha)
 
-    else:
+    elif request.method == 'DELETE':
         # DELETE
         if cname in current_app.config.get('WIKI_LOCKED_PAGES'):
             return dict(error=True, message="Page is locked"), 403
 
-        sha = g.current_wiki.delete_page(name,
+        sha = g.current_wiki.delete_page(cname,
                                          username=current_user.username,
                                          email=current_user.email)
 
