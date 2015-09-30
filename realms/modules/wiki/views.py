@@ -140,7 +140,7 @@ def page_write(name):
         if edit_cname in current_app.config.get('WIKI_LOCKED_PAGES'):
             return dict(error=True, message="Page is locked"), 403
 
-        if edit_cname != cname.lower():
+        if edit_cname != cname:
             g.current_wiki.rename_page(cname, edit_cname)
 
         sha = g.current_wiki.write_page(edit_cname,

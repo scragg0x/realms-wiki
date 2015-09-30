@@ -118,6 +118,9 @@ class Wiki(HookMixin):
             # old doesn't exist
             return None
 
+        if old_filename == new_filename:
+            return
+
         if new_filename in self.gittle.index:
             # file is being overwritten, but that is ok, it's git!
             pass
