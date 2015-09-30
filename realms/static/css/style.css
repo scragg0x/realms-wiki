@@ -288,3 +288,9 @@ a.label {
 
 }
 
+.github-login-button {
+  display: block;
+  width: 40%;
+  min-width: 300px;
+  margin: 0 auto;
+}
