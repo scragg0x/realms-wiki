@@ -1,0 +1,5 @@
+{% from 'macros.html' import render_form, render_field %}
+{% call render_form(form, action_url=url_for('auth.local.login'), action_text='Login', btn_class='btn btn-primary') %}
+{{ render_field(form.email, placeholder='Email', type='email', required=1) }}
+{{ render_field(form.password, placeholder='Password', type='password', required=1) }}
+{% endcall %}
