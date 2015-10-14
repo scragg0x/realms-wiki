@@ -15,6 +15,7 @@ from flask.ext.cache import Cache
 from flask.ext.login import LoginManager, current_user
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.assets import Environment, Bundle
+from flask_ldap_login import LDAPLoginManager
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 from sqlalchemy.ext.declarative import declarative_base
@@ -163,6 +164,7 @@ def create_app(config=None):
     cache.init_app(app)
     assets.init_app(app)
     search.init_app(app)
+    ldap.init_app(app)
 
     db.Model = declarative_base(metaclass=HookModelMeta, cls=HookMixin)
 
@@ -202,6 +204,7 @@ db = SQLAlchemy()
 cache = Cache()
 assets = Assets()
 search = Search()
+ldap = LDAPLoginManager()
 
 assets.register('main.js',
                 'vendor/jquery/dist/jquery.js',

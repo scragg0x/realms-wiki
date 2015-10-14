@@ -19,13 +19,11 @@ class Auth(object):
 
     @staticmethod
     def get_auth_user(auth_type):
-        print auth_type
         mod = importlib.import_module('realms.modules.auth.%s.models' % auth_type)
         return mod.User
 
     @staticmethod
     def load_user(auth_id):
-        print auth_id
         auth_type, user_id = auth_id.split("/")
         return Auth.get_auth_user(auth_type).load_user(user_id)
 
@@ -33,7 +31,7 @@ class Auth(object):
     def login_forms():
         forms = []
         # TODO be dynamic
-        for t in ['local']:
+        for t in ['local', 'ldap']:
             forms.append(Auth.get_auth_user(t).login_form())
         return forms
 
@@ -87,7 +85,7 @@ class BaseUser(UserMixin):
 
     @staticmethod
     def auth(email, password):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @staticmethod
     def hash_password(password):

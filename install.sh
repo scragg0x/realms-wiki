@@ -17,15 +17,15 @@ if ! type "add-apt-repository" > /dev/null; then
 fi
 
 # Elastic Search
-wget -qO - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo apt-key add -
-echo 'deb http://packages.elasticsearch.org/elasticsearch/1.4/debian stable main' | sudo tee /etc/apt/sources.list.d/elastic.list
+# wget -qO - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo apt-key add -
+# echo 'deb http://packages.elasticsearch.org/elasticsearch/1.4/debian stable main' | sudo tee /etc/apt/sources.list.d/elastic.list
 
 sudo add-apt-repository -y ppa:chris-lea/node.js
 sudo apt-get update
 
 sudo apt-get install -y python build-essential pkg-config git  \
-python-pip python-virtualenv python-dev zlib1g-dev \
-libffi-dev libyaml-dev libssl-dev nodejs openjdk-7-jre-headless elasticsearch
+python-pip python-virtualenv python-dev zlib1g-dev libldap2-dev libsasl2-dev \
+libffi-dev libyaml-dev libssl-dev nodejs
 
 # Create swap file because ES eats up RAM and 14.04 doesn't have swap by default
 sudo fallocate -l 1G /swapfile

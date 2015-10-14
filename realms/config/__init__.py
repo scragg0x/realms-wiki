@@ -83,6 +83,38 @@ DB_URI = 'sqlite:////tmp/wiki.db'
 # DB_URI = 'oracle://scott:tiger@127.0.0.1:1521/sidname'
 # DB_URI = 'crate://'
 
+LDAP = {
+    'URI': 'ldap://localhost:8389',
+
+    # This BIND_DN/BIND_PASSORD default to '', this is shown here for demonstrative purposes
+    # The values '' perform an anonymous bind so we may use search/bind method
+    'BIND_DN': '',
+    'BIND_AUTH': '',
+
+    # Adding the USER_SEARCH field tells the flask-ldap-login that we are using
+    # the search/bind method
+    'USER_SEARCH': {'base': 'dc=example,dc=com', 'filter': 'uid=%(username)s'},
+
+    # Map ldap keys into application specific keys
+    'KEY_MAP': {
+        'name': 'cn',
+        'company': 'o',
+        'location': 'l',
+        'email': 'mail',
+    }
+}
+
+OAUTH = {
+    'twitter': {
+        'key': '',
+        'secret': ''
+    },
+    'github': {
+        'key': '',
+        'secret': ''
+    }
+}
+
 CACHE_TYPE = 'simple'
 
 # Redis
@@ -161,4 +193,4 @@ if ENV != "DEV":
     ASSETS_DEBUG = False
     SQLALCHEMY_ECHO = False
 
-MODULES = ['wiki', 'search', 'auth', 'auth.local', 'auth.oauth']
+MODULES = ['wiki', 'search', 'auth', 'auth.local', 'auth.oauth', 'auth.ldap']
