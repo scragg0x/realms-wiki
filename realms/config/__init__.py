@@ -193,4 +193,4 @@ if ENV != "DEV":
     ASSETS_DEBUG = False
     SQLALCHEMY_ECHO = False
 
-MODULES = ['wiki', 'search', 'auth', 'auth.local', 'auth.oauth', 'auth.ldap']
+MODULES = ['wiki', 'search', 'auth', 'auth.local', 'auth.oauth', 'auth.ldap', 'auth.oauth']

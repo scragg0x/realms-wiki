@@ -68,18 +68,6 @@ class BaseUser(UserMixin):
         raise NotImplementedError
 
     @staticmethod
-    def create(*args, **kwargs):
-        pass
-
-    @staticmethod
-    def get_by_username(username):
-        pass
-
-    @staticmethod
-    def get_by_email(email):
-        pass
-
-    @staticmethod
     def signer(salt):
         return URLSafeSerializer(current_app.config['SECRET_KEY'] + salt)
 
