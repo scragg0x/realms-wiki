@@ -1,5 +1,5 @@
 from flask import current_app
-from flask.ext.login import UserMixin, logout_user, login_user, AnonymousUserMixin
+from flask.ext.login import UserMixin, logout_user, AnonymousUserMixin
 from realms import login_manager
 from realms.lib.util import gravatar_url
 from itsdangerous import URLSafeSerializer, BadSignature
@@ -82,10 +82,6 @@ class BaseUser(UserMixin):
     @staticmethod
     def signer(salt):
         return URLSafeSerializer(current_app.config['SECRET_KEY'] + salt)
-
-    @staticmethod
-    def auth(email, password):
-        raise NotImplementedError
 
     @staticmethod
     def hash_password(password):

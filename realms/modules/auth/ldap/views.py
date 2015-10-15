@@ -12,7 +12,7 @@ def login():
         flash('Form invalid', 'warning')
         return redirect(url_for('auth.login'))
 
-    if User.auth(form.user):
+    if User.auth(form.user, request.form['password']):
         return redirect(request.args.get("next") or url_for(current_app.config['ROOT_ENDPOINT']))
     else:
         return redirect(url_for('auth.login'))

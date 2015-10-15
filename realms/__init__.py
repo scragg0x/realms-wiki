@@ -110,6 +110,10 @@ class Assets(Environment):
 
         return super(Assets, self).register(name, Bundle(*args, filters=filters, output=output))
 
+class MyLDAPLoginManager(LDAPLoginManager):
+    @property
+    def attrlist(self):
+        return None
 
 class RegexConverter(BaseConverter):
     """ Enables Regex matching on endpoints
@@ -204,7 +208,7 @@ db = SQLAlchemy()
 cache = Cache()
 assets = Assets()
 search = Search()
-ldap = LDAPLoginManager()
+ldap = MyLDAPLoginManager()
 
 assets.register('main.js',
                 'vendor/jquery/dist/jquery.js',

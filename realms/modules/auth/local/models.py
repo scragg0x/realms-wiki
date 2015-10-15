@@ -6,7 +6,6 @@ from ..models import BaseUser
 from .forms import LoginForm
 from itsdangerous import URLSafeSerializer, BadSignature
 from hashlib import sha256
-import bcrypt
 
 
 @login_manager.token_loader
@@ -87,14 +86,6 @@ class User(Model, BaseUser):
         else:
             # Password check failed
             return False
-
-    @staticmethod
-    def hash_password(password):
-        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(12))
-
-    @staticmethod
-    def check_password(password, hashed):
-        return bcrypt.hashpw(password.encode('utf-8'), hashed.encode('utf-8')) == hashed
 
     @classmethod
     def logout(cls):
