@@ -1,5 +1,5 @@
 from flask import Blueprint, url_for, request, flash, redirect, session
-from .models import TwitterUser
+from .models import User
 
 blueprint = Blueprint('auth.oauth', __name__)
 
@@ -8,23 +8,23 @@ def oauth_failed(next_url):
     flash('You denied the request to sign in.')
     return redirect(next_url)
 
-@blueprint.route("/login/twitter")
-def login_twitter():
-    return TwitterUser.app().authorize(callback=url_for('twitter_callback',
+
+@blueprint.route("/login/oauth/<provider>")
+def oauth_login(provider):
+    return User.get_app(provider).authorize(callback=url_for('oauth_callback', provider=provider,
         next=request.args.get('next') or request.referrer or None))
 
-@blueprint.route('/login/twitter/callback')
-def twitter_callback():
+
+@blueprint.route('/login/oauth/<provider>/callback')
+def oauth_callback(provider):
     next_url = request.args.get('next') or url_for('index')
-    resp = TwitterUser.app().authorized_response()
+    resp = User.get_app(provider).authorized_response()
     if resp is None:
         return oauth_failed(next_url)
 
-    session['twitter_token'] = (
+    session[provider + '_token'] = (
         resp['oauth_token'],
         resp['oauth_token_secret']
     )
-    session['twitter_user'] = resp['screen_name']
 
-    flash('You were signed in as %s' % resp['screen_name'])
     return redirect(next_url)
