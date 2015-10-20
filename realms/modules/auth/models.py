@@ -31,7 +31,7 @@ class Auth(object):
     def login_forms():
         forms = []
         # TODO be dynamic
-        for t in ['local', 'ldap']:
+        for t in ['local', 'ldap', 'oauth']:
             forms.append(Auth.get_auth_user(t).login_form())
         return forms
 

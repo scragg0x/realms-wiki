@@ -1,4 +1,4 @@
-from flask import Blueprint, url_for, request, flash, redirect, session
+from flask import Blueprint, url_for, request, flash, redirect, session, current_app
 from .models import User
 
 blueprint = Blueprint('auth.oauth', __name__)
@@ -16,7 +16,7 @@ def login(provider):
 
 @blueprint.route('/login/oauth/<provider>/callback')
 def callback(provider):
-    next_url = request.args.get('next') or url_for('index')
+    next_url = request.args.get('next') or current_app.config['ROOT_ENDPOINT']
     try:
         resp = User.get_app(provider).authorized_response()
         if resp is None:
