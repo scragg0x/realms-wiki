@@ -33,4 +33,6 @@ def callback(provider):
         resp['oauth_token_secret']
     )
 
+    User.auth(provider, resp)
+
     return redirect(next_url)

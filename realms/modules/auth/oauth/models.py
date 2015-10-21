@@ -16,7 +16,10 @@ providers = {
             access_token_url='https://api.twitter.com/oauth/access_token',
             authorize_url='https://api.twitter.com/oauth/authenticate',
             access_token_method='GET'),
-        'button': '<a href="/login/oauth/twitter" class="btn btn-default"><i class="fa fa-twitter"></i> Twitter</a>'
+        'button': '<a href="/login/oauth/twitter" class="btn btn-default"><i class="fa fa-twitter"></i> Twitter</a>',
+        'field_map': {
+            'username': 'screen_name'
+        }
     },
     'github': {
         'oauth': dict(
@@ -27,6 +30,30 @@ providers = {
             access_token_url='https://github.com/login/oauth/access_token',
             authorize_url='https://github.com/login/oauth/authorize'),
         'button': '<a href="/login/oauth/github" class="btn btn-default"><i class="fa fa-github"></i> Github</a>'
+    },
+    'facebook': {
+        'oauth': dict(
+            request_token_params={'scope': 'email'},
+            base_url='https://graph.facebook.com',
+            request_token_url=None,
+            access_token_url='/oauth/access_token',
+            access_token_method='GET',
+            authorize_url='https://www.facebook.com/dialog/oauth'
+        ),
+        'button': '<a href="/login/oauth/github" class="btn btn-default"><i class="fa fa-faceboook"></i> Facebook</a>'
+    },
+    'google': {
+        'oauth': dict(
+            request_token_params={
+                'scope': 'https://www.googleapis.com/auth/userinfo.email'
+            },
+            base_url='https://www.googleapis.com/oauth2/v1/',
+            request_token_url=None,
+            access_token_method='POST',
+            access_token_url='https://accounts.google.com/o/oauth2/token',
+            authorize_url='https://accounts.google.com/o/oauth2/auth',
+        ),
+        'button': '<a href="/login/oauth/google" class="btn btn-default"><i class="fa fa-google"></i> Google</a>'
     }
 }
 
@@ -40,6 +67,7 @@ class User(BaseUser):
         self.username = username
         self.id = username
         self.token = token
+        self.auth_id = "%s-%s" % (provider, username)
 
     @property
     def auth_token_id(self):
@@ -54,9 +82,18 @@ class User(BaseUser):
         return users.get(user_id)
 
     @staticmethod
-    def auth(username, provider, token):
-        user = User(provider, username, User.hash_password(token))
-        users[user.id] = user
+    def auth(provider, resp):
+        field_map = providers.get(provider).get('field_map')
+        if not field_map:
+            raise NotImplementedError
+
+        fields = {}
+        for k, v in field_map.items():
+            fields[k] = resp[v]
+
+        user = User(provider, fields['username'], User.hash_password(resp['oauth_token']))
+        users[user.auth_id] = user
+
         if user:
             login_user(user, remember=True)
             return True
@@ -75,12 +112,14 @@ class User(BaseUser):
             **providers[provider]['oauth'])
 
     def get_id(self):
-        return unicode("%s/%s/%s" % (self.type, self.provider, self.id))
+        return unicode("%s/%s" % (self.type, self.auth_id))
 
     @staticmethod
     def login_form():
         buttons = []
-        for k, v in providers.items():
-            buttons.append(v.get('button'))
+        for name, val in providers.items():
+            if not config.OAUTH.get(name, {}).get('key') or not config.OAUTH.get(name, {}).get('secret'):
+                continue
+            buttons.append(val.get('button'))
 
-        return " ".join(buttons)
+        return "<h4>Social Login</h4>" + " ".join(buttons)

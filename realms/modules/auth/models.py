@@ -33,7 +33,7 @@ class Auth(object):
         # TODO be dynamic
         for t in ['local', 'ldap', 'oauth']:
             forms.append(Auth.get_auth_user(t).login_form())
-        return forms
+        return "<hr />".join(forms)
 
 
 class AnonUser(AnonymousUserMixin):
@@ -61,6 +61,9 @@ class BaseUser(UserMixin):
 
     @property
     def avatar(self):
+        if not self.email:
+            # TODO return default avatar
+            return ""
         return gravatar_url(self.email)
 
     @staticmethod

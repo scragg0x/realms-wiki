@@ -1,7 +1,4 @@
 {% extends 'layout.html' %}
 {% block body %}
-  {% for form in forms %}
-    {{ form|safe }}
-    <hr />
-  {% endfor %}
+  {{ forms|safe }}
 {% endblock %}
