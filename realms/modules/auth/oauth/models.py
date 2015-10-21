@@ -17,6 +17,16 @@ providers = {
             authorize_url='https://api.twitter.com/oauth/authenticate',
             access_token_method='GET'),
         'button': '<a href="/login/oauth/twitter" class="btn btn-default"><i class="fa fa-twitter"></i> Twitter</a>'
+    },
+    'github': {
+        'oauth': dict(
+            request_token_params={'scope': 'user:email'},
+            base_url='https://api.github.com/',
+            request_token_url=None,
+            access_token_method='POST',
+            access_token_url='https://github.com/login/oauth/access_token',
+            authorize_url='https://github.com/login/oauth/authorize'),
+        'button': '<a href="/login/oauth/github" class="btn btn-default"><i class="fa fa-github"></i> Github</a>'
     }
 }
 
@@ -58,19 +68,19 @@ class User(BaseUser):
         if oauth.remote_apps.get(provider):
             return oauth.remote_apps.get(provider)
         return oauth.remote_app(
-                provider,
-                consumer_key=config.OAUTH.get(provider, {}).get('key'),
-                consumer_secret=config.OAUTH.get(provider, {}).get(
-                    'secret'),
-                **providers[provider]['oauth'])
+            provider,
+            consumer_key=config.OAUTH.get(provider, {}).get('key'),
+            consumer_secret=config.OAUTH.get(provider, {}).get(
+                'secret'),
+            **providers[provider]['oauth'])
 
     def get_id(self):
         return unicode("%s/%s/%s" % (self.type, self.provider, self.id))
 
     @staticmethod
     def login_form():
-        buttons = ''
+        buttons = []
         for k, v in providers.items():
-            buttons += v.get('button')
+            buttons.append(v.get('button'))
 
-        return buttons
+        return " ".join(buttons)
