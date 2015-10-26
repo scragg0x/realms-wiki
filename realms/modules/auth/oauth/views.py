@@ -11,7 +11,7 @@ def oauth_failed(next_url):
 
 @blueprint.route("/login/oauth/<provider>")
 def login(provider):
-    return User.get_app(provider).authorize(callback=url_for('auth.oauth.callback', provider=provider))
+    return User.get_app(provider).authorize(callback=url_for('auth.oauth.callback', provider=provider, _external=True))
 
 
 @blueprint.route('/login/oauth/<provider>/callback')

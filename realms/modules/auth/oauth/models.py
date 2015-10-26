@@ -18,6 +18,7 @@ providers = {
             access_token_method='GET'),
         'button': '<a href="/login/oauth/twitter" class="btn btn-default"><i class="fa fa-twitter"></i> Twitter</a>',
         'field_map': {
+            'id': 'user_id',
             'username': 'screen_name'
         }
     },
@@ -29,7 +30,12 @@ providers = {
             access_token_method='POST',
             access_token_url='https://github.com/login/oauth/access_token',
             authorize_url='https://github.com/login/oauth/authorize'),
-        'button': '<a href="/login/oauth/github" class="btn btn-default"><i class="fa fa-github"></i> Github</a>'
+        'button': '<a href="/login/oauth/github" class="btn btn-default"><i class="fa fa-github"></i> Github</a>',
+        'field_map': {
+            'id': ['user', 'id'],
+            'username': ['user', 'login'],
+            'email': ['user', 'email']
+        }
     },
     'facebook': {
         'oauth': dict(
@@ -40,7 +46,12 @@ providers = {
             access_token_method='GET',
             authorize_url='https://www.facebook.com/dialog/oauth'
         ),
-        'button': '<a href="/login/oauth/github" class="btn btn-default"><i class="fa fa-faceboook"></i> Facebook</a>'
+        'button': '<a href="/login/oauth/facebook" class="btn btn-default"><i class="fa fa-facebook"></i> Facebook</a>',
+        'field_map': {
+            'id': 'id',
+            'username': 'name',
+            'email': 'email'
+        }
     },
     'google': {
         'oauth': dict(
@@ -62,10 +73,10 @@ class User(BaseUser):
     type = 'oauth'
     provider = None
 
-    def __init__(self, provider, username, token):
+    def __init__(self, provider, user_id, username, token):
         self.provider = provider
         self.username = username
-        self.id = username
+        self.id = user_id
         self.token = token
         self.auth_id = "%s-%s" % (provider, username)
 
@@ -87,11 +98,22 @@ class User(BaseUser):
         if not field_map:
             raise NotImplementedError
 
+        def get_value(d, key):
+            if isinstance(key, basestring):
+                return d.get(key)
+            # key should be list here
+            val = d.get(key.pop(0))
+            if len(key) == 0:
+                # if empty we have our value
+                return val
+            # keep digging
+            return get_value(val, key)
+
         fields = {}
         for k, v in field_map.items():
-            fields[k] = resp[v]
+            fields[k] = get_value(resp, v)
 
-        user = User(provider, fields['username'], User.hash_password(resp['oauth_token']))
+        user = User(provider, fields['id'], fields['username'], User.hash_password(resp['oauth_token']))
         users[user.auth_id] = user
 
         if user:
