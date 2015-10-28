@@ -55,9 +55,9 @@ class User(UserMixin):
 
     @staticmethod
     def simple_search(query):
-        ld = ldap.initialize(current_app.config['LDAP_URI'])
+        ld = ldap.initialize(current_app.config['LDAP']['URI'])
         
-        v = ld.search_s(current_app.config['LDAP_BASE'],
+        v = ld.search_s(current_app.config['LDAP']['USER_SEARCH']['base'],
                         ldap.SCOPE_SUBTREE, query, None)
         if v:
             return User(v[0][0], v[0][1])
@@ -87,8 +87,8 @@ class User(UserMixin):
         # but then we'd have to construct the uid
         # from the email address, which involves assumptions
         # Also, we need anonymous lookups anyway for load_user
-        ld = ldap.initialize(current_app.config['LDAP_URI'])
-        v = ld.search_s(current_app.config['LDAP_BASE'],
+        ld = ldap.initialize(current_app.config['LDAP']['URI'])
+        v = ld.search_s(current_app.config['LDAP']['USER_SEARCH']['base'],
                         ldap.SCOPE_SUBTREE, 'mail=%s' % email, None)
 
         if v is None:
