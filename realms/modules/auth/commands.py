@@ -2,9 +2,9 @@ import click
 from realms.lib.util import random_string
 from realms.modules.auth.models import User
 from realms.lib.util import green, red, yellow
+from realms import flask_cli
 
-
-@click.group(short_help="Auth Module")
+@flask_cli.group(short_help="Auth Module")
 def cli():
     pass
 

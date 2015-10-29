@@ -54,7 +54,10 @@ var MDR = {
   meta: null,
   md: null,
   sanitize: true, // Override
-  parse: function(md){ return marked(md); },
+  renderer: new marked.Renderer(),
+  parse: function(md){
+    return marked(md, { renderer: this.renderer });
+  },
   convert: function(md, sanitize) {
     if (this.sanitize !== null) {
       sanitize = this.sanitize;
@@ -103,4 +106,15 @@ var MDR = {
 
   hook: function() {
   }
+};
+
+MDR.renderer.table = function(header, body) {
+  return '<table class="table table-bordered">\n'
+    + '<thead>\n'
+    + header
+    + '</thead>\n'
+    + '<tbody>\n'
+    + body
+    + '</tbody>\n'
+    + '</table>\n';
 };

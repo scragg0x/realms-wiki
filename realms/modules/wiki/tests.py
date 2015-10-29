@@ -52,6 +52,11 @@ class WikiTest(WikiBaseTest):
         self.assert_403(self.client.delete(url_for('wiki.page_write', name='test')))
         self.app.config['WIKI_LOCKED_PAGES'] = []
 
+        # Create page, check it exists
+        self.create_page('test', message='test message', content='testing')
+        self.assert_200(self.client.get(url_for('wiki.page', name='test')))
+
+        # Delete page
         self.assert_200(self.client.delete(url_for('wiki.page_write', name='test')))
 
         rv = self.client.get(url_for('wiki.page', name='test'))

@@ -58,9 +58,30 @@ $(function(){
   });
 
   $("#delete-page-btn").click(function() {
-    bootbox.alert("Not Done Yet! Sorry");
+    bootbox.confirm('Are you sure you want to delete this page?', function(result) {
+      if (result) {
+        deletePage();
+      }
+    });
   });
 });
+
+var deletePage = function() {
+  var pageName = $page_name.val();
+  var path = Config['RELATIVE_PATH'] + '/' + pageName;
+
+  $.ajax({
+    type: 'DELETE',
+    url: path,
+  }).done(function(data) {
+    var msg = 'Deleted page: ' + pageName;
+    bootbox.alert(msg, function() {
+      location.href = '/';
+    });
+  }).fail(function(data, status, error) {
+    bootbox.alert('Error deleting page!');
+  });
+};
 
 var aced = new Aced({
   editor: $('#entry-markdown-content').find('.editor').attr('id'),
@@ -73,7 +94,11 @@ var aced = new Aced({
       content: content
     };
 
-    var path = Config['RELATIVE_PATH'] + '/' + data['name'];
+    // If renaming an existing page, use the old page name for the URL to PUT to
+    var subPath = (PAGE_NAME) ? PAGE_NAME : data['name']
+    var path = Config['RELATIVE_PATH'] + '/' + subPath;
+    var newPath = Config['RELATIVE_PATH'] + '/' + data['name'];
+
     var type = (Commit.info['sha']) ? "PUT" : "POST";
 
     $.ajax({
@@ -87,7 +112,7 @@ var aced = new Aced({
         $page_name.addClass('parsley-error');
         bootbox.alert("<h3>" + res['message'] + "</h3>");
       } else {
-        location.href = path;
+        location.href = newPath;
       }
     });
   }

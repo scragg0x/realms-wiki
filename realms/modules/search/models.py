@@ -14,7 +14,8 @@ def whoosh(app):
 
 def elasticsearch(app):
     from flask.ext.elastic import Elastic
-    return ElasticSearch(Elastic(app))
+    fields = app.config.get('ELASTICSEARCH_FIELDS')
+    return ElasticSearch(Elastic(app), fields)
 
 
 class Search(object):
@@ -91,8 +92,18 @@ class WhooshSearch(BaseSearch):
         writer.update_document(path=id_.decode("utf-8"), body=body["content"].decode("utf-8"))
         writer.commit()
 
+    def delete(self, id_):
+        with self.search_index.searcher() as s:
+            doc_num = s.document_number(path=id_.decode("utf-8"))
+            writer = self.search_index.writer()
+            writer.delete_document(doc_num)
+            writer.commit()
+
     def index_wiki(self, name, body):
         self.index('wiki', 'page', id_=name, body=body)
+
+    def delete_wiki(self, name):
+        self.delete(id_=name)
 
     def delete_index(self, index):
         from whoosh import index as whoosh_index
@@ -125,14 +136,21 @@ class WhooshSearch(BaseSearch):
 
 
 class ElasticSearch(BaseSearch):
-    def __init__(self, elastic):
+    def __init__(self, elastic, fields):
         self.elastic = elastic
+        self.fields = fields
 
     def index(self, index, doc_type, id_=None, body=None):
         return self.elastic.index(index=index, doc_type=doc_type, id=id_, body=body)
 
+    def delete(self, index, doc_type, id_):
+        return self.elastic.delete(index=index, doc_type=doc_type, id=id_)
+
     def index_wiki(self, name, body):
         self.index('wiki', 'page', id_=name, body=body)
+
+    def delete_wiki(self, name):
+        self.delete('wiki', 'page', id_=name)
 
     def delete_index(self, index):
         return self.elastic.indices.delete(index=index, ignore=[400, 404])
@@ -144,7 +162,7 @@ class ElasticSearch(BaseSearch):
         res = self.elastic.search(index='wiki', body={"query": {
             "multi_match": {
                 "query": query,
-                "fields": ["name"]
+                "fields": self.fields
             }}})
 
         return [hit["_source"] for hit in res['hits']['hits']]

@@ -1,10 +1,10 @@
 import click
-from realms import create_app, search
+from realms import create_app, search, flask_cli
 from realms.modules.wiki.models import Wiki
 from realms.lib.util import filename_to_cname
 
 
-@click.group(short_help="Search Module")
+@flask_cli.group(short_help="Search Module")
 def cli():
     pass
 
@@ -25,6 +25,9 @@ def rebuild_index():
         wiki = Wiki(app.config['WIKI_PATH'])
         for entry in wiki.get_index():
             page = wiki.get_page(entry['name'])
+            if not page:
+                # Some non-markdown files may have issues
+                continue
             name = filename_to_cname(page['name'])
             # TODO add email?
             body = dict(name=name,

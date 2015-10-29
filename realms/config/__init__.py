@@ -1,7 +1,7 @@
 import os
 import json
 from urlparse import urlparse
-
+from realms.lib.util import in_vagrant
 
 def update(data):
     conf = read()
@@ -39,7 +39,7 @@ def save(conf):
 def get_path(check_write=False):
     """Find config path
     """
-    for loc in "/etc/realms-wiki", os.path.expanduser("~"), os.curdir:
+    for loc in os.curdir, os.path.expanduser("~"), "/etc/realms-wiki":
         if not loc:
             continue
         path = os.path.join(loc, "realms-wiki.json")
@@ -99,6 +99,7 @@ SEARCH_TYPE = 'simple'  # simple is not good for large wikis
 
 # SEARCH_TYPE = 'elasticsearch'
 ELASTICSEARCH_URL = 'http://127.0.0.1:9200'
+ELASTICSEARCH_FIELDS = ["name"]
 
 # SEARCH_TYPE = 'whoosh'
 WHOOSH_INDEX = '/tmp/whoosh'
@@ -122,6 +123,7 @@ WIKI_HOME = 'home'
 
 ALLOW_ANON = True
 REGISTRATION_ENABLED = True
+PRIVATE_WIKI = False
 
 # None, firepad, and/or togetherjs
 COLLABORATION = 'togetherjs'
@@ -149,6 +151,10 @@ SQLALCHEMY_DATABASE_URI = DB_URI
 
 _url = urlparse(BASE_URL)
 RELATIVE_PATH = _url.path
+
+if in_vagrant():
+    # sendfile doesn't work well with Virtualbox shared folders
+    USE_X_SENDFILE = False
 
 if ENV != "DEV":
     DEBUG = False

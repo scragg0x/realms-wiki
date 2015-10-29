@@ -96,7 +96,6 @@ def to_canonical(s):
     s = re.sub(r"\.md$", "", s)
     s = re.sub(r"[^a-zA-Z0-9\-]", "", s)
     s = s[:64]
-    s = s.lower()
     return s
 
 
@@ -122,11 +121,15 @@ def filename_to_cname(filename):
 
 
 def gravatar_url(email):
-    return "//www.gravatar.com/avatar/" + hashlib.md5(email).hexdigest()
+    return "https://www.gravatar.com/avatar/" + hashlib.md5(email).hexdigest()
 
 
 def in_virtualenv():
     return hasattr(sys, 'real_prefix')
+
+
+def in_vagrant():
+    return os.path.isdir("/vagrant")
 
 
 def is_su():
