@@ -73,7 +73,7 @@
                 </li>
             {% else %}
               <li><a href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i> &nbsp;Login</a></li>
-              {% if config.REGISTRATION_ENABLED %}
+              {% if config.REGISTRATION_ENABLED and 'auth.local' in config.MODULES %}
                 <li><a href="{{ url_for('auth.local.register') }}"><i class="fa fa-users"></i> &nbsp;Register</a></li>
               {% endif %}
             {% endif %}

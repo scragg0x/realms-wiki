@@ -113,6 +113,7 @@ class Assets(Environment):
 class MyLDAPLoginManager(LDAPLoginManager):
     @property
     def attrlist(self):
+        # the parent method doesn't always work
         return None
 
 class RegexConverter(BaseConverter):
@@ -188,16 +189,17 @@ def create_app(config=None):
     def page_not_found(e):
         return render_template('errors/404.html'), 404
 
-    if app.config['RELATIVE_PATH']:
+    if app.config.get('RELATIVE_PATH'):
         @app.route("/")
         def root():
-            return redirect(url_for(app.config['ROOT_ENDPOINT']))
+            return redirect(url_for(app.config.get('ROOT_ENDPOINT')))
 
     app.discover()
 
     # This will be removed at some point
     with app.app_context():
-        db.metadata.create_all(db.get_engine(app))
+        if app.config.get('DB_URI'):
+            db.metadata.create_all(db.get_engine(app))
 
     return app
 

@@ -119,7 +119,8 @@ def filename_to_cname(filename):
 
 
 def gravatar_url(email):
-    return "https://www.gravatar.com/avatar/" + hashlib.md5(email).hexdigest()
+    email = hashlib.md5(email).hexdigest() if email else "default@realms.io"
+    return "https://www.gravatar.com/avatar/" + email
 
 
 def in_virtualenv():

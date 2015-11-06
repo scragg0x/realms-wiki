@@ -4,6 +4,7 @@ from realms import login_manager
 from realms.lib.util import gravatar_url
 from itsdangerous import URLSafeSerializer, BadSignature
 from hashlib import sha256
+from . import modules
 import bcrypt
 import importlib
 
@@ -18,6 +19,10 @@ auth_users = {}
 class Auth(object):
 
     @staticmethod
+    def register(module):
+        modules.add(module)
+
+    @staticmethod
     def get_auth_user(auth_type):
         mod = importlib.import_module('realms.modules.auth.%s.models' % auth_type)
         return mod.User
@@ -30,8 +35,7 @@ class Auth(object):
     @staticmethod
     def login_forms():
         forms = []
-        # TODO be dynamic
-        for t in ['local', 'ldap', 'oauth']:
+        for t in modules:
             forms.append(Auth.get_auth_user(t).login_form())
         return "<hr />".join(forms)
 
@@ -61,9 +65,6 @@ class BaseUser(UserMixin):
 
     @property
     def avatar(self):
-        if not self.email:
-            # TODO return default avatar
-            return ""
         return gravatar_url(self.email)
 
     @staticmethod

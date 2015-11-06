@@ -2,6 +2,7 @@ from realms import login_manager
 from flask import request, flash, redirect
 from flask.ext.login import login_url
 
+modules = set()
 
 @login_manager.unauthorized_handler
 def unauthorized():

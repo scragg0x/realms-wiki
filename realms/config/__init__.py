@@ -86,7 +86,7 @@ DB_URI = 'sqlite:////tmp/wiki.db'
 LDAP = {
     'URI': 'ldap://localhost:8389',
 
-    # This BIND_DN/BIND_PASSORD default to '', this is shown here for demonstrative purposes
+    # This BIND_DN/BIND_PASSWORD default to '', this is shown here for demonstrative purposes
     # The values '' perform an anonymous bind so we may use search/bind method
     'BIND_DN': '',
     'BIND_AUTH': '',
