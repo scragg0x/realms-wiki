@@ -42,11 +42,11 @@ You will need the following packages to get started:
 
 #### Ubuntu
 
-    sudo apt-get install -y python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev
+    sudo apt-get install -y python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev
 
 #### CentOS / RHEL
 
-    yum install -y python-pip python-devel.x86_64 libxslt-devel.x86_64 libxml2-devel.x86_64 libffi-devel.x86_64 libyaml-devel.x86_64 libxslt-devel.x86_64 zlib-devel.x86_64 openssl-devel.x86_64 python-pbr gcc
+    yum install -y python-pip python-devel.x86_64 libxslt-devel.x86_64 libxml2-devel.x86_64 libffi-devel.x86_64 libyaml-devel.x86_64 libxslt-devel.x86_64 zlib-devel.x86_64 openssl-devel.x86_64 openldap2-devel cyrus-sasl-devel python-pbr gcc
     
 #### OSX / Windows
 
@@ -68,7 +68,7 @@ The easiest way. Install it using Python Package Index:
     sudo apt-get install -y software-properties-common python-software-properties
     sudo add-apt-repository -y ppa:chris-lea/node.js
     sudo apt-get update
-    sudo apt-get install -y nodejs python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev
+    sudo apt-get install -y nodejs python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev
     sudo npm install -g bower
     bower install
 
@@ -292,7 +292,7 @@ After your config is in place use the following commands:
     sudo restart realms-wiki
     
 
-### Developement mode
+### Development mode
 
 This will start the server in the foreground with auto reloaded enabled:
 

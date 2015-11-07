@@ -25,7 +25,7 @@ sudo apt-get update
 
 sudo apt-get install -y python build-essential pkg-config git  \
 python-pip python-virtualenv python-dev zlib1g-dev libldap2-dev libsasl2-dev \
-libffi-dev libyaml-dev libssl-dev nodejs
+libffi-dev libyaml-dev libssl-dev libldap2-dev libsasl2-dev nodejs
 
 # Create swap file because ES eats up RAM and 14.04 doesn't have swap by default
 sudo fallocate -l 1G /swapfile

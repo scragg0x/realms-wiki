@@ -42,6 +42,7 @@ setup(name='realms-wiki',
           'gunicorn==19.3',
           'itsdangerous==0.24',
           'markdown2==2.3.0',
+          'python-ldap==2.4.22',
           'simplejson==3.6.3'
       ],
       entry_points={
