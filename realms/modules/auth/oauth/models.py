@@ -17,10 +17,12 @@ providers = {
             authorize_url='https://api.twitter.com/oauth/authenticate',
             access_token_method='GET'),
         'button': '<a href="/login/oauth/twitter" class="btn btn-default"><i class="fa fa-twitter"></i> Twitter</a>',
+        'profile': None,
         'field_map': {
             'id': 'user_id',
             'username': 'screen_name'
-        }
+        },
+        'token_name': 'oauth_token'
     },
     'github': {
         'oauth': dict(
@@ -31,11 +33,13 @@ providers = {
             access_token_url='https://github.com/login/oauth/access_token',
             authorize_url='https://github.com/login/oauth/authorize'),
         'button': '<a href="/login/oauth/github" class="btn btn-default"><i class="fa fa-github"></i> Github</a>',
+        'profile': 'user',
         'field_map': {
             'id': ['user', 'id'],
             'username': ['user', 'login'],
             'email': ['user', 'email']
-        }
+        },
+        'token_name': 'access_token'
     },
     'facebook': {
         'oauth': dict(
@@ -47,11 +51,13 @@ providers = {
             authorize_url='https://www.facebook.com/dialog/oauth'
         ),
         'button': '<a href="/login/oauth/facebook" class="btn btn-default"><i class="fa fa-facebook"></i> Facebook</a>',
+        'profile': '/me',
         'field_map': {
             'id': 'id',
             'username': 'name',
             'email': 'email'
-        }
+        },
+        'token_name': 'access_name'
     },
     'google': {
         'oauth': dict(
@@ -64,7 +70,14 @@ providers = {
             access_token_url='https://accounts.google.com/o/oauth2/token',
             authorize_url='https://accounts.google.com/o/oauth2/auth',
         ),
-        'button': '<a href="/login/oauth/google" class="btn btn-default"><i class="fa fa-google"></i> Google</a>'
+        'button': '<a href="/login/oauth/google" class="btn btn-default"><i class="fa fa-google"></i> Google</a>',
+        'profile': 'userinfo',
+        'field_map': {
+            'id': 'id',
+            'username': 'name',
+            'email': 'email'
+        },
+        'token_name': 'access_token'
     }
 }
 
@@ -73,9 +86,10 @@ class User(BaseUser):
     type = 'oauth'
     provider = None
 
-    def __init__(self, provider, user_id, username, token):
+    def __init__(self, provider, user_id, username=None, token=None, email=None):
         self.provider = provider
         self.username = username
+        self.email = email
         self.id = user_id
         self.token = token
         self.auth_id = "%s-%s" % (provider, username)
@@ -93,7 +107,8 @@ class User(BaseUser):
         return users.get(user_id)
 
     @staticmethod
-    def auth(provider, resp):
+    def auth(provider, data, resp):
+        oauth_token = resp.get(User.get_provider_value(provider, 'token_name'))
         field_map = providers.get(provider).get('field_map')
         if not field_map:
             raise NotImplementedError
@@ -111,9 +126,10 @@ class User(BaseUser):
 
         fields = {}
         for k, v in field_map.items():
-            fields[k] = get_value(resp, v)
+            fields[k] = get_value(data, v)
 
-        user = User(provider, fields['id'], fields['username'], User.hash_password(resp['oauth_token']))
+        user = User(provider, fields['id'], username=fields.get('username'), email=fields.get('email'),
+                    token=User.hash_password(oauth_token))
         users[user.auth_id] = user
 
         if user:
@@ -132,6 +148,14 @@ class User(BaseUser):
             consumer_secret=config.OAUTH.get(provider, {}).get(
                 'secret'),
             **providers[provider]['oauth'])
+
+    @classmethod
+    def get_provider_value(cls, provider, key):
+        return providers.get(provider, {}).get(key)
+
+    @classmethod
+    def get_token(cls, provider, resp):
+        return resp.get(cls.get_provider_value(provider, 'token_name'))
 
     def get_id(self):
         return unicode("%s/%s" % (self.type, self.auth_id))

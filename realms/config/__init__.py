@@ -84,7 +84,7 @@ DB_URI = 'sqlite:////tmp/wiki.db'
 # DB_URI = 'crate://'
 
 LDAP = {
-    'URI': 'ldap://localhost:8389',
+    'URI': '',
 
     # This BIND_DN/BIND_PASSWORD default to '', this is shown here for demonstrative purposes
     # The values '' perform an anonymous bind so we may use search/bind method
