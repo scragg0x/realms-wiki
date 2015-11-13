@@ -29,9 +29,11 @@ def callback(provider):
         flash('Access denied: %s' % e.message)
         return redirect(next_url)
 
+    oauth_token = resp.get(User.get_provider_value(provider, 'token_name'))
+    session[provider + "_token"] = (oauth_token, '')
     profile = User.get_provider_value(provider, 'profile')
     data = remote_app.get(profile) if profile else resp
 
-    User.auth(provider, data, resp)
+    User.auth(provider, data, oauth_token)
 
     return redirect(next_url)

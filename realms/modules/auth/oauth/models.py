@@ -111,9 +111,7 @@ class User(BaseUser):
         return users.get(user_id)
 
     @staticmethod
-    def auth(provider, data, resp):
-        oauth_token = resp.get(User.get_provider_value(provider, 'token_name'))
-        session[provider + "_token"] = (oauth_token, '')
+    def auth(provider, data, oauth_token):
         field_map = providers.get(provider).get('field_map')
         if not field_map:
             raise NotImplementedError
