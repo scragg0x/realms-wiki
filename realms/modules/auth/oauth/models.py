@@ -82,10 +82,6 @@ providers = {
     }
 }
 
-@oauth.tokengetter
-def get_token(provider):
-    return session.get(provider + "_token")
-
 class User(BaseUser):
     type = 'oauth'
     provider = None
