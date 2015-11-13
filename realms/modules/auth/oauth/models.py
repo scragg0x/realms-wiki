@@ -1,3 +1,4 @@
+from flask import session
 from flask_login import login_user
 from flask_oauthlib.client import OAuth
 
@@ -81,6 +82,9 @@ providers = {
     }
 }
 
+@oauth.tokengetter
+def get_token(provider):
+    return session.get(provider + "_token")
 
 class User(BaseUser):
     type = 'oauth'
@@ -109,6 +113,7 @@ class User(BaseUser):
     @staticmethod
     def auth(provider, data, resp):
         oauth_token = resp.get(User.get_provider_value(provider, 'token_name'))
+        session[provider + "_token"] = (oauth_token, '')
         field_map = providers.get(provider).get('field_map')
         if not field_map:
             raise NotImplementedError
