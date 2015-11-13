@@ -36,9 +36,9 @@ providers = {
         'button': '<a href="/login/oauth/github" class="btn btn-default"><i class="fa fa-github"></i> Github</a>',
         'profile': 'user',
         'field_map': {
-            'id': ['user', 'id'],
-            'username': ['user', 'login'],
-            'email': ['user', 'email']
+            'id': 'id',
+            'username': 'login',
+            'email': 'email'
         },
         'token_name': 'access_token'
     },
@@ -141,12 +141,14 @@ class User(BaseUser):
     def get_app(cls, provider):
         if oauth.remote_apps.get(provider):
             return oauth.remote_apps.get(provider)
-        return oauth.remote_app(
+        app = oauth.remote_app(
             provider,
             consumer_key=config.OAUTH.get(provider, {}).get('key'),
             consumer_secret=config.OAUTH.get(provider, {}).get(
                 'secret'),
             **providers[provider]['oauth'])
+        app.tokengetter(lambda: session.get(provider + "_token"))
+        return app
 
     @classmethod
     def get_provider_value(cls, provider, key):

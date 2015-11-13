@@ -32,7 +32,7 @@ def callback(provider):
     oauth_token = resp.get(User.get_provider_value(provider, 'token_name'))
     session[provider + "_token"] = (oauth_token, '')
     profile = User.get_provider_value(provider, 'profile')
-    data = remote_app.get(profile) if profile else resp
+    data = remote_app.get(profile).data if profile else resp
 
     User.auth(provider, data, oauth_token)
 
