@@ -113,7 +113,7 @@ You may want to customize your app and the easiest way is the setup command:
 
     realms-wiki setup
     
-This will ask you questions and create a `realms-wiki.json` file in where you can find it.
+This will ask you questions and create a `realms-wiki.json` file.
 You can manually edit this file as well.
 Any config value set in `realms-wiki.json` will override values set in `realms/config/__init__.py`.
 
@@ -272,6 +272,71 @@ WHOOSH_INDEX has to be a path readable and writeable by Realm's user. It will be
 
 Whoosh is set up to use language optimization, so set WHOOSH_LANGUAGE to the language used in your wiki. For available languages, check `whoosh.lang.languages`.
 If your language is not supported, Realms will fall back to a simple text analyzer.
+
+## Authentication
+
+### Local
+
+Local default will be done using a backend database as defined in the config.
+
+### LDAP (beta)
+
+Realms uses the following library to authenticate using LDAP.  https://github.com/ContinuumIO/flask-ldap-login
+It supports direct bind and bind by search. 
+Use these examples as a guide and place it in your realms-wiki.json config.
+
+
+#### Bind By Search Example
+
+In this example, BIND_DN and BIND_AUTH are used to search and authenticate.  Leaving them blank implies anonymous authentication.
+
+```
+"LDAP": {
+    "URI": "ldap://localhost:8389",
+    "BIND_DN": "",
+    "BIND_AUTH": "",
+    "USER_SEARCH": {"base": "dc=realms,dc=io", "filter": "uid=%(username)s"},
+    "KEY_MAP": {
+        "username":"cn",
+        "email": "mail"
+    }
+}
+```
+
+#### Direct Bind Example
+
+```
+"LDAP": {
+    "URI": "ldap://localhost:8389",
+    "BIND_DN": "uid=%(username)s,ou=People,dc=realms,dc=io",
+    "KEY_MAP": {
+        "username":"cn",
+        "email": "mail",
+    },
+    "OPTIONS": {
+        "OPT_PROTOCOL_VERSION": 3,
+    }
+}
+```
+
+### OAuth (beta)
+
+Realms currently supports Github, Twitter, Facebook and Google.  Each provider requires a key and secret.
+Put them in your `realms-wiki.json` config file.  Use the example below.
+
+```
+"OAUTH": {
+    "twitter": {
+        "key": "",
+        "secret": ""
+    },
+    "github": {
+        "key": "",
+        "secret": ""
+    }
+}
+```
+
 
 ## Running
 

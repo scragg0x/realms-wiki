@@ -4,6 +4,7 @@ from flask_ldap_login import LDAPLoginForm
 
 blueprint = Blueprint('auth.ldap', __name__)
 
+
 @blueprint.route("/login/ldap", methods=['POST'])
 def login():
     form = LDAPLoginForm()

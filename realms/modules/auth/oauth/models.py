@@ -82,6 +82,7 @@ providers = {
     }
 }
 
+
 class User(BaseUser):
     type = 'oauth'
     provider = None

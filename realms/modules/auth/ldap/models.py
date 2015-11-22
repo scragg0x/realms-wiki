@@ -7,11 +7,13 @@ from ..models import BaseUser
 
 users = {}
 
+
 @ldap.save_user
 def save_user(username, userdata):
     user = User(userdata.get('username'), userdata.get('email'))
     users[user.id] = user
     return user
+
 
 class User(BaseUser):
     type = 'ldap'
