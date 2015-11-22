@@ -38,8 +38,7 @@ class User(BaseUser):
 
     @staticmethod
     def login_form():
-        form = LDAPLoginForm()
-        return render_template('auth/ldap/login.html', form=form)
+        return render_template('auth/ldap/login.html', form=LDAPLoginForm())
 
     @staticmethod
     def auth(user, password):

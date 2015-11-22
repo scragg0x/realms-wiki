@@ -278,6 +278,10 @@ If your language is not supported, Realms will fall back to a simple text analyz
 ### Local
 
 Local default will be done using a backend database as defined in the config.
+To disable local authentication, put the following your config.
+
+    "AUTH_LOCAL_ENABLE": false
+
 
 ### LDAP (beta)
 
@@ -290,53 +294,47 @@ Use these examples as a guide and place it in your realms-wiki.json config.
 
 In this example, BIND_DN and BIND_AUTH are used to search and authenticate.  Leaving them blank implies anonymous authentication.
 
-```
-"LDAP": {
-    "URI": "ldap://localhost:8389",
-    "BIND_DN": "",
-    "BIND_AUTH": "",
-    "USER_SEARCH": {"base": "dc=realms,dc=io", "filter": "uid=%(username)s"},
-    "KEY_MAP": {
-        "username":"cn",
-        "email": "mail"
+    "LDAP": {
+        "URI": "ldap://localhost:8389",
+        "BIND_DN": "",
+        "BIND_AUTH": "",
+        "USER_SEARCH": {"base": "dc=realms,dc=io", "filter": "uid=%(username)s"},
+        "KEY_MAP": {
+            "username":"cn",
+            "email": "mail"
+        }
     }
-}
-```
 
 #### Direct Bind Example
 
-```
-"LDAP": {
-    "URI": "ldap://localhost:8389",
-    "BIND_DN": "uid=%(username)s,ou=People,dc=realms,dc=io",
-    "KEY_MAP": {
-        "username":"cn",
-        "email": "mail",
-    },
-    "OPTIONS": {
-        "OPT_PROTOCOL_VERSION": 3,
+    "LDAP": {
+        "URI": "ldap://localhost:8389",
+        "BIND_DN": "uid=%(username)s,ou=People,dc=realms,dc=io",
+        "KEY_MAP": {
+            "username":"cn",
+            "email": "mail",
+        },
+        "OPTIONS": {
+            "OPT_PROTOCOL_VERSION": 3,
+        }
     }
-}
-```
+
 
 ### OAuth (beta)
 
 Realms currently supports Github, Twitter, Facebook and Google.  Each provider requires a key and secret.
 Put them in your `realms-wiki.json` config file.  Use the example below.
 
-```
-"OAUTH": {
-    "twitter": {
-        "key": "",
-        "secret": ""
-    },
-    "github": {
-        "key": "",
-        "secret": ""
+    "OAUTH": {
+        "twitter": {
+            "key": "",
+            "secret": ""
+        },
+        "github": {
+            "key": "",
+            "secret": ""
+        }
     }
-}
-```
-
 
 ## Running
 
