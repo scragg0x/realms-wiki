@@ -17,7 +17,7 @@ providers = {
             access_token_url='https://api.twitter.com/oauth/access_token',
             authorize_url='https://api.twitter.com/oauth/authenticate',
             access_token_method='GET'),
-        'button': '<a href="/login/oauth/twitter" class="btn btn-default"><i class="fa fa-twitter"></i> Twitter</a>',
+        'button': '<a href="/login/oauth/twitter" class="btn btn-twitter"><i class="fa fa-twitter"></i></a>',
         'profile': None,
         'field_map': {
             'id': 'user_id',
@@ -33,7 +33,7 @@ providers = {
             access_token_method='POST',
             access_token_url='https://github.com/login/oauth/access_token',
             authorize_url='https://github.com/login/oauth/authorize'),
-        'button': '<a href="/login/oauth/github" class="btn btn-default"><i class="fa fa-github"></i> Github</a>',
+        'button': '<a href="/login/oauth/github" class="btn btn-github"><i class="fa fa-github"></i></a>',
         'profile': 'user',
         'field_map': {
             'id': 'id',
@@ -51,7 +51,7 @@ providers = {
             access_token_method='GET',
             authorize_url='https://www.facebook.com/dialog/oauth'
         ),
-        'button': '<a href="/login/oauth/facebook" class="btn btn-default"><i class="fa fa-facebook"></i> Facebook</a>',
+        'button': '<a href="/login/oauth/facebook" class="btn btn-facebook"><i class="fa fa-facebook"></i></a>',
         'profile': '/me',
         'field_map': {
             'id': 'id',
@@ -71,7 +71,7 @@ providers = {
             access_token_url='https://accounts.google.com/o/oauth2/token',
             authorize_url='https://accounts.google.com/o/oauth2/auth',
         ),
-        'button': '<a href="/login/oauth/google" class="btn btn-default"><i class="fa fa-google"></i> Google</a>',
+        'button': '<a href="/login/oauth/google" class="btn btn-google"><i class="fa fa-google"></i></a>',
         'profile': 'userinfo',
         'field_map': {
             'id': 'id',
