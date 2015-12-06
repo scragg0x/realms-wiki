@@ -170,4 +170,4 @@ class User(BaseUser):
                 continue
             buttons.append(val.get('button'))
 
-        return "<h4>Social Login</h4>" + " ".join(buttons)
+        return "<h3>Social Login</h3>" + " ".join(buttons)

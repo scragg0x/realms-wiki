@@ -41,12 +41,12 @@
         <div class="navbar-collapse collapse navbar-inverse-collapse">
           <ul class="nav navbar-nav">
             {% if config.get('ROOT_ENDPOINT') != 'wiki.index' %}
-              <li><a href="{{ url_for('wiki.index') }}"><i class="fa fa-list"></i> Index</a></li>
+              <li><a href="{{ url_for('wiki.index') }}"><i class="fa fa-list"></i><span class="hidden-sm"> Index</span></a></li>
             {% endif %}
-            <li><a href="{{ url_for('wiki.create') }}"><i class="fa fa-plus"></i> New</a></li>
+            <li><a href="{{ url_for('wiki.create') }}"><i class="fa fa-plus"></i><span class="hidden-sm"> New</span></a></li>
             {% if name %}
-              <li><a href="{{ url_for('wiki.edit', name=name) }}"><i class="fa fa-pencil"></i> Edit</a></li>
-              <li><a href="{{ url_for('wiki.history', name=name) }}"><i class="fa fa-clock-o"></i> History</a></li>
+              <li><a href="{{ url_for('wiki.edit', name=name) }}"><i class="fa fa-pencil"></i><span class="hidden-sm"> Edit</span></a></li>
+              <li><a href="{{ url_for('wiki.history', name=name) }}"><i class="fa fa-clock-o"></i><span class="hidden-sm"> History</span></a></li>
             {% endif %}
           </ul>
 
