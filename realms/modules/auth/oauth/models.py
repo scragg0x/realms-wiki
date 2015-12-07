@@ -58,7 +58,7 @@ providers = {
             'username': 'name',
             'email': 'email'
         },
-        'token_name': 'access_name'
+        'token_name': 'access_token'
     },
     'google': {
         'oauth': dict(
