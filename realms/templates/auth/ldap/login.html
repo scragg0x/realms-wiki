@@ -1,0 +1,29 @@
+{% from 'macros.html' import render_form, render_field %}
+{% if config.get('AUTH_LOCAL_ENABLE') %}
+    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#ldap-modal">
+      <i class="fa fa-folder-open-o"></i>&nbsp; Login with LDAP
+    </button>
+
+    <div class="modal fade" id="ldap-modal" tabindex="-1" role="dialog" aria-labelledby="ldap-login">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="ldap-login">LDAP Login</h4>
+          </div>
+          <div class="modal-body">
+            {% call render_form(form, action_url=url_for('auth.ldap.login'), action_text='Login', btn_class='btn btn-primary') %}
+            {{ render_field(form.username, placeholder='Username', type='text', required=1) }}
+            {{ render_field(form.password, placeholder='Password', type='password', required=1) }}
+            {% endcall %}
+          </div>
+        </div>
+      </div>
+    </div>
+{% else %}
+    <h3><i class="fa fa-folder-open-o"></i>&nbsp;LDAP Login</h3>
+    {% call render_form(form, action_url=url_for('auth.ldap.login'), action_text='Login', btn_class='btn btn-primary') %}
+    {{ render_field(form.username, placeholder='Username', type='text', required=1) }}
+    {{ render_field(form.password, placeholder='Password', type='password', required=1) }}
+    {% endcall %}
+{% endif %}

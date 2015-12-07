@@ -15,6 +15,7 @@ from flask.ext.cache import Cache
 from flask.ext.login import LoginManager, current_user
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.assets import Environment, Bundle
+from flask_ldap_login import LDAPLoginManager
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 from sqlalchemy.ext.declarative import declarative_base
@@ -109,6 +110,11 @@ class Assets(Environment):
 
         return super(Assets, self).register(name, Bundle(*args, filters=filters, output=output))
 
+class MyLDAPLoginManager(LDAPLoginManager):
+    @property
+    def attrlist(self):
+        # the parent method doesn't always work
+        return None
 
 class RegexConverter(BaseConverter):
     """ Enables Regex matching on endpoints
@@ -163,6 +169,7 @@ def create_app(config=None):
     cache.init_app(app)
     assets.init_app(app)
     search.init_app(app)
+    ldap.init_app(app)
 
     db.Model = declarative_base(metaclass=HookModelMeta, cls=HookMixin)
 
@@ -182,16 +189,17 @@ def create_app(config=None):
     def page_not_found(e):
         return render_template('errors/404.html'), 404
 
-    if app.config['RELATIVE_PATH']:
+    if app.config.get('RELATIVE_PATH'):
         @app.route("/")
         def root():
-            return redirect(url_for(app.config['ROOT_ENDPOINT']))
+            return redirect(url_for(app.config.get('ROOT_ENDPOINT')))
 
     app.discover()
 
     # This will be removed at some point
     with app.app_context():
-        db.metadata.create_all(db.get_engine(app))
+        if app.config.get('DB_URI'):
+            db.metadata.create_all(db.get_engine(app))
 
     return app
 
@@ -202,6 +210,7 @@ db = SQLAlchemy()
 cache = Cache()
 assets = Assets()
 search = Search()
+ldap = MyLDAPLoginManager()
 
 assets.register('main.js',
                 'vendor/jquery/dist/jquery.js',

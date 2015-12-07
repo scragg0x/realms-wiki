@@ -42,11 +42,11 @@ You will need the following packages to get started:
 
 #### Ubuntu
 
-    sudo apt-get install -y python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev
+    sudo apt-get install -y python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev
 
 #### CentOS / RHEL
 
-    yum install -y python-pip python-devel.x86_64 libxslt-devel.x86_64 libxml2-devel.x86_64 libffi-devel.x86_64 libyaml-devel.x86_64 libxslt-devel.x86_64 zlib-devel.x86_64 openssl-devel.x86_64 python-pbr gcc
+    yum install -y python-pip python-devel.x86_64 libxslt-devel.x86_64 libxml2-devel.x86_64 libffi-devel.x86_64 libyaml-devel.x86_64 libxslt-devel.x86_64 zlib-devel.x86_64 openssl-devel.x86_64 openldap2-devel cyrus-sasl-devel python-pbr gcc
     
 #### OSX / Windows
 
@@ -68,7 +68,7 @@ The easiest way. Install it using Python Package Index:
     sudo apt-get install -y software-properties-common python-software-properties
     sudo add-apt-repository -y ppa:chris-lea/node.js
     sudo apt-get update
-    sudo apt-get install -y nodejs python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev
+    sudo apt-get install -y nodejs python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev
     sudo npm install -g bower
     bower install
 
@@ -113,7 +113,7 @@ You may want to customize your app and the easiest way is the setup command:
 
     realms-wiki setup
     
-This will ask you questions and create a `realms-wiki.json` file in where you can find it.
+This will ask you questions and create a `realms-wiki.json` file.
 You can manually edit this file as well.
 Any config value set in `realms-wiki.json` will override values set in `realms/config/__init__.py`.
 
@@ -273,6 +273,69 @@ WHOOSH_INDEX has to be a path readable and writeable by Realm's user. It will be
 Whoosh is set up to use language optimization, so set WHOOSH_LANGUAGE to the language used in your wiki. For available languages, check `whoosh.lang.languages`.
 If your language is not supported, Realms will fall back to a simple text analyzer.
 
+## Authentication
+
+### Local
+
+Local default will be done using a backend database as defined in the config.
+To disable local authentication, put the following your config.
+
+    "AUTH_LOCAL_ENABLE": false
+
+
+### LDAP (beta)
+
+Realms uses the following library to authenticate using LDAP.  https://github.com/ContinuumIO/flask-ldap-login
+It supports direct bind and bind by search. 
+Use these examples as a guide and place it in your realms-wiki.json config.
+
+
+#### Bind By Search Example
+
+In this example, BIND_DN and BIND_AUTH are used to search and authenticate.  Leaving them blank implies anonymous authentication.
+
+    "LDAP": {
+        "URI": "ldap://localhost:8389",
+        "BIND_DN": "",
+        "BIND_AUTH": "",
+        "USER_SEARCH": {"base": "dc=realms,dc=io", "filter": "uid=%(username)s"},
+        "KEY_MAP": {
+            "username":"cn",
+            "email": "mail"
+        }
+    }
+
+#### Direct Bind Example
+
+    "LDAP": {
+        "URI": "ldap://localhost:8389",
+        "BIND_DN": "uid=%(username)s,ou=People,dc=realms,dc=io",
+        "KEY_MAP": {
+            "username":"cn",
+            "email": "mail",
+        },
+        "OPTIONS": {
+            "OPT_PROTOCOL_VERSION": 3,
+        }
+    }
+
+
+### OAuth (beta)
+
+Realms currently supports Github, Twitter, Facebook and Google.  Each provider requires a key and secret.
+Put them in your `realms-wiki.json` config file.  Use the example below.
+
+    "OAUTH": {
+        "twitter": {
+            "key": "",
+            "secret": ""
+        },
+        "github": {
+            "key": "",
+            "secret": ""
+        }
+    }
+
 ## Running
 
     realms-wiki start
@@ -292,7 +355,7 @@ After your config is in place use the following commands:
     sudo restart realms-wiki
     
 
-### Developement mode
+### Development mode
 
 This will start the server in the foreground with auto reloaded enabled:
 

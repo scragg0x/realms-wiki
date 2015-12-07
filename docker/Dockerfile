@@ -1,7 +1,7 @@
 FROM realms/base
 
 # Packages
-RUN apt-get update && apt-get install -y build-essential python-pip python-virtualenv python-dev zlib1g-dev libffi-dev libyaml-dev
+RUN apt-get update && apt-get install -y build-essential python-pip python-virtualenv python-dev zlib1g-dev libffi-dev libyaml-dev libldap2-dev libsasl2-dev
 
 # lxml deps
 # libxml2-dev libxslt1-dev
