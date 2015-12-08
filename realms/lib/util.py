@@ -85,6 +85,7 @@ def to_canonical(s):
     """
     Double space -> single dash
     Double dash -> single dash
+    Remove .md file extension
     Remove all non alphanumeric and dash
     Limit to first 64 chars
     """
@@ -92,6 +93,7 @@ def to_canonical(s):
     s = str(s)
     s = re.sub(r"\s\s*", "-", s)
     s = re.sub(r"\-\-+", "-", s)
+    s = re.sub(r"\.md$", "", s)
     s = re.sub(r"[^a-zA-Z0-9\-]", "", s)
     s = s[:64]
     return s

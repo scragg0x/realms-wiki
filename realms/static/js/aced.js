@@ -171,6 +171,7 @@ function Aced(settings) {
     store.remove(editorId());
     store.remove(editorId() + ".info");
     options.submit(val());
+    toJquery(options.submitBtn).attr('disabled', 'disabled');
   }
 
   function autoSave() {
