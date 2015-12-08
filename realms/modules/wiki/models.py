@@ -183,7 +183,7 @@ class Wiki(HookMixin):
             return cached
 
         # commit = gittle.utils.git.commit_info(self.repo[sha])
-        filename = cname_to_filename(name).encode('latin-1')
+        filename = cname_to_filename(name).encode('utf8')
         sha = sha.encode('latin-1')
 
         try:

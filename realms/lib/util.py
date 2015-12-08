@@ -86,14 +86,18 @@ def to_canonical(s):
     Double space -> single dash
     Double dash -> single dash
     Remove all non alphanumeric and dash
-    Limit to first 64 chars
+    Limit to first 128 chars
     """
-    s = s.encode('ascii', 'ignore')
+    reserved_chars = "&$+,/:;=?@#"
+    unsafe_chars = "?<>[]{}|\^~%"
+
+    s = s.encode('utf8')
     s = str(s)
-    s = re.sub(r"\s\s*", "-", s)
-    s = re.sub(r"\-\-+", "-", s)
-    s = re.sub(r"[^a-zA-Z0-9\-]", "", s)
-    s = s[:64]
+    s = s.strip()
+    s = re.sub(r"\s", "-", s)
+    s = re.sub(r"[" + re.escape(reserved_chars) + "]", "", s)
+    s = re.sub(r"[" + re.escape(unsafe_chars) + "]", "", s)
+    s = s[:128]
     return s
 
 
