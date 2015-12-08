@@ -94,6 +94,7 @@ def to_canonical(s):
     s = s.encode('utf8')
     s = str(s)
     s = s.strip()
+    s = s.lstrip('_')
     s = re.sub(r"\s", "-", s)
     s = re.sub(r"[" + re.escape(reserved_chars) + "]", "", s)
     s = re.sub(r"[" + re.escape(unsafe_chars) + "]", "", s)
