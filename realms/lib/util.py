@@ -83,9 +83,9 @@ def clean_url(url):
 
 def to_canonical(s):
     """
-    Double space -> single dash
-    Double dash -> single dash
-    Remove all non alphanumeric and dash except path separatos (/)
+    Remove leading/trailing whitespace
+    Remove leading underscores and backslashes "/"
+    Convert spaces to dashes "-"
     Limit to first 128 chars
     """
     reserved_chars = "&$+,:;=?@#"
@@ -95,7 +95,9 @@ def to_canonical(s):
     s = str(s)
     s = s.strip()
     s = s.lstrip('_')
+    s = s.lstrip('/')
     s = re.sub(r"\s", "-", s)
+    s = re.sub(r"/+", "/", s)
     s = re.sub(r"[" + re.escape(reserved_chars) + "]", "", s)
     s = re.sub(r"[" + re.escape(unsafe_chars) + "]", "", s)
     s = s[:128]

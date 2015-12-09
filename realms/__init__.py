@@ -5,6 +5,7 @@ reload(sys)
 # noinspection PyUnresolvedReferences
 sys.setdefaultencoding('utf-8')
 
+import base64
 import time
 import json
 import httplib
@@ -184,6 +185,10 @@ def create_app(config=None):
     @app.template_filter('datetime')
     def _jinja2_filter_datetime(ts):
         return time.strftime('%b %d, %Y %I:%M %p', time.localtime(ts))
+
+    @app.template_filter('b64encode')
+    def _jinja2_filter_b64encode(s):
+        return base64.urlsafe_b64encode(s).rstrip("=")
 
     @app.errorhandler(404)
     def page_not_found(e):

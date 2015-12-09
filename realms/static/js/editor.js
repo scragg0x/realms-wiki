@@ -89,13 +89,13 @@ var aced = new Aced({
   info: Commit.info,
   submit: function(content) {
     var data = {
-      name: $page_name.val(),
+      name: $page_name.val().replace(/^\/*/g, "").replace(/\/+/g, "/"),
       message: $page_message.val(),
       content: content
     };
 
     // If renaming an existing page, use the old page name for the URL to PUT to
-    var subPath = (PAGE_NAME) ? PAGE_NAME : data['name']
+    var subPath = (PAGE_NAME) ? PAGE_NAME : data['name'];
     var path = Config['RELATIVE_PATH'] + '/' + subPath;
     var newPath = Config['RELATIVE_PATH'] + '/' + data['name'];
 

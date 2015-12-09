@@ -155,7 +155,7 @@
         <a class="markdown-help" href=""><span class="hidden">What is Markdown?</span></a>
       </header>
       <section id="entry-markdown-content" class="entry-markdown-content">
-        <div id="editor-{{ name }}" data-submitbtn='submit-btn' data-themeselect="theme-list" data-mode="markdown"
+        <div id="editor-{{ name | b64encode }}" data-submitbtn='submit-btn' data-themeselect="theme-list" data-mode="markdown"
              data-preview="preview" class="editor">{{ content }}</div>
       </section>
     </section>
