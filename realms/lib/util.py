@@ -85,10 +85,10 @@ def to_canonical(s):
     """
     Double space -> single dash
     Double dash -> single dash
-    Remove all non alphanumeric and dash
+    Remove all non alphanumeric and dash except path separatos (/)
     Limit to first 128 chars
     """
-    reserved_chars = "&$+,/:;=?@#"
+    reserved_chars = "&$+,:;=?@#"
     unsafe_chars = "?<>[]{}|\^~%"
 
     s = s.encode('utf8')

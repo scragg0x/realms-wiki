@@ -1,4 +1,5 @@
 import os
+import posixpath
 import re
 import ghdiff
 import gittle.utils
@@ -82,6 +83,10 @@ class Wiki(HookMixin):
 
         cname = to_canonical(name)
         filename = cname_to_filename(cname)
+        dirname = posixpath.join(self.path, posixpath.dirname(filename))
+
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
 
         with open(self.path + "/" + filename, 'w') as f:
             f.write(content)
