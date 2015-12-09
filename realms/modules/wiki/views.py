@@ -6,7 +6,7 @@ from .models import PageNotFound
 blueprint = Blueprint('wiki', __name__)
 
 
-@blueprint.route("/_commit/<sha>/<name>")
+@blueprint.route("/_commit/<sha>/<path:name>")
 def commit(name, sha):
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
@@ -21,7 +21,7 @@ def commit(name, sha):
     return render_template('wiki/page.html', name=name, page=data, commit=sha)
 
 
-@blueprint.route("/_compare/<name>/<regex('[^.]+'):fsha><regex('\.{2,3}'):dots><regex('.+'):lsha>")
+@blueprint.route(r"/_compare/<path:name>/<regex('\w+'):fsha><regex('\.{2,3}'):dots><regex('\w+'):lsha>")
 def compare(name, fsha, dots, lsha):
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
@@ -59,7 +59,7 @@ def revert():
     return dict(sha=sha)
 
 
-@blueprint.route("/_history/<name>")
+@blueprint.route("/_history/<path:name>")
 def history(name):
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
@@ -67,7 +67,7 @@ def history(name):
     return render_template('wiki/history.html', name=name, history=g.current_wiki.get_history(name))
 
 
-@blueprint.route("/_edit/<name>")
+@blueprint.route("/_edit/<path:name>")
 @login_required
 def edit(name):
     cname = to_canonical(name)
@@ -88,7 +88,7 @@ def edit(name):
 
 
 @blueprint.route("/_create/", defaults={'name': None})
-@blueprint.route("/_create/<name>")
+@blueprint.route("/_create/<path:name>")
 @login_required
 def create(name):
     cname = to_canonical(name) if name else ""
@@ -111,7 +111,7 @@ def index():
     return render_template('wiki/index.html', index=g.current_wiki.get_index())
 
 
-@blueprint.route("/<name>", methods=['POST', 'PUT', 'DELETE'])
+@blueprint.route("/<path:name>", methods=['POST', 'PUT', 'DELETE'])
 @login_required
 def page_write(name):
     cname = to_canonical(name)
@@ -164,7 +164,7 @@ def page_write(name):
 
 
 @blueprint.route("/", defaults={'name': 'home'})
-@blueprint.route("/<name>")
+@blueprint.route("/<path:name>")
 def page(name):
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
