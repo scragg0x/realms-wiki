@@ -28,7 +28,7 @@ def rebuild_index():
             if not page:
                 # Some non-markdown files may have issues
                 continue
-            name = filename_to_cname(page['name'])
+            name = filename_to_cname(page['path'])
             # TODO add email?
             body = dict(name=name,
                         content=page['data'],
