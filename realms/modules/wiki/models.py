@@ -48,6 +48,9 @@ class Wiki(HookMixin):
 
         return username, email
 
+    def _cache_key(self, name, sha='HEAD'):
+        return 'page/%s[%s]' % (name, sha)
+
     def revert_page(self, name, commit_sha, message, username, email):
         """Revert page to passed commit sha1
 
@@ -104,7 +107,7 @@ class Wiki(HookMixin):
                                  message=message,
                                  files=[filename])
 
-        cache.delete(cname)
+        cache.delete(self._cache_key(cname))
 
         return ret
 
@@ -145,7 +148,7 @@ class Wiki(HookMixin):
                                     message=message,
                                     files=[old_filename, new_filename])
 
-        cache.delete_many(old_name, new_name)
+        cache.delete_many(self._cache_key(old_name), self._cache_key(new_name))
 
         return commit
 
@@ -172,7 +175,7 @@ class Wiki(HookMixin):
                                     email=email,
                                     message=message,
                                     files=[filename])
-        cache.delete_many(name)
+        cache.delete_many(self._cache_key(name))
         return commit
 
     def get_page(self, name, sha='HEAD'):
@@ -183,7 +186,7 @@ class Wiki(HookMixin):
         :return: dict
 
         """
-        cached = cache.get(name)
+        cached = cache.get(self._cache_key(name, sha))
         if cached:
             return cached
 
@@ -203,6 +206,7 @@ class Wiki(HookMixin):
                         partials[partial_name] = self.get_page(partial_name)
             data['partials'] = partials
             data['info'] = self.get_history(name, limit=1)[0]
+            cache.set(self._cache_key(name, sha), data)
             return data
 
         except KeyError:
