@@ -69,7 +69,7 @@ def extract_name(file_path):
 
 
 def remove_ext(path):
-    return os.path.splitext(path)[0]
+    return re.sub(r"\..*$", "", path)
 
 
 def clean_url(url):

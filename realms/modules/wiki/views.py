@@ -77,7 +77,7 @@ def edit(name):
         # Page doesn't exist
         return redirect(url_for('wiki.create', name=cname))
 
-    name = remove_ext(page['name'])
+    name = remove_ext(page['path'])
     g.assets['js'].append('editor.js')
     return render_template('wiki/edit.html',
                            name=name,
