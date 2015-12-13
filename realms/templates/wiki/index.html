@@ -9,19 +9,28 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block body %}
-  <h2>Index of /{{ path }}</h2>
+  <h2>Index of <a href="{{ url_for('wiki.index') }}">/</a>
+    {%- set parts = path.split('/') -%}
+    {%- for dir in parts if dir -%}
+      <a href="{{ url_for('wiki.index', path='/'.join(parts[:loop.index])) }}">{{ dir }}/</a>
+    {%- endfor -%}
+  </h2>
   <table class="table table-bordered data-table">
     <thead>
     <tr>
       <th>Name</th>
       <th class="hidden-xs">Bytes</th>
-      <th>Modified</th>
-      <th class="hidden-xs hidden-sm">Created</th>
+      <th>Created</th>
+      <th class="hidden-xs hidden-sm">Modified</th>
     </tr>
     </thead>
     {% for file in index %}
       <tr>
+      {% if file['dir'] %}
+        <td><a href="{{ url_for('wiki.index', path=file['name']) }}">{{ file['name'][path|length:] }}</a></td>
+      {% else %}
         <td><a href="{{ url_for('wiki.page', name=file['name']) }}">{{ file['name'][path|length:] }}</a></td>
+      {% endif %}
         <td class="hidden-xs">{{ file['size'] }}</td>
         <td>{{ file['ctime']|datetime }}</td>
         <td class="hidden-xs hidden-sm">{{ file['mtime']|datetime }}</td>
