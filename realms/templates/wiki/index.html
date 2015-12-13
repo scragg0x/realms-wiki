@@ -9,6 +9,7 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block body %}
+  <h2>Index of /{{ path }}</h2>
   <table class="table table-bordered data-table">
     <thead>
     <tr>
@@ -20,7 +21,7 @@ $(document).ready(function() {
     </thead>
     {% for file in index %}
       <tr>
-        <td><a href="{{ url_for('wiki.page', name=file['name']) }}">{{ file['name'] }}</a></td>
+        <td><a href="{{ url_for('wiki.page', name=file['name']) }}">{{ file['name'][path|length:] }}</a></td>
         <td class="hidden-xs">{{ file['size'] }}</td>
         <td>{{ file['ctime']|datetime }}</td>
         <td class="hidden-xs hidden-sm">{{ file['mtime']|datetime }}</td>

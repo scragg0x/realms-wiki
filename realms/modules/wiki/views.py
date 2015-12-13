@@ -103,12 +103,17 @@ def create(name):
                            info={})
 
 
-@blueprint.route("/_index")
-def index():
+@blueprint.route("/_index", defaults={"path": ""})
+@blueprint.route("/_index/<path:path>")
+def index(path):
+    items = g.current_wiki.get_index()
+    if path:
+        path = to_canonical(path) + "/"
+        items = (i for i in items if i['name'].startswith(path))
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
 
-    return render_template('wiki/index.html', index=g.current_wiki.get_index())
+    return render_template('wiki/index.html', index=items, path=path)
 
 
 @blueprint.route("/<path:name>", methods=['POST', 'PUT', 'DELETE'])
