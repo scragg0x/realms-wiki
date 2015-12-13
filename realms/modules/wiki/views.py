@@ -1,3 +1,5 @@
+import itertools
+import sys
 from flask import abort, g, render_template, request, redirect, Blueprint, flash, url_for, current_app
 from flask.ext.login import login_required, current_user
 from realms.lib.util import to_canonical, remove_ext
@@ -103,17 +105,47 @@ def create(name):
                            info={})
 
 
+def _get_subdir(path, depth):
+    parts = path.split('/', depth)
+    if len(parts) > depth:
+        return parts[-2]
+
+
+def _tree_index(items, path=""):
+    depth = len(path.split("/"))
+    items = filter(lambda x: x['name'].startswith(path), items)
+    items = sorted(items, key=lambda x: x['name'])
+    for subdir, items in itertools.groupby(items, key=lambda x: _get_subdir(x['name'], depth)):
+        if not subdir:
+            for item in items:
+                yield dict(item, dir=False)
+        else:
+            size = 0
+            ctime = sys.maxint
+            mtime = 0
+            for item in items:
+                size += item['size']
+                ctime = min(item['ctime'], ctime)
+                mtime = max(item['mtime'], mtime)
+            yield dict(name=path + subdir + "/",
+                       mtime=mtime,
+                       ctime=ctime,
+                       size=size,
+                       dir=True)
+
+
+
 @blueprint.route("/_index", defaults={"path": ""})
 @blueprint.route("/_index/<path:path>")
 def index(path):
-    items = g.current_wiki.get_index()
-    if path:
-        path = to_canonical(path) + "/"
-        items = (i for i in items if i['name'].startswith(path))
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
 
-    return render_template('wiki/index.html', index=items, path=path)
+    items = g.current_wiki.get_index()
+    if path:
+        path = to_canonical(path) + "/"
+
+    return render_template('wiki/index.html', index=_tree_index(items, path=path), path=path)
 
 
 @blueprint.route("/<path:name>", methods=['POST', 'PUT', 'DELETE'])
