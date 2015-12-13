@@ -113,7 +113,6 @@ def _get_subdir(path, depth):
 
 def _tree_index(items, path=""):
     depth = len(path.split("/"))
-    items = filter(lambda x: x['name'].startswith(path), items)
     items = sorted(items, key=lambda x: x['name'])
     for subdir, items in itertools.groupby(items, key=lambda x: _get_subdir(x['name'], depth)):
         if not subdir:
@@ -144,8 +143,11 @@ def index(path):
     items = g.current_wiki.get_index()
     if path:
         path = to_canonical(path) + "/"
+        items = filter(lambda x: x['name'].startswith(path), items)
+    if not request.args.get('flat', '').lower() in ['yes', '1', 'true']:
+        items = _tree_index(items, path=path)
 
-    return render_template('wiki/index.html', index=_tree_index(items, path=path), path=path)
+    return render_template('wiki/index.html', index=items, path=path)
 
 
 @blueprint.route("/<path:name>", methods=['POST', 'PUT', 'DELETE'])
