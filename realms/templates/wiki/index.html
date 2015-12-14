@@ -3,7 +3,7 @@
 {% block js %}
 <script>
 $(document).ready(function() {
-    $('.data-table').dataTable();
+    $('.data-table').dataTable({'aaSorting': [[0, "asc"], [1, "asc"]]});
 });
 </script>
 {% endblock %}
@@ -18,17 +18,20 @@ $(document).ready(function() {
   <table class="table table-bordered data-table">
     <thead>
     <tr>
+      <th style="width: 1px;"></th>
       <th>Name</th>
       <th class="hidden-xs">Bytes</th>
-      <th>Created</th>
-      <th class="hidden-xs hidden-sm">Modified</th>
+      <th class="hidden-xs hidden-sm">Created</th>
+      <th>Modified</th>
     </tr>
     </thead>
     {% for file in index %}
       <tr>
       {% if file['dir'] %}
+        <td><i class="fa fa-folder-open-o"><span style="display:none;">Dir</span></i></td>
         <td><a href="{{ url_for('wiki.index', path=file['name']) }}">{{ file['name'][path|length:] }}</a></td>
       {% else %}
+        <td><i class="fa fa-file-text-o"><span style="display:none;">Page</span></i></td>
         <td><a href="{{ url_for('wiki.page', name=file['name']) }}">{{ file['name'][path|length:] }}</a></td>
       {% endif %}
         <td class="hidden-xs">{{ file['size'] }}</td>
