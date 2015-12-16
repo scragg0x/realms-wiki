@@ -289,9 +289,10 @@ class Wiki(HookMixin):
                     change_type = change.type
                 elif change.new.path == file_path:
                     change_type = change.type
-            author_name, author_email = entry.commit.author.split('<')
+            author_name, author_email = entry.commit.author.rstrip('>').split('<')
             versions.append(dict(
                 author=author_name.strip(),
+                author_email=author_email,
                 time=entry.commit.author_time,
                 message=entry.commit.message,
                 sha=entry.commit.id,
