@@ -22,7 +22,7 @@
           <input type="checkbox" name="versions[]" value="{{ h.sha }}" />
           {% endif %}
         </td>
-        <td>{{ h.author }}</td>
+        <td><img src="{{ h.gravatar }}?s=20" class="avatar"/> {{ h.author }}</td>
         <td><a href="{{ url_for('wiki.commit', name=name, sha=h.sha) }}" class='label label-primary'>View</a> {{ h.message }} </td>
         <td>{{ h.time|datetime }}</td>
       </tr>

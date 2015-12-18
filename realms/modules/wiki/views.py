@@ -2,7 +2,7 @@ import itertools
 import sys
 from flask import abort, g, render_template, request, redirect, Blueprint, flash, url_for, current_app
 from flask.ext.login import login_required, current_user
-from realms.lib.util import to_canonical, remove_ext
+from realms.lib.util import to_canonical, remove_ext, gravatar_url
 from .models import PageNotFound
 
 blueprint = Blueprint('wiki', __name__)
@@ -66,7 +66,10 @@ def history(name):
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
 
-    return render_template('wiki/history.html', name=name, history=g.current_wiki.get_history(name))
+    hist = g.current_wiki.get_history(name)
+    for item in hist:
+        item['gravatar'] = gravatar_url(item['author_email'])
+    return render_template('wiki/history.html', name=name, history=hist)
 
 
 @blueprint.route("/_edit/<path:name>")
