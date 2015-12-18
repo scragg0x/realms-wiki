@@ -169,8 +169,6 @@ WIKI_LOCKED_PAGES = []
 
 ROOT_ENDPOINT = 'wiki.page'
 
-globals().update(read())
-
 # Used by Flask-Login
 LOGIN_DISABLED = ALLOW_ANON
 
@@ -195,6 +193,8 @@ if ENV != "DEV":
     SQLALCHEMY_ECHO = False
 
 MODULES = ['wiki', 'search', 'auth']
+
+globals().update(read())
 
 if globals().get('AUTH_LOCAL_ENABLE'):
     MODULES.append('auth.local')
