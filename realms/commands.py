@@ -1,4 +1,4 @@
-from realms import config, create_app, db, __version__, flask_cli as cli
+from realms import config, create_app, db, __version__, flask_cli as cli, cache
 from realms.lib.util import random_string, in_virtualenv, green, yellow, red
 from subprocess import call, Popen
 from multiprocessing import cpu_count
@@ -405,6 +405,15 @@ def drop_db():
     yellow("Dropping all tables")
     with app.app_context():
         db.metadata.drop_all(db.get_engine(app))
+
+
+@cli.command()
+def clear_cache():
+    """ Clears cache
+    """
+    yellow("Clearing the cache")
+    with app.app_context():
+        cache.clear()
 
 
 @cli.command()
