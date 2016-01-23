@@ -183,8 +183,11 @@ def create_app(config=None):
         g.assets = dict(css=['main.css'], js=['main.js'])
 
     @app.template_filter('datetime')
-    def _jinja2_filter_datetime(ts):
-        return time.strftime('%b %d, %Y %I:%M %p', time.localtime(ts))
+    def _jinja2_filter_datetime(ts, fmt=None):
+        return time.strftime(
+            fmt or app.config.get('DATETIME_FORMAT', '%b %d, %Y %I:%M %p'),
+            time.localtime(ts)
+        )
 
     @app.template_filter('b64encode')
     def _jinja2_filter_b64encode(s):
