@@ -17,6 +17,7 @@ from flask.ext.login import LoginManager, current_user
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.assets import Environment, Bundle
 from flask_ldap_login import LDAPLoginManager
+from functools import update_wrapper
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 from sqlalchemy.ext.declarative import declarative_base
@@ -111,11 +112,13 @@ class Assets(Environment):
 
         return super(Assets, self).register(name, Bundle(*args, filters=filters, output=output))
 
+
 class MyLDAPLoginManager(LDAPLoginManager):
     @property
     def attrlist(self):
         # the parent method doesn't always work
         return None
+
 
 class RegexConverter(BaseConverter):
     """ Enables Regex matching on endpoints
@@ -243,8 +246,6 @@ assets.register('main.css',
                 'css/style.css')
 
 
-from functools import update_wrapper
-
 def with_appcontext(f):
     """Wraps a callback so that it's guaranteed to be executed with the
     script's application context.  If callbacks are registered directly
@@ -287,6 +288,7 @@ class AppGroup(click.Group):
         return click.Group.group(self, *args, **kwargs)
 
 flask_cli = AppGroup()
+
 
 @flask_cli.group()
 def cli():
