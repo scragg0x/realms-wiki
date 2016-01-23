@@ -3,6 +3,7 @@ import json
 from urlparse import urlparse
 from realms.lib.util import in_vagrant
 
+
 def update(data):
     conf = read()
     conf.update(data)
@@ -72,6 +73,7 @@ DEBUG = True
 ASSETS_DEBUG = True
 SQLALCHEMY_ECHO = False
 
+HOST = "0.0.0.0"
 PORT = 5000
 BASE_URL = 'http://localhost'
 SITE_TITLE = "Realms"

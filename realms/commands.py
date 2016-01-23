@@ -291,7 +291,8 @@ def configure(json_string):
 
 @cli.command()
 @click.option('--port', default=config.PORT)
-def dev(port):
+@click.option('--host', default=config.HOST)
+def dev(port, host):
     """ Run development server
     """
     green("Starting development server")
@@ -302,7 +303,7 @@ def dev(port):
     else:
         yellow("Using default configuration")
 
-    create_app().run(host="0.0.0.0",
+    create_app().run(host=host,
                      port=port,
                      debug=True)
 
@@ -332,8 +333,8 @@ def start_server():
     if in_virtualenv():
         prefix = get_prefix() + "/bin/"
 
-    Popen("%sgunicorn 'realms:create_app()' -b 0.0.0.0:%s -k gevent %s" %
-          (prefix, config.PORT, flags), shell=True, executable='/bin/bash')
+    Popen("%sgunicorn 'realms:create_app()' -b %s:%s -k gevent %s" %
+          (config.HOST, prefix, config.PORT, flags), shell=True, executable='/bin/bash')
 
 
 def stop_server():
