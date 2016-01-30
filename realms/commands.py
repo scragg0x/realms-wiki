@@ -334,7 +334,7 @@ def start_server():
         prefix = get_prefix() + "/bin/"
 
     Popen("%sgunicorn 'realms:create_app()' -b %s:%s -k gevent %s" %
-          (config.HOST, prefix, config.PORT, flags), shell=True, executable='/bin/bash')
+          (prefix, config.HOST, config.PORT, flags), shell=True, executable='/bin/bash')
 
 
 def stop_server():
