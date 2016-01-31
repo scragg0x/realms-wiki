@@ -10,7 +10,7 @@ users = {}
 
 @ldap.save_user
 def save_user(username, userdata):
-    user = User(userdata.get('username'), userdata.get('email'))
+    user = User(username, userdata.get('email'))
     users[user.id] = user
     return user
 
