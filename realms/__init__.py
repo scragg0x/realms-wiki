@@ -11,6 +11,7 @@ import json
 import httplib
 import traceback
 import click
+from posixpath import join as urljoin
 from flask import Flask, request, render_template, url_for, redirect, g
 from flask.ext.cache import Cache
 from flask.ext.login import LoginManager, current_user
@@ -71,7 +72,7 @@ class Application(Flask):
 
             # Blueprint
             if hasattr(sources, 'views'):
-                self.register_blueprint(sources.views.blueprint, url_prefix=self.config['RELATIVE_PATH'])
+                self.register_blueprint(sources.views.blueprint, url_prefix=self.config['URL_PREFIX'])
 
             # Click
             if hasattr(sources, 'commands'):
@@ -100,7 +101,17 @@ class Application(Flask):
 
         return super(Application, self).make_response(tuple(rv))
 
+    def preprocess_request(self):
+        # concatenate SCRIPT_NAME and URL_PREFIX
+        # without extraneous slashes
+        g.relative_path = urljoin(
+            request.environ.get('SCRIPT_NAME', ''),
+            self.config.get('URL_PREFIX', '')).rstrip('/')
+        
+        g.assets = dict(css=['main.css'], js=['main.js'])
 
+        return super(Application, self).preprocess_request()
+        
 class Assets(Environment):
     default_filters = {'js': 'rjsmin', 'css': 'cleancss'}
     default_output = {'js': 'assets/%(version)s.js', 'css': 'assets/%(version)s.css'}
@@ -181,10 +192,6 @@ def create_app(config=None):
         if status_code >= 400:
             app.register_error_handler(status_code, error_handler)
 
-    @app.before_request
-    def init_g():
-        g.assets = dict(css=['main.css'], js=['main.js'])
-
     @app.template_filter('datetime')
     def _jinja2_filter_datetime(ts, fmt=None):
         return time.strftime(
@@ -200,7 +207,7 @@ def create_app(config=None):
     def page_not_found(e):
         return render_template('errors/404.html'), 404
 
-    if app.config.get('RELATIVE_PATH'):
+    if app.config.get('URL_PREFIX'):
         @app.route("/")
         def root():
             return redirect(url_for(app.config.get('ROOT_ENDPOINT')))

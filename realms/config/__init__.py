@@ -75,7 +75,7 @@ SQLALCHEMY_ECHO = False
 
 HOST = "0.0.0.0"
 PORT = 5000
-BASE_URL = 'http://localhost'
+URL_PREFIX = ''
 SITE_TITLE = "Realms"
 
 # https://pythonhosted.org/Flask-SQLAlchemy/config.html#connection-uri-format
@@ -177,13 +177,8 @@ LOGIN_DISABLED = ALLOW_ANON
 # Depreciated variable name
 LOCKED = WIKI_LOCKED_PAGES[:]
 
-if BASE_URL.endswith('/'):
-    BASE_URL = BASE_URL[:-1]
-
 SQLALCHEMY_DATABASE_URI = DB_URI
 
-_url = urlparse(BASE_URL)
-RELATIVE_PATH = _url.path
 
 if in_vagrant():
     # sendfile doesn't work well with Virtualbox shared folders
@@ -197,6 +192,8 @@ if ENV != "DEV":
 MODULES = ['wiki', 'search', 'auth']
 
 globals().update(read())
+
+URL_PREFIX = URL_PREFIX.rstrip('/')
 
 if globals().get('AUTH_LOCAL_ENABLE'):
     MODULES.append('auth.local')
