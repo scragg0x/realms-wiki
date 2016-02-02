@@ -10,7 +10,7 @@ export LC_ALL
 export GEVENT_RESOLVER
 
 if [ "${REALMS_WIKI_CONFIG}" != "" ]; then
-    realms-wiki configure ${REALMS_WIKI_CONFIG}
+    realms-wiki configure "${REALMS_WIKI_CONFIG}"
 fi
 
 if [ "${REALMS_WIKI_WORKERS}" == "" ]; then
