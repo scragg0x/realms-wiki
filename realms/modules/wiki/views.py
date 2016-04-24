@@ -76,16 +76,15 @@ def history(name):
 @login_required
 def edit(name):
     cname = to_canonical(name)
-    page = g.current_wiki.get_page(name)
+    page = g.current_wiki.get_page(cname)
 
     if not page:
         # Page doesn't exist
         return redirect(url_for('wiki.create', name=cname))
 
-    name = remove_ext(page['path'])
     g.assets['js'].append('editor.js')
     return render_template('wiki/edit.html',
-                           name=name,
+                           name=cname,
                            content=page.get('data'),
                            info=page.get('info'),
                            sha=page.get('sha'),
