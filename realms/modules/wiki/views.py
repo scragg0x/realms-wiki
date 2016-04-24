@@ -137,7 +137,6 @@ def _tree_index(items, path=""):
                        dir=True)
 
 
-
 @blueprint.route("/_index", defaults={"path": ""})
 @blueprint.route("/_index/<path:path>")
 def index(path):

@@ -13,6 +13,7 @@ import subprocess
 # called to discover commands in modules
 app = create_app()
 
+
 def get_user():
     for name in ('SUDO_USER', 'LOGNAME', 'USER', 'LNAME', 'USERNAME'):
         user = os.environ.get(name)
@@ -162,6 +163,7 @@ def setup_redis(ctx, **kw):
 
     config.update(conf)
     install_redis()
+
 
 @click.command()
 @click.option('--elasticsearch-url',
