@@ -79,6 +79,4 @@ sudo mv /tmp/realms-wiki /usr/local/bin
 
 sudo chmod +x /usr/local/bin/realms-wiki
 
-sudo service elasticsearch start
-
 realms-wiki start
