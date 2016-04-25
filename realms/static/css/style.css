@@ -1,9 +1,15 @@
+body {
+  font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+}
+
 .navbar {
   height: 50px !important;
   min-height: 49px !important;
   font-size: 0.85em;
   background: #242628;
   margin-bottom: 10px;
+  border: 0;
 }
 
 .navbar-collapse {
@@ -45,6 +51,9 @@
 
 .navbar-brand {
   color: white;
+  float: left;
+  font-size: 19px;
+  line-height: 21px;
 }
 
 .navbar {
