@@ -1,28 +1,48 @@
-FROM realms/base
+FROM ubuntu:trusty
 
-# Packages
-RUN apt-get update && apt-get install -y build-essential python-pip python-virtualenv python-dev zlib1g-dev libffi-dev libyaml-dev libldap2-dev libsasl2-dev
+RUN apt-get update
+RUN    apt-get install -y software-properties-common python-software-properties python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev npm git python-virtualenv && \
+    apt-get clean  && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# lxml deps
-# libxml2-dev libxslt1-dev
+RUN ln -s /usr/bin/nodejs /usr/bin/node && \
+    npm install -g bower
 
-# Virtualenv
-RUN virtualenv /home/deploy/realms-wiki/.venv
+RUN useradd -ms /bin/bash wiki
 
-RUN cd /home/deploy/realms-wiki && .venv/bin/pip install realms-wiki
+USER wiki
 
-# Logging
-RUN mkdir /var/log/realms-wiki && chown deploy.deploy /var/log/realms-wiki
+RUN git clone https://github.com/scragg0x/realms-wiki /home/wiki/realms-wiki
 
-# Upstart
-RUN mkdir /etc/service/realms-wiki
-ADD realms-wiki.sh /etc/service/realms-wiki/run
-RUN chmod +x /etc/service/realms-wiki/run
+WORKDIR /home/wiki/realms-wiki
 
-# Clear some fat
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN virtualenv .venv && \
+    . .venv/bin/activate && \
+    pip install -r requirements.txt
 
-# Hand over to deploy user
-RUN chown -R deploy.deploy /home/deploy
+RUN bower install
+
+ENV WORKERS=3
+ENV GEVENT_RESOLVER=ares
+
+ENV REALMS_ENV=docker
+ENV REALMS_WIKI_PATH=/home/wiki/data/repo
+ENV REALMS_DB_URI='sqlite:////home/wiki/data/wiki.db'
+ENV REALMS_SQLALCHEMY_DATABASE_URI=${REALMS_DB_URI}
+
+RUN mkdir /home/wiki/data && touch /home/wiki/data/.a
+VOLUME /home/wiki/data
 
 EXPOSE 5000
+
+CMD . .venv/bin/activate && \
+    gunicorn \
+        --name realms-wiki \
+        --access-logfile - \
+        --error-logfile - \
+        --worker-class gevent \
+        --workers ${WORKERS} \
+        --bind 0.0.0.0:5000 \
+        --chdir /home/wiki/realms-wiki \
+        'realms:create_app()'
+
