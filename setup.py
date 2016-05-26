@@ -41,7 +41,7 @@ setup(name='realms-wiki',
           'gittle==0.5.0',
           'gunicorn==19.3',
           'itsdangerous==0.24',
-          'markdown2==2.3.0',
+          'markdown2==2.3.1',
           'python-ldap==2.4.22',
           'simplejson==3.6.3'
       ],
