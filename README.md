@@ -410,7 +410,7 @@ You can copy and paste into a new page for testing purposes.
 Issues and pull requests are welcome.
 Please follow the code style guide.
 
-[Python style guide](http://google-styleguide.googlecode.com/svn/trunk/pyguide.html)
+[Python style guide](https://www.python.org/dev/peps/pep-0008/)
 
 ## Author
 
