@@ -5,6 +5,8 @@ from flask_oauthlib.client import OAuth
 from realms import config
 from ..models import BaseUser
 
+config = config.conf
+
 oauth = OAuth()
 
 users = {}

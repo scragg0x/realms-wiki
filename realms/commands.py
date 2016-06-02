@@ -10,6 +10,8 @@ import pip
 import time
 import subprocess
 
+config = config.conf
+
 # called to discover commands in modules
 app = create_app()
 
