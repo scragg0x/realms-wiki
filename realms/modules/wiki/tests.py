@@ -84,6 +84,6 @@ class WikiTest(WikiBaseTest):
         self.assert_403(self.client.post(url_for('wiki.revert'), data=dict(name='test', commit=data['sha'])))
 
 
-class RelativePathTest(WikiTest):
+class URLPrefixTest(WikiTest):
     def configure(self):
-        return dict(RELATIVE_PATH='wiki')
+        return dict(URL_PREFIX='wiki')

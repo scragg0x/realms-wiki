@@ -70,9 +70,9 @@ def prompt_and_invoke(ctx, fn):
 @click.option('--site-title',
               default=config.SITE_TITLE,
               prompt='Enter site title.')
-@click.option('--base_url',
-              default=config.BASE_URL,
-              prompt='Enter base URL.')
+@click.option('--url-prefix',
+              default=config.URL_PREFIX,
+              prompt='Enter URL prefix.')
 @click.option('--port',
               default=config.PORT,
               prompt='Enter port number.')

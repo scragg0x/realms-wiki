@@ -104,9 +104,7 @@
 
     <script>
       var Config = {};
-      {% for attr in ['RELATIVE_PATH'] %}
-        Config.{{ attr }} = {{ config[attr]|tojson }};
-      {% endfor %}
+      Config.RELATIVE_PATH = {{ g.relative_path|tojson }};
 
       var User = {};
       User.is_authenticated = {{ current_user.is_authenticated()|tojson }};
