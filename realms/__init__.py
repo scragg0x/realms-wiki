@@ -164,7 +164,7 @@ def error_handler(e):
 
 def create_app(config=None):
     app = Application(__name__)
-    app.config.from_object('realms.config')
+    app.config.from_object('realms.config.conf')
     app.url_map.converters['regex'] = RegexConverter
     app.url_map.strict_slashes = False
 
