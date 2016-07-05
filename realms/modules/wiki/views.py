@@ -28,7 +28,7 @@ def compare(name, fsha, dots, lsha):
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
 
-    diff = g.current_wiki.compare(name, fsha, lsha)
+    diff = g.current_wiki.get_page(name, sha=lsha).compare(fsha)
     return render_template('wiki/compare.html',
                            name=name, diff=diff, old=fsha, new=lsha)
 
@@ -47,11 +47,10 @@ def revert():
         return dict(error=True, message="Page is locked"), 403
 
     try:
-        sha = g.current_wiki.revert_page(cname,
-                                         commit,
-                                         message=message,
-                                         username=current_user.username,
-                                         email=current_user.email)
+        sha = g.current_wiki.get_page(cname).revert(commit,
+                                                    message=message,
+                                                    username=current_user.username,
+                                                    email=current_user.email)
     except PageNotFound as e:
         return dict(error=True, message=e.message), 404
 
@@ -66,7 +65,7 @@ def history(name):
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
 
-    hist = g.current_wiki.get_history(name)
+    hist = g.current_wiki.get_page(name).get_history()
     for item in hist:
         item['gravatar'] = gravatar_url(item['author_email'])
     return render_template('wiki/history.html', name=name, history=hist)
@@ -85,10 +84,10 @@ def edit(name):
     g.assets['js'].append('editor.js')
     return render_template('wiki/edit.html',
                            name=cname,
-                           content=page.get('data'),
-                           info=page.get('info'),
-                           sha=page.get('sha'),
-                           partials=page.get('partials'))
+                           content=page.data,
+                           info=page.info,
+                           sha=page.sha,
+                           partials=page.partials)
 
 
 @blueprint.route("/_create/", defaults={'name': None})
@@ -167,12 +166,11 @@ def page_write(name):
         if cname in current_app.config.get('WIKI_LOCKED_PAGES'):
             return dict(error=True, message="Page is locked"), 403
 
-        sha = g.current_wiki.write_page(cname,
-                                        request.form['content'],
-                                        message=request.form['message'],
-                                        create=True,
-                                        username=current_user.username,
-                                        email=current_user.email)
+        sha = g.current_wiki.get_page(cname).write(request.form['content'],
+                                                   message=request.form['message'],
+                                                   create=True,
+                                                   username=current_user.username,
+                                                   email=current_user.email)
 
     elif request.method == 'PUT':
         edit_cname = to_canonical(request.form['name'])
@@ -181,13 +179,12 @@ def page_write(name):
             return dict(error=True, message="Page is locked"), 403
 
         if edit_cname != cname:
-            g.current_wiki.rename_page(cname, edit_cname)
+            g.current_wiki.get_page(cname).rename(edit_cname)
 
-        sha = g.current_wiki.write_page(edit_cname,
-                                        request.form['content'],
-                                        message=request.form['message'],
-                                        username=current_user.username,
-                                        email=current_user.email)
+        sha = g.current_wiki.get_page(edit_cname).write(request.form['content'],
+                                                        message=request.form['message'],
+                                                        username=current_user.username,
+                                                        email=current_user.email)
 
         return dict(sha=sha)
 
@@ -196,9 +193,8 @@ def page_write(name):
         if cname in current_app.config.get('WIKI_LOCKED_PAGES'):
             return dict(error=True, message="Page is locked"), 403
 
-        sha = g.current_wiki.delete_page(cname,
-                                         username=current_user.username,
-                                         email=current_user.email)
+        sha = g.current_wiki.get_page(cname).delete(username=current_user.username,
+                                                    email=current_user.email)
 
     return dict(sha=sha)
 
@@ -216,6 +212,6 @@ def page(name):
     data = g.current_wiki.get_page(cname)
 
     if data:
-        return render_template('wiki/page.html', name=cname, page=data, partials=data.get('partials'))
+        return render_template('wiki/page.html', name=cname, page=data, partials=data.partials)
     else:
         return redirect(url_for('wiki.create', name=cname))

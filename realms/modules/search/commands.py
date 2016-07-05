@@ -31,9 +31,9 @@ def rebuild_index():
             name = filename_to_cname(page['path'])
             # TODO add email?
             body = dict(name=name,
-                        content=page['data'],
-                        message=page['info']['message'],
-                        username=page['info']['author'],
+                        content=page.data,
+                        message=page.info['message'],
+                        username=page.info['author'],
                         updated_on=entry['mtime'],
                         created_on=entry['ctime'])
             search.index_wiki(name, body)
