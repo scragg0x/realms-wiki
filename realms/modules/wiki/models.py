@@ -5,8 +5,9 @@ import ghdiff
 import gittle.utils
 import yaml
 from gittle import Gittle
+from dulwich.object_store import tree_lookup_path
 from dulwich.repo import NotGitRepository
-from realms.lib.util import to_canonical, cname_to_filename, filename_to_cname
+from realms.lib.util import cname_to_filename, filename_to_cname
 from realms import cache
 from realms.lib.hook import HookMixin
 
@@ -311,5 +312,10 @@ class WikiPage(object):
         return ghdiff.diff(old.data, self.data)
 
     def __nonzero__(self):
-        # TODO: Check if page is in index of self.sha
-        return bool(self.data)
+        # Verify this file is in the tree for the given commit sha
+        try:
+            tree_lookup_path(self.wiki.repo.get_object, self.wiki.repo[self.sha].tree, self.filename)
+        except KeyError:
+            # We'll get a KeyError if self.sha isn't in the repo, or if self.filename isn't in the tree of our commit
+            return False
+        return True
