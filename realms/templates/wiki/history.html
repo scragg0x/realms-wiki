@@ -28,6 +28,22 @@
       </tr>
     {% endfor %}
   </table>
+  <!-- TODO: make this pagination look good -->
+  {% if pagination.page > 1 or pagination.more %}
+    <div>
+      {% if pagination.page > 1 %}
+        <a href="{{ url_for('.history', name=name, page=pagination.page - 1) }}">&lt;</a>
+      {% else %}
+        &lt;
+      {% endif %}
+      {{ pagination.page }}
+      {% if pagination.more %}
+        <a href="{{ url_for('.history', name=name, page=pagination.page + 1) }}">&gt;</a>
+      {% else %}
+        &gt;
+      {% endif %}
+    </div>
+  {% endif %}
   <p>
     <a class="btn btn-default btn-sm compare-revisions">Compare Revisions</a>
   </p>
