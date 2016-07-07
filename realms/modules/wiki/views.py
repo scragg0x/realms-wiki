@@ -75,7 +75,7 @@ def history(name):
         more = True
         items.pop()
     if page > 1 and not items:
-        abort(404)
+        abort(404, 'Page is past end of history.')
     for item in items:
         item['gravatar'] = gravatar_url(item['author_email'])
     return render_template('wiki/history.html', name=name, history=items,

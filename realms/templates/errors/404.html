@@ -2,5 +2,8 @@
 {% block body %}
 
   <h1>Page Not Found</h1>
+  {% if error is defined %}
+  <h4>{{ error.description }}</h4>
+  {% endif %}
 
 {% endblock %}
