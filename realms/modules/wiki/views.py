@@ -96,7 +96,8 @@ def edit(name):
     return render_template('wiki/edit.html',
                            name=cname,
                            content=page.data,
-                           info=page.info,
+                           # TODO: Remove this? See #148
+                           info=next(page.history),
                            sha=page.sha,
                            partials=page.partials)
 

@@ -30,10 +30,12 @@ def rebuild_index():
                 continue
             name = filename_to_cname(page['path'])
             # TODO add email?
+            # TODO I have concens about indexing the commit info from latest revision, see #148
+            info = next(page.history)
             body = dict(name=name,
                         content=page.data,
-                        message=page.info['message'],
-                        username=page.info['author'],
+                        message=info['message'],
+                        username=info['author'],
                         updated_on=entry['mtime'],
                         created_on=entry['ctime'])
             search.index_wiki(name, body)

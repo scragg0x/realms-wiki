@@ -90,17 +90,6 @@ class WikiPage(object):
         return data
 
     @property
-    def info(self):
-        cache_key = self._cache_key('info')
-        cached = cache.get(cache_key)
-        if cached:
-            return cached
-
-        info = next(self.history)
-        cache.set(cache_key, info)
-        return info
-
-    @property
     def history(self):
         """Get page history.
 
