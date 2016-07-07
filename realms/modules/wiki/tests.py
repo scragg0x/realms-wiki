@@ -41,8 +41,8 @@ class WikiTest(WikiBaseTest):
         self.assert_200(rv)
 
         self.assert_context('name', 'test')
-        eq_(self.get_context_variable('page')['info']['message'], 'test message')
-        eq_(self.get_context_variable('page')['data'], 'testing')
+        eq_(self.get_context_variable('page').info['message'], 'test message')
+        eq_(self.get_context_variable('page').data, 'testing')
 
     def test_history(self):
         self.assert_200(self.client.get(url_for('wiki.history', name='test')))
@@ -68,7 +68,7 @@ class WikiTest(WikiBaseTest):
         data = json.loads(rv1.data)
         self.client.post(url_for('wiki.revert'), data=dict(name='test', commit=data['sha']))
         self.client.get(url_for('wiki.page', name='test'))
-        eq_(self.get_context_variable('page')['data'], 'testing_old')
+        eq_(self.get_context_variable('page').data, 'testing_old')
         self.assert_404(self.client.post(url_for('wiki.revert'), data=dict(name='test', commit='does not exist')))
 
         self.app.config['WIKI_LOCKED_PAGES'] = ['test']
