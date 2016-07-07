@@ -64,14 +64,14 @@ def revert():
 def history(name):
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
-    ITEMS_PER_PAGE = 15
+    items_per_page = 15
     page = int(request.args.get('page', 1))
-    start_index = (page - 1) * ITEMS_PER_PAGE
-    hist = g.current_wiki.get_page(name).get_history()
+    start_index = (page - 1) * items_per_page
+    hist = g.current_wiki.get_page(name).history
     # Grab one extra item to see if there is a next page
-    items = hist[start_index:start_index+ITEMS_PER_PAGE+1]
+    items = list(itertools.islice(hist, start_index, start_index+items_per_page+1))
     more = False
-    if len(items) > ITEMS_PER_PAGE:
+    if len(items) > items_per_page:
         more = True
         items.pop()
     if page > 1 and not items:
