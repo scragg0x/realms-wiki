@@ -145,7 +145,7 @@ class Config(object):
     def __init__(self):
         for k, v in self.read().iteritems():
             setattr(self, k, v)
-        if hasattr(self, 'AUTH_LOCAL_ENABLE'):
+        if getattr(self, 'AUTH_LOCAL_ENABLE', True):
             self.MODULES.append('auth.local')
         if hasattr(self, 'OAUTH'):
             self.MODULES.append('auth.oauth')
