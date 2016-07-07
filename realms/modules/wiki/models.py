@@ -96,7 +96,7 @@ class WikiPage(object):
         if cached:
             return cached
 
-        info = self.get_history(limit=1)[0]
+        info = next(self.history)
         cache.set(cache_key, info)
         return info
 
@@ -104,10 +104,54 @@ class WikiPage(object):
     def history(self):
         """Get page history.
 
-        :return: list -- List of dicts
+        History can take a long time to generate for repositories with many commits.
+        This returns an iterator to avoid having to load them all at once.
+
+        :return: iter -- Iterator over dicts
 
         """
-        return PageHistory(self, self._cache_key('history'))
+        cache_complete = False
+        cached_revs = cache.get(self._cache_key('history')) or []
+        start_sha = None
+        if cached_revs:
+            if cached_revs[-1] == 'TAIL':
+                del cached_revs[-1]
+                cache_complete = True
+            else:
+                start_sha = cached_revs[-1]['sha']
+        for rev in cached_revs:
+            yield rev
+        if cache_complete:
+            return
+        if not len(self.wiki.repo.open_index()):
+            # Index is empty, no commits
+            return
+        walker = iter(self.wiki.repo.get_walker(paths=[self.filename], include=start_sha, follow=True))
+        if start_sha:
+            # If we are not starting from HEAD, we already have the start commit
+            next(walker)
+        filename = self.filename
+        try:
+            for entry in walker:
+                change_type = None
+                for change in entry.changes():
+                    if change.new.path == filename:
+                        filename = change.old.path
+                        change_type = change.type
+                        break
+
+                author_name, author_email = entry.commit.author.rstrip('>').split('<')
+                r = dict(author=author_name.strip(),
+                         author_email=author_email,
+                         time=entry.commit.author_time,
+                         message=entry.commit.message,
+                         sha=entry.commit.id,
+                         type=change_type)
+                cached_revs.append(r)
+                yield r
+            cached_revs.append('TAIL')
+        finally:
+            cache.set(self._cache_key('history'), cached_revs)
 
     @property
     def partials(self):
@@ -298,75 +342,3 @@ class WikiPage(object):
             # We'll get a KeyError if self.sha isn't in the repo, or if self.filename isn't in the tree of our commit
             return False
         return True
-
-
-class PageHistory(collections.Sequence):
-    """Acts like a list, but dynamically loads and caches history revisions as requested."""
-    def __init__(self, page, cache_key):
-        self.page = page
-        self.cache_key = cache_key
-        self._store = cache.get(cache_key) or []
-        if not self._store:
-            self._iter_rest = self._get_rest()
-        elif self._store[-1] == 'TAIL':
-            self._iter_rest = None
-        else:
-            self._iter_rest = self._get_rest(self._store[-1]['sha'])
-
-    def __iter__(self):
-        # Iterate over the revisions already cached
-        for r in self._store:
-            if r == 'TAIL':
-                return
-            yield r
-        # Iterate over the revisions yet to be discovered
-        if self._iter_rest:
-            try:
-                for r in self._iter_rest:
-                    self._store.append(r)
-                    yield r
-                self._store.append('TAIL')
-            finally:
-                # Make sure we cache the results whether or not the iteration was completed
-                cache.set(self.cache_key, self._store)
-
-    def _get_rest(self, start_sha=None):
-        if not len(self.page.wiki.repo.open_index()):
-            # Index is empty, no commits
-            return
-        walker = iter(self.page.wiki.repo.get_walker(paths=[self.page.filename], include=start_sha, follow=True))
-        if start_sha:
-            # If we are not starting from HEAD, we already have the start commit
-            print(next(walker))
-        filename = self.page.filename
-        for entry in walker:
-            change_type = None
-            for change in entry.changes():
-                if change.new.path == filename:
-                    filename = change.old.path
-                    change_type = change.type
-                    break
-
-            author_name, author_email = entry.commit.author.rstrip('>').split('<')
-            r = dict(author=author_name.strip(),
-                     author_email=author_email,
-                     time=entry.commit.author_time,
-                     message=entry.commit.message,
-                     sha=entry.commit.id,
-                     type=change_type)
-            yield r
-
-    def __getitem__(self, index):
-        if isinstance(index, slice):
-            return list(itertools.islice(self, index.start, index.stop, index.step))
-        else:
-            try:
-                return next(itertools.islice(self, index, index+1))
-            except StopIteration:
-                raise IndexError
-
-    def __len__(self):
-        if not self._store or self._store[-1] != 'TAIL':
-            # Force generation of all revisions
-            list(self)
-        return len(self._store) - 1  # Don't include the TAIL sentinel
