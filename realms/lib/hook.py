@@ -7,7 +7,7 @@ def hook_func(name, fn):
     @wraps(fn)
     def wrapper(self, *args, **kwargs):
         for hook, a, kw in self.__class__._pre_hooks.get(name) or []:
-            hook(*args, **kwargs)
+            hook(self, *args, **kwargs)
 
         rv = fn(self, *args, **kwargs)
 
@@ -15,7 +15,7 @@ def hook_func(name, fn):
         kwargs.update(dict(rv=rv))
 
         for hook, a, kw in self.__class__._post_hooks.get(name) or []:
-            hook(*args, **kwargs)
+            hook(self, *args, **kwargs)
 
         return rv
     return wrapper
