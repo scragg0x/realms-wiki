@@ -176,7 +176,7 @@ class WikiPage(object):
         return username, email
 
     def _clear_cache(self):
-        cache.delete_many(self._cache_key(p) for p in ['data', 'info'])
+        cache.delete_many(*(self._cache_key(p) for p in ['data', 'info']))
 
     def delete(self, username=None, email=None, message=None):
         """Delete page.
