@@ -69,7 +69,7 @@ class Wiki(HookMixin):
         return rv
 
 
-class WikiPage(object):
+class WikiPage(HookMixin):
     def __init__(self, name, wiki, sha='HEAD'):
         self.name = name
         self.filename = cname_to_filename(name)

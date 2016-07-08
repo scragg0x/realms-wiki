@@ -1,35 +1,40 @@
-from realms.modules.wiki.models import Wiki
+from realms.modules.wiki.models import WikiPage
 from realms import search
 
 
-@Wiki.after('write_page')
-def wiki_write_page(name, content, message=None, username=None, email=None, **kwargs):
+@WikiPage.after('write')
+def wiki_write_page(page, content, message=None, username=None, email=None, **kwargs):
 
     if not hasattr(search, 'index_wiki'):
         # using simple search or none
         return
 
-    body = dict(name=name,
+    body = dict(name=page.name,
                 content=content,
                 message=message,
                 email=email,
                 username=username)
-    return search.index_wiki(name, body)
+    return search.index_wiki(page.name, body)
 
 
-@Wiki.after('rename_page')
-def wiki_rename_page(old_name, *args, **kwargs):
-
-    if not hasattr(search, 'index_wiki'):
-        return
-
-    return search.delete_wiki(old_name)
-
-
-@Wiki.after('delete_page')
-def wiki_delete_page(name, *args, **kwargs):
+@WikiPage.before('rename')
+def wiki_rename_page_del(page, *args, **kwargs):
 
     if not hasattr(search, 'index_wiki'):
         return
 
-    return search.delete_wiki(name)
+    return search.delete_wiki(page.name)
+
+
+@WikiPage.after('rename')
+def wiki_rename_page_add(page, new_name, *args, **kwargs):
+    wiki_write_page(page, page.data, *args, **kwargs)
+
+
+@WikiPage.after('delete')
+def wiki_delete_page(page, *args, **kwargs):
+
+    if not hasattr(search, 'index_wiki'):
+        return
+
+    return search.delete_wiki(page.name)
