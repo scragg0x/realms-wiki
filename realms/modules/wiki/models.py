@@ -223,7 +223,8 @@ class WikiPage(HookMixin):
         return username, email
 
     def _clear_cache(self):
-        cache.delete_many(*(self._cache_key(p) for p in ['data', 'info']))
+        for p in ['data', 'history']:
+            cache.delete(self._cache_key(p))
 
     def delete(self, username=None, email=None, message=None):
         """Delete page.
