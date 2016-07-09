@@ -28,7 +28,7 @@ def compare(name, fsha, dots, lsha):
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
 
-    diff = g.current_wiki.get_page(name, sha=fsha).compare(lsha)
+    diff = g.current_wiki.get_page(name, sha=lsha).compare(fsha)
     return render_template('wiki/compare.html',
                            name=name, diff=diff, old=fsha, new=lsha)
 
