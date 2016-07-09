@@ -6,7 +6,7 @@
     <a class="btn btn-default btn-sm compare-revisions">Compare Revisions</a>
   </p>
 
-  <table class="table table-bordered revision-tbl data-table">
+  <table class="table table-bordered revision-tbl dataTable DTTT_selectable">
     <thead>
     <tr>
       <th>Name</th>
@@ -21,10 +21,29 @@
 
 {% endblock %}
 
+{% block css %}
+  <style type="text/css">
+    table.dataTable td {
+      transition: background-color 0.5s linear, color 0.5s linear;
+      transition-delay: 0.1s;
+    }
+    table.dataTable tr.active td {
+      transition: background-color 0.1s linear, color 0.1s linear;
+      transition-delay: 0s
+    }
+    table.dataTable tbody tr:hover {
+      background-color: #d8d8d8 !important;
+    }
+  </style>
+{% endblock %}
+
 {% block js %}
   <script>
     $(document).ready(function() {
-      $('.data-table').dataTable({
+      var selected = [];
+      var selected_pos = [];
+
+      $('.dataTable').dataTable({
         serverSide: true,
         ajax: '{{ url_for('.history_data', name=name) }}',
         ordering: false,
@@ -38,26 +57,42 @@
               return date.toDateString();
             }
           }
-        ]
-      });
-    });
-    $(function(){
-      $('.revision-tbl :checkbox').change(function () {
-        var $cs=$(this).closest('.revision-tbl').find(':checkbox:checked');
-        if ($cs.length > 2) {
-          this.checked=false;
+        ],
+        rowCallback: function( row, data, index ) {
+            index += $('.dataTable').DataTable().page.info().start;
+            $(row).data('index', index);
+            if ( $.inArray(data.DT_RowId, selected) !== -1 ) {
+                $(row).addClass('active');
+            }
         }
       });
 
+      $('.dataTable tbody').on('click', 'tr', function () {
+        var id = this.id;
+        var selected_index = $.inArray(id, selected);
+
+        if ( selected_index === -1 ) {
+            selected.push( id );
+            selected_pos.push( $(this).data('index') );
+            if ( selected.length > 2) {
+                // Only 2 selected at once
+                var shifted = selected.shift();
+                selected_pos.shift();
+                $('#' + shifted).removeClass('active');
+            }
+        } else {
+            selected.splice( selected_index, 1 );
+            selected_pos.splice( selected_index, 1);
+        }
+
+        $(this).toggleClass('active');
+      });
       $(".compare-revisions").click(function(){
-        var $cs = $('.revision-tbl').find(':checkbox:checked');
-        if ($cs.length != 2) return;
-        var revs = [];
-        $.each($cs, function(i, v){
-          revs.push(v.value);
-        });
-        revs.reverse();
-        revs = revs.join("..");
+        if (selected.length != 2) return;
+        if (selected_pos[1] > selected_pos[0]) {
+          selected.reverse()
+        }
+        revs = selected.join("..");
         location.href = "{{ config.RELATIVE_PATH }}/_compare/{{ name }}/" + revs;
       });
     });

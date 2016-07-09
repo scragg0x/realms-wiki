@@ -28,7 +28,7 @@ def compare(name, fsha, dots, lsha):
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
 
-    diff = g.current_wiki.get_page(name, sha=lsha).compare(fsha)
+    diff = g.current_wiki.get_page(name, sha=fsha).compare(lsha)
     return render_template('wiki/compare.html',
                            name=name, diff=diff, old=fsha, new=lsha)
 
@@ -79,6 +79,7 @@ def history_data(name):
     items = list(itertools.islice(page.history, start, start + length))
     for item in items:
         item['gravatar'] = gravatar_url(item['author_email'])
+        item['DT_RowId'] = item['sha']
     total_records, hist_complete = page.history_cache
     if not hist_complete:
         # Force datatables to fetch more data when it gets to the end
