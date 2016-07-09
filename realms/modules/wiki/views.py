@@ -88,7 +88,8 @@ def history_data(name):
         'draw': draw,
         'recordsTotal': total_records,
         'recordsFiltered': total_records,
-        'data': items
+        'data': items,
+        'fully_loaded': hist_complete
     }
 
 

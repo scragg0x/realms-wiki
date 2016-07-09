@@ -45,7 +45,13 @@
 
       $('.dataTable').dataTable({
         serverSide: true,
-        ajax: '{{ url_for('.history_data', name=name) }}',
+        ajax: {
+          url: '{{ url_for('.history_data', name=name) }}',
+          dataSrc: function (data) {
+            $('.dataTable').data('fully_loaded', data.fully_loaded);
+            return data.data
+          }
+        },
         ordering: false,
         bFilter: false,
         columns: [
@@ -64,6 +70,12 @@
             if ( $.inArray(data.DT_RowId, selected) !== -1 ) {
                 $(row).addClass('active');
             }
+        },
+        infoCallback: function( settings, start, end, max, total, pre ) {
+          if (!$('.dataTable').data('fully_loaded')) {
+            total += "+"
+          }
+          return "Showing " + start +" to "+ end + " of " + total + " revisions.";
         }
       });
 
