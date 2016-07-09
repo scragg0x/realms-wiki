@@ -34,10 +34,10 @@
           { "data": "message" },
           { "data": "time",
             "render": function (data) {
-              var date = new Date(0);
-              date.setUTCSeconds(data)
+              var date = new Date(data * 1000);
               return date.toDateString();
-            }}
+            }
+          }
         ]
       });
     });
