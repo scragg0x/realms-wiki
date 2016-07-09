@@ -143,6 +143,20 @@ class WikiPage(object):
             cache.set(self._cache_key('history'), cached_revs)
 
     @property
+    def history_cache(self):
+        """Get info about the history cache.
+
+        :return: tuple -- (cached items, cache complete?)
+        """
+        cache_complete = False
+        cached_revs = cache.get(self._cache_key('history')) or []
+        if cached_revs:
+            if cached_revs[-1] == 'TAIL':
+                del cached_revs[-1]
+                cache_complete = True
+        return len(cached_revs), cache_complete
+
+    @property
     def partials(self):
         data = self.data
         if not data:

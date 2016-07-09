@@ -64,22 +64,32 @@ def revert():
 def history(name):
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
-    items_per_page = 15
-    page = int(request.args.get('page', 1))
-    start_index = (page - 1) * items_per_page
-    hist = g.current_wiki.get_page(name).history
-    # Grab one extra item to see if there is a next page
-    items = list(itertools.islice(hist, start_index, start_index+items_per_page+1))
-    more = False
-    if len(items) > items_per_page:
-        more = True
-        items.pop()
-    if page > 1 and not items:
-        abort(404, 'Page is past end of history.')
+    return render_template('wiki/history.html', name=name)
+
+
+@blueprint.route("/_history_data/<path:name>")
+def history_data(name):
+    """Ajax provider for paginated history data."""
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+        return current_app.login_manager.unauthorized()
+    draw = int(request.args.get('draw', 0))
+    start = int(request.args.get('start', 0))
+    length = int(request.args.get('length', 10))
+    page = g.current_wiki.get_page(name)
+    items = list(itertools.islice(page.history, start, start + length))
     for item in items:
         item['gravatar'] = gravatar_url(item['author_email'])
-    return render_template('wiki/history.html', name=name, history=items,
-                           pagination={'page': page, 'more': more})
+    total_records, hist_complete = page.history_cache
+    if not hist_complete:
+        # Force datatables to fetch more data when it gets to the end
+        total_records += 1
+    return {
+        'draw': draw,
+        'recordsTotal': total_records,
+        'recordsFiltered': total_records,
+        'data': items
+    }
+
 
 
 @blueprint.route("/_edit/<path:name>")

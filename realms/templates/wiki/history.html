@@ -6,49 +6,14 @@
     <a class="btn btn-default btn-sm compare-revisions">Compare Revisions</a>
   </p>
 
-  <table class="table table-bordered revision-tbl">
+  <table class="table table-bordered revision-tbl data-table">
     <thead>
     <tr>
-      <th></th>
       <th>Name</th>
       <th>Revision Message</th>
       <th>Date</th>
     </tr>
     </thead>
-    {% if pagination.page > 1 or pagination.more %}
-      <tfoot>
-      <tr><td colspan="4">
-      <ul class="pagination" style="float: right">
-        <li class="paginate_button previous{% if pagination.page == 1 %} disabled{% endif %}">
-          <a href="{{ url_for('.history', name=name, page=pagination.page - 1) }}">Previous</a>
-        </li>
-        {% for p in range(1, pagination.page + 1) %}
-          <li class="paginate_button{% if p ==  pagination.page %} active{% endif %}">
-            <a href="{{ url_for('.history', name=name, page=p) }}">{{ p }}</a>
-          </li>
-        {% endfor %}
-        {% if pagination.more %}<li class="paginate_button disabled"><a>…</a></li>{% endif %}
-        <li class="paginate_button next{% if not pagination.more %} disabled{% endif %}">
-          <a href="{{ url_for('.history', name=name, page=pagination.page + 1) }}">Next</a>
-        </li>
-      </ul>
-      </td></tr>
-      </tfoot>
-    {% endif %}
-    <tbody>
-    {% for h in history %}
-      <tr>
-        <td class="checkbox-cell text-center">
-          {% if h.type != 'delete' %}
-          <input type="checkbox" name="versions[]" value="{{ h.sha }}" />
-          {% endif %}
-        </td>
-        <td><img src="{{ h.gravatar }}?s=20" class="avatar"/> {{ h.author }}</td>
-        <td><a href="{{ url_for('wiki.commit', name=name, sha=h.sha) }}" class='label label-primary'>View</a> {{ h.message }} </td>
-        <td>{{ h.time|datetime }}</td>
-      </tr>
-    {% endfor %}
-    </tbody>
   </table>
   <p>
     <a class="btn btn-default btn-sm compare-revisions">Compare Revisions</a>
@@ -58,6 +23,24 @@
 
 {% block js %}
   <script>
+    $(document).ready(function() {
+      $('.data-table').dataTable({
+        serverSide: true,
+        ajax: '{{ url_for('.history_data', name=name) }}',
+        ordering: false,
+        bFilter: false,
+        columns: [
+          { "data": "author" },
+          { "data": "message" },
+          { "data": "time",
+            "render": function (data) {
+              var date = new Date(0);
+              date.setUTCSeconds(data)
+              return date.toDateString();
+            }}
+        ]
+      });
+    });
     $(function(){
       $('.revision-tbl :checkbox').change(function () {
         var $cs=$(this).closest('.revision-tbl').find(':checkbox:checked');
