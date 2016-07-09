@@ -168,7 +168,6 @@ def page_write(name):
 
         sha = g.current_wiki.get_page(cname).write(request.form['content'],
                                                    message=request.form['message'],
-                                                   create=True,
                                                    username=current_user.username,
                                                    email=current_user.email)
 

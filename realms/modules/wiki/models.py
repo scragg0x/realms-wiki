@@ -2,11 +2,9 @@ import os
 import posixpath
 import re
 import ghdiff
-import gittle.utils
 import yaml
-from gittle import Gittle
 from dulwich.object_store import tree_lookup_path
-from dulwich.repo import NotGitRepository
+from dulwich.repo import Repo, NotGitRepository
 from realms.lib.util import cname_to_filename, filename_to_cname
 from realms import cache
 from realms.lib.hook import HookMixin
@@ -23,17 +21,13 @@ class Wiki(HookMixin):
     default_committer_name = 'Anon'
     default_committer_email = 'anon@anon.anon'
     index_page = 'home'
-    gittle = None
     repo = None
 
     def __init__(self, path):
         try:
-            self.gittle = Gittle(path)
+            self.repo = Repo(path)
         except NotGitRepository:
-            self.gittle = Gittle.init(path)
-
-        # Dulwich repo
-        self.repo = self.gittle.repo
+            self.repo = Repo.init(path, mkdir=True)
 
         self.path = path
 
@@ -46,20 +40,20 @@ class Wiki(HookMixin):
         :param name: Committer name
         :param email: Committer email
         :param message: Commit message
-        :param files: list of file names that should be committed
+        :param files: list of file names that will be staged for commit
         :return:
         """
-        # Dulwich and gittle seem to want us to encode ourselves at the moment. see #152
         if isinstance(name, unicode):
             name = name.encode('utf-8')
         if isinstance(email, unicode):
             email = email.encode('utf-8')
         if isinstance(message, unicode):
             message = message.encode('utf-8')
-        return self.gittle.commit(name=name,
-                                  email=email,
-                                  message=message,
-                                  files=files)
+        author = committer = "%s <%s>" % (name, email)
+        self.repo.stage(files)
+        return self.repo.do_commit(message=message,
+                                   committer=committer,
+                                   author=author)
 
     def get_page(self, name, sha='HEAD'):
         """Get page data, partials, commit info.
@@ -104,7 +98,8 @@ class WikiPage(HookMixin):
         if cached:
             return cached
 
-        data = self.wiki.gittle.get_commit_files(self.sha, paths=[self.filename]).get(self.filename).get('data')
+        mode, sha = tree_lookup_path(self.wiki.repo.get_object, self.wiki.repo[self.sha].tree, self.filename)
+        data = self.wiki.repo[sha].data
         cache.set(cache_key, data)
         return data
 
@@ -126,20 +121,20 @@ class WikiPage(HookMixin):
         :return: list -- List of dicts
 
         """
-        if not len(self.wiki.repo.open_index()):
-            # Index is empty, no commits
-            return []
-
         versions = []
 
-        walker = self.wiki.repo.get_walker(paths=[self.filename], max_entries=limit)
+        try:
+            walker = self.wiki.repo.get_walker(paths=[self.filename], max_entries=limit, follow=True)
+        except KeyError:
+            # We don't have a head, no commits
+            return []
+
         for entry in walker:
             change_type = None
             for change in entry.changes():
-                if change.old.path == self.filename:
-                    change_type = change.type
-                elif change.new.path == self.filename:
-                    change_type = change.type
+                # Changes should already be filtered to only the one affecting our file
+                change_type = change.type
+                break
             author_name, author_email = entry.commit.author.rstrip('>').split('<')
             versions.append(dict(
                 author=author_name.strip(),
@@ -211,9 +206,7 @@ class WikiPage(HookMixin):
         if not message:
             message = "Deleted %s" % self.name
 
-        # gittle.rm won't actually remove the file, have to do it ourselves
         os.remove(os.path.join(self.wiki.path, self.filename))
-        self.wiki.gittle.rm(self.filename)
         commit = self.wiki.commit(name=username,
                                   email=email,
                                   message=message,
@@ -232,7 +225,7 @@ class WikiPage(HookMixin):
         """
         assert self.sha == 'HEAD'
         old_filename, new_filename = self.filename, cname_to_filename(new_name)
-        if old_filename not in self.wiki.gittle.index:
+        if old_filename not in self.wiki.repo.open_index():
             # old doesn't exist
             return None
         elif old_filename == new_filename:
@@ -247,10 +240,6 @@ class WikiPage(HookMixin):
             message = "Moved %s to %s" % (self.name, new_name)
 
         os.rename(os.path.join(self.wiki.path, old_filename), os.path.join(self.wiki.path, new_filename))
-
-        self.wiki.gittle.add(new_filename)
-        self.wiki.gittle.rm(old_filename)
-
         commit = self.wiki.commit(name=username,
                                   email=email,
                                   message=message,
@@ -264,12 +253,11 @@ class WikiPage(HookMixin):
 
         return commit
 
-    def write(self, content, message=None, create=False, username=None, email=None):
+    def write(self, content, message=None, username=None, email=None):
         """Write page to git repo
 
         :param content: Content of page.
         :param message: Commit message.
-        :param create: Perform git add operation?
         :param username: Commit Name.
         :param email: Commit Email.
         :return: Git commit sha1.
@@ -282,9 +270,6 @@ class WikiPage(HookMixin):
 
         with open(self.wiki.path + "/" + self.filename, 'w') as f:
             f.write(content)
-
-        if create:
-            self.wiki.gittle.add(self.filename)
 
         if not message:
             message = "Updated %s" % self.name
@@ -315,8 +300,7 @@ class WikiPage(HookMixin):
             raise PageNotFound('Commit not found')
 
         if not message:
-            commit_info = gittle.utils.git.commit_info(self.wiki.gittle[commit_sha.encode('latin-1')])
-            message = commit_info['message']
+            message = "Revert '%s' to %s" % (self.name, commit_sha[:7])
 
         return self.write(new_page.data, message=message, username=username, email=email)
 
