@@ -1,12 +1,12 @@
 import json
 import os
-import sys
+from collections import Mapping
 from urlparse import urlparse
 
 from realms.lib.util import in_vagrant
 
 
-class Config(object):
+class Config(Mapping):
 
     urlparse = urlparse
 
@@ -214,5 +214,23 @@ class Config(object):
                     # can write file
                     return path
         return None
+
+    # Make config readable like a dict
+    def __getitem__(self, item):
+        if item.isupper():
+            try:
+                return getattr(self, item)
+            except AttributeError:
+                raise KeyError(item)
+        raise KeyError(item)
+
+    def __iter__(self):
+        for prop in dir(self):
+            if prop.isupper():
+                yield prop
+
+    def __len__(self):
+        return len(filter(lambda x: x.isupper(), dir(self)))
+
 
 conf = Config()
