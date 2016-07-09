@@ -112,6 +112,16 @@ class Config(object):
 
     ROOT_ENDPOINT = 'wiki.page'
 
+    # Sync module settings
+    # Repo to push and pull from
+    SYNC_REPO = ''
+    # Gittle auth parameters. username, password, pkey, look_for_key, allow_agent
+    SYNC_AUTH = {}
+    # Enable pushing to SYNC_REPO on each wiki commit
+    SYNC_PUSH = True
+    # Enable github webhook endpoint to pull
+    SYNC_PULL = False
+
     # Used by Flask-Login
     @property
     def LOGIN_DISABLED(self):
