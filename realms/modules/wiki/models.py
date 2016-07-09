@@ -40,6 +40,27 @@ class Wiki(HookMixin):
     def __repr__(self):
         return "Wiki: %s" % self.path
 
+    def commit(self, name, email, message, files):
+        """Commit to the underlying git repo.
+
+        :param name: Committer name
+        :param email: Committer email
+        :param message: Commit message
+        :param files: list of file names that should be committed
+        :return:
+        """
+        # Dulwich and gittle seem to want us to encode ourselves at the moment. see #152
+        if isinstance(name, unicode):
+            name = name.encode('utf-8')
+        if isinstance(email, unicode):
+            email = email.encode('utf-8')
+        if isinstance(message, unicode):
+            message = message.encode('utf-8')
+        return self.gittle.commit(name=name,
+                                  email=email,
+                                  message=message,
+                                  files=files)
+
     def get_page(self, name, sha='HEAD'):
         """Get page data, partials, commit info.
 
@@ -193,10 +214,10 @@ class WikiPage(HookMixin):
         # gittle.rm won't actually remove the file, have to do it ourselves
         os.remove(os.path.join(self.wiki.path, self.filename))
         self.wiki.gittle.rm(self.filename)
-        commit = self.wiki.gittle.commit(name=username,
-                                         email=email,
-                                         message=message,
-                                         files=[self.filename])
+        commit = self.wiki.commit(name=username,
+                                  email=email,
+                                  message=message,
+                                  files=[self.filename])
         self._clear_cache()
         return commit
 
@@ -230,10 +251,10 @@ class WikiPage(HookMixin):
         self.wiki.gittle.add(new_filename)
         self.wiki.gittle.rm(old_filename)
 
-        commit = self.wiki.gittle.commit(name=username,
-                                         email=email,
-                                         message=message,
-                                         files=[old_filename, new_filename])
+        commit = self.wiki.commit(name=username,
+                                  email=email,
+                                  message=message,
+                                  files=[old_filename, new_filename])
 
         self._clear_cache()
         self.name = new_name
@@ -270,10 +291,10 @@ class WikiPage(HookMixin):
 
         username, email = self._get_user(username, email)
 
-        ret = self.wiki.gittle.commit(name=username,
-                                      email=email,
-                                      message=message,
-                                      files=[self.filename])
+        ret = self.wiki.commit(name=username,
+                               email=email,
+                               message=message,
+                               files=[self.filename])
 
         self._clear_cache()
         return ret
