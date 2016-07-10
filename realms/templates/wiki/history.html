@@ -64,12 +64,7 @@
             }
           },
           { "data": "message" },
-          { "data": "time",
-            "render": function (data) {
-              var date = new Date(data * 1000);
-              return date.toDateString();
-            }
-          }
+          { "data": "date" }
         ],
         rowCallback: function( row, data, index ) {
             index += $('.dataTable').DataTable().page.info().start;

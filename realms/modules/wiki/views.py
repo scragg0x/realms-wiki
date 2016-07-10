@@ -1,5 +1,6 @@
 import itertools
 import sys
+from datetime import datetime
 from flask import abort, g, render_template, request, redirect, Blueprint, flash, url_for, current_app
 from flask.ext.login import login_required, current_user
 from realms.lib.util import to_canonical, remove_ext, gravatar_url
@@ -80,6 +81,8 @@ def history_data(name):
     for item in items:
         item['gravatar'] = gravatar_url(item['author_email'])
         item['DT_RowId'] = item['sha']
+        date = datetime.fromtimestamp(item['time'])
+        item['date'] = date.strftime(current_app.config.get('DATETIME_FORMAT', '%b %d, %Y %I:%M %p'))
     total_records, hist_complete = page.history_cache
     if not hist_complete:
         # Force datatables to fetch more data when it gets to the end
