@@ -58,7 +58,11 @@
         ordering: false,
         bFilter: false,
         columns: [
-          { "data": "author" },
+          { "data": null,
+            "render": function(data) {
+              return '<img src="' + data.gravatar + '?s=20" class="avatar" /> ' + data.author
+            }
+          },
           { "data": "message" },
           { "data": "time",
             "render": function (data) {
