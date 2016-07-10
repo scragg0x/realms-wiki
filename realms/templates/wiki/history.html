@@ -58,12 +58,18 @@
         ordering: false,
         bFilter: false,
         columns: [
-          { "data": null,
-            "render": function(data) {
-              return '<img src="' + data.gravatar + '?s=20" class="avatar" /> ' + data.author
+          {
+            "data": null,
+            "render": function (data) {
+              return '<img src="' + data.gravatar + '?s=20" class="avatar" />&nbsp;&nbsp;' + data.author
             }
           },
-          { "data": "message" },
+          {
+            "data": null,
+            "render": function (data) {
+              return '<a href="' + data.link + '" class="label label-primary">View</a>&nbsp;&nbsp;' + data.message
+            }
+          },
           { "data": "date" }
         ],
         rowCallback: function( row, data, index ) {

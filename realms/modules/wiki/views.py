@@ -83,6 +83,7 @@ def history_data(name):
         item['DT_RowId'] = item['sha']
         date = datetime.fromtimestamp(item['time'])
         item['date'] = date.strftime(current_app.config.get('DATETIME_FORMAT', '%b %d, %Y %I:%M %p'))
+        item['link'] = url_for('.commit', name=name, sha=item['sha'])
     total_records, hist_complete = page.history_cache
     if not hist_complete:
         # Force datatables to fetch more data when it gets to the end
