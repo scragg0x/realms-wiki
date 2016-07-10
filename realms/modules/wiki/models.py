@@ -1,5 +1,3 @@
-import collections
-import itertools
 import os
 import posixpath
 import re
@@ -115,53 +113,70 @@ class WikiPage(HookMixin):
         """Get page history.
 
         History can take a long time to generate for repositories with many commits.
-        This returns an iterator to avoid having to load them all at once.
+        This returns an iterator to avoid having to load them all at once, and caches
+        as it goes.
 
         :return: iter -- Iterator over dicts
 
         """
-        cache_complete = False
-        cached_revs = cache.get(self._cache_key('history')) or []
-        start_sha = None
-        if cached_revs:
-            if cached_revs[-1] == 'TAIL':
-                del cached_revs[-1]
-                cache_complete = True
-            else:
-                start_sha = cached_revs[-1]['sha']
-        for rev in cached_revs:
-            yield rev
-        if cache_complete:
-            return
+        cache_head = []
+        cache_tail = cache.get(self._cache_key('history')) or [{'_cache_missing': True}]
+        while True:
+            if not cache_tail:
+                return
+            for index, cached_rev in enumerate(cache_tail):
+                if cached_rev.get("_cache_missing"):
+                    break
+                else:
+                    yield cached_rev
+            cache_head.extend(cache_tail[:index])
+            cache_tail = cache_tail[index+1:]
+            start_sha = cached_rev.get('sha')
+            end_sha = cache_tail[0].get('sha') if cache_tail else None
+            for rev in self._iter_revs(start_sha=start_sha, end_sha=end_sha, filename=cached_rev.get('filename')):
+                cache_head.append(rev)
+                placeholder = {
+                    '_cache_missing': True,
+                    'sha': rev['sha'],
+                    'filename': rev['new_filename']
+                }
+                cache.set(self._cache_key('history'), cache_head + [placeholder] + cache_tail)
+                yield rev
+            cache.set(self._cache_key('history'), cache_head + cache_tail)
+
+    def _iter_revs(self, start_sha=None, end_sha=None, filename=None):
+        if end_sha:
+            end_sha = [end_sha]
         if not len(self.wiki.repo.open_index()):
             # Index is empty, no commits
             return
-        walker = iter(self.wiki.repo.get_walker(paths=[self.filename], include=start_sha, follow=True))
+        filename = filename or self.filename
+        walker = iter(self.wiki.repo.get_walker(paths=[filename],
+                                                include=start_sha,
+                                                exclude=end_sha,
+                                                follow=True))
         if start_sha:
             # If we are not starting from HEAD, we already have the start commit
             next(walker)
         filename = self.filename
-        try:
-            for entry in walker:
-                change_type = None
-                for change in entry.changes():
-                    if change.new.path == filename:
-                        filename = change.old.path
-                        change_type = change.type
-                        break
+        for entry in walker:
+            change_type = None
+            for change in entry.changes():
+                if change.new.path == filename:
+                    filename = change.old.path
+                    change_type = change.type
+                    break
 
-                author_name, author_email = entry.commit.author.rstrip('>').split('<')
-                r = dict(author=author_name.strip(),
-                         author_email=author_email,
-                         time=entry.commit.author_time,
-                         message=entry.commit.message,
-                         sha=entry.commit.id,
-                         type=change_type)
-                cached_revs.append(r)
-                yield r
-            cached_revs.append('TAIL')
-        finally:
-            cache.set(self._cache_key('history'), cached_revs)
+            author_name, author_email = entry.commit.author.rstrip('>').split('<')
+            r = dict(author=author_name.strip(),
+                     author_email=author_email,
+                     time=entry.commit.author_time,
+                     message=entry.commit.message,
+                     sha=entry.commit.id,
+                     type=change_type,
+                     new_filename=change.new.path,
+                     old_filename=change.old.path)
+            yield r
 
     @property
     def history_cache(self):
@@ -169,13 +184,12 @@ class WikiPage(HookMixin):
 
         :return: tuple -- (cached items, cache complete?)
         """
-        cache_complete = False
-        cached_revs = cache.get(self._cache_key('history')) or []
-        if cached_revs:
-            if cached_revs[-1] == 'TAIL':
-                del cached_revs[-1]
-                cache_complete = True
-        return len(cached_revs), cache_complete
+        cached_revs = cache.get(self._cache_key('history'))
+        if not cached_revs:
+            return 0, False
+        elif any(rev.get('_cache_missing') for rev in cached_revs):
+            return len(cached_revs) - 1, False
+        return len(cached_revs), True
 
     @property
     def partials(self):
@@ -222,9 +236,14 @@ class WikiPage(HookMixin):
 
         return username, email
 
-    def _clear_cache(self):
-        for p in ['data', 'history']:
-            cache.delete(self._cache_key(p))
+    def _invalidate_cache(self, save_history=None):
+        cache.delete(self._cache_key('data'))
+        if save_history:
+            if not save_history[0].get('_cache_missing'):
+                save_history = [{'_cache_missing': True}] + save_history
+            cache.set(self._cache_key('history'), save_history)
+        else:
+            cache.delete(self._cache_key('history'))
 
     def delete(self, username=None, email=None, message=None):
         """Delete page.
@@ -245,7 +264,7 @@ class WikiPage(HookMixin):
                                   email=email,
                                   message=message,
                                   files=[self.filename])
-        self._clear_cache()
+        self._invalidate_cache()
         return commit
 
     def rename(self, new_name, username=None, email=None, message=None):
@@ -283,11 +302,12 @@ class WikiPage(HookMixin):
                                   message=message,
                                   files=[old_filename, new_filename])
 
-        self._clear_cache()
+        old_history = cache.get(self._cache_key('history'))
+        self._invalidate_cache()
         self.name = new_name
         self.filename = new_filename
         # We need to clear the cache for the new name as well as the old
-        self._clear_cache()
+        self._invalidate_cache(save_history=old_history)
 
         return commit
 
@@ -323,7 +343,8 @@ class WikiPage(HookMixin):
                                message=message,
                                files=[self.filename])
 
-        self._clear_cache()
+        old_history = cache.get(self._cache_key('history'))
+        self._invalidate_cache(save_history=old_history)
         return ret
 
     def revert(self, commit_sha, message, username, email):
