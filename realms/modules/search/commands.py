@@ -32,4 +32,4 @@ def rebuild_index():
                     username=page.info['author'],
                     updated_on=entry['mtime'],
                     created_on=entry['ctime'])
-        search.index_wiki(name, body)
+        search.index_wiki(page.name, body)
