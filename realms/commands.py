@@ -425,7 +425,7 @@ def clear_cache():
 def test():
     """ Run tests
     """
-    for mod in [('flask.ext.testing', 'Flask-Testing'), ('nose', 'nose'), ('blinker', 'blinker')]:
+    for mod in [('flask_testing', 'Flask-Testing'), ('nose', 'nose'), ('blinker', 'blinker')]:
         if not module_exists(mod[0]):
             pip.main(['install', mod[1]])
 

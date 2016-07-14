@@ -14,7 +14,7 @@ def whoosh(app):
 
 
 def elasticsearch(app):
-    from flask.ext.elastic import Elastic
+    from flask_elastic import Elastic
     fields = app.config.get('ELASTICSEARCH_FIELDS')
     return ElasticSearch(Elastic(app), fields)
 

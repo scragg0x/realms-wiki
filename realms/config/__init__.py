@@ -139,6 +139,7 @@ class Config(object):
     DEBUG = False
     ASSETS_DEBUG = False
     SQLALCHEMY_ECHO = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     MODULES = ['wiki', 'search', 'auth']
 

@@ -1,4 +1,4 @@
-from flask.ext.sqlalchemy import DeclarativeMeta
+from flask_sqlalchemy import DeclarativeMeta
 
 from functools import wraps
 

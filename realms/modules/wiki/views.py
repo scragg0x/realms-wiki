@@ -2,7 +2,7 @@ import itertools
 import sys
 from datetime import datetime
 from flask import abort, g, render_template, request, redirect, Blueprint, flash, url_for, current_app
-from flask.ext.login import login_required, current_user
+from flask_login import login_required, current_user
 from realms.lib.util import to_canonical, remove_ext, gravatar_url
 from .models import PageNotFound
 

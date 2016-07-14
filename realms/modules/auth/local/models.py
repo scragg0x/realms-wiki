@@ -1,5 +1,5 @@
 from flask import current_app, render_template
-from flask.ext.login import logout_user, login_user
+from flask_login import logout_user, login_user
 from realms import login_manager, db
 from realms.lib.model import Model
 from ..models import BaseUser

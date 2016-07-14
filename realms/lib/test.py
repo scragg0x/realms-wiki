@@ -1,7 +1,7 @@
 import os
 import shutil
 import tempfile
-from flask.ext.testing import TestCase
+from flask_testing import TestCase
 from realms.lib.util import random_string
 from realms import create_app
 
