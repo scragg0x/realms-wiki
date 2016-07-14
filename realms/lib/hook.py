@@ -27,6 +27,9 @@ class HookMixinMeta(type):
 
         hookable = []
         for key, value in attrs.items():
+            # Disallow hooking methods which start with an underscore (allow __init__ etc. still)
+            if key.startswith('_') and not key.startswith('__'):
+                continue
             if callable(value):
                 attrs[key] = hook_func(key, value)
                 hookable.append(key)
