@@ -180,10 +180,7 @@ def create_app(config=None):
 
     db.Model = declarative_base(metaclass=HookModelMeta, cls=HookMixin)
 
-    # TODO: This caused a crash with a more recent flask. Figure out what it does.
-    # for status_code in httplib.responses:
-    #     if status_code >= 400:
-    #         app.register_error_handler(status_code, error_handler)
+    app.register_error_handler(HTTPException, error_handler)
 
     @app.before_request
     def init_g():
