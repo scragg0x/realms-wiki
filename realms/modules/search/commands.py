@@ -26,10 +26,12 @@ def rebuild_index():
             # Some non-markdown files may have issues
             continue
         # TODO add email?
+        # TODO I have concens about indexing the commit info from latest revision, see #148
+        info = next(page.history)
         body = dict(name=page.name,
                     content=page.data,
-                    message=page.info['message'],
-                    username=page.info['author'],
+                    message=info['message'],
+                    username=info['author'],
                     updated_on=entry['mtime'],
                     created_on=entry['ctime'])
         search.index_wiki(page.name, body)

@@ -6,27 +6,17 @@
     <a class="btn btn-default btn-sm compare-revisions">Compare Revisions</a>
   </p>
 
-  <table class="table table-bordered revision-tbl">
+  <table class="table table-bordered revision-tbl dataTable DTTT_selectable">
     <thead>
     <tr>
-      <th></th>
       <th>Name</th>
       <th>Revision Message</th>
       <th>Date</th>
     </tr>
     </thead>
-    {% for h in history %}
-      <tr>
-        <td class="checkbox-cell text-center">
-          {% if h.type != 'delete' %}
-          <input type="checkbox" name="versions[]" value="{{ h.sha }}" />
-          {% endif %}
-        </td>
-        <td><img src="{{ h.gravatar }}?s=20" class="avatar"/> {{ h.author }}</td>
-        <td><a href="{{ url_for('wiki.commit', name=name, sha=h.sha) }}" class='label label-primary'>View</a> {{ h.message }} </td>
-        <td>{{ h.time|datetime }}</td>
-      </tr>
-    {% endfor %}
+    <tbody>
+    <tr><td colspan="3" style="text-align: center">Loading file history...</td></tr>
+    </tbody>
   </table>
   <p>
     <a class="btn btn-default btn-sm compare-revisions">Compare Revisions</a>
@@ -34,25 +24,95 @@
 
 {% endblock %}
 
+{% block css %}
+  <style type="text/css">
+    table.dataTable td {
+      transition: background-color 0.5s linear, color 0.5s linear;
+      transition-delay: 0.1s;
+    }
+    table.dataTable tr.active td {
+      transition: background-color 0.1s linear, color 0.1s linear;
+      transition-delay: 0s
+    }
+    table.dataTable tbody tr:hover {
+      background-color: #d8d8d8 !important;
+    }
+  </style>
+{% endblock %}
+
 {% block js %}
   <script>
-    $(function(){
-      $('.revision-tbl :checkbox').change(function () {
-        var $cs=$(this).closest('.revision-tbl').find(':checkbox:checked');
-        if ($cs.length > 2) {
-          this.checked=false;
+    $(document).ready(function() {
+      var selected = [];
+      var selected_pos = [];
+
+      $('.dataTable').dataTable({
+        serverSide: true,
+        ajax: {
+          url: '{{ url_for('.history_data', name=name) }}',
+          dataSrc: function (data) {
+            $('.dataTable').data('fully_loaded', data.fully_loaded);
+            return data.data
+          }
+        },
+        ordering: false,
+        bFilter: false,
+        columns: [
+          {
+            "data": null,
+            "render": function (data) {
+              return '<img src="' + data.gravatar + '?s=20" class="avatar" />&nbsp;&nbsp;' + data.author
+            }
+          },
+          {
+            "data": null,
+            "render": function (data) {
+              return '<a href="' + data.link + '" class="label label-primary">View</a>&nbsp;&nbsp;' + data.message
+            }
+          },
+          { "data": "date" }
+        ],
+        rowCallback: function( row, data, index ) {
+            index += $('.dataTable').DataTable().page.info().start;
+            $(row).data('index', index);
+            if ( $.inArray(data.DT_RowId, selected) !== -1 ) {
+                $(row).addClass('active');
+            }
+        },
+        infoCallback: function( settings, start, end, max, total, pre ) {
+          if (!$('.dataTable').data('fully_loaded')) {
+            total += "+"
+          }
+          return "Showing " + start +" to "+ end + " of " + total + " revisions.";
         }
       });
 
+      $('.dataTable tbody').on('click', 'tr', function () {
+        var id = this.id;
+        var selected_index = $.inArray(id, selected);
+
+        if ( selected_index === -1 ) {
+            selected.push( id );
+            selected_pos.push( $(this).data('index') );
+            if ( selected.length > 2) {
+                // Only 2 selected at once
+                var shifted = selected.shift();
+                selected_pos.shift();
+                $('#' + shifted).removeClass('active');
+            }
+        } else {
+            selected.splice( selected_index, 1 );
+            selected_pos.splice( selected_index, 1);
+        }
+
+        $(this).toggleClass('active');
+      });
       $(".compare-revisions").click(function(){
-        var $cs = $('.revision-tbl').find(':checkbox:checked');
-        if ($cs.length != 2) return;
-        var revs = [];
-        $.each($cs, function(i, v){
-          revs.push(v.value);
-        });
-        revs.reverse();
-        revs = revs.join("..");
+        if (selected.length != 2) return;
+        if (selected_pos[1] > selected_pos[0]) {
+          selected.reverse()
+        }
+        revs = selected.join("..");
         location.href = "{{ config.RELATIVE_PATH }}/_compare/{{ name }}/" + revs;
       });
     });

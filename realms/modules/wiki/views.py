@@ -1,5 +1,6 @@
 import itertools
 import sys
+from datetime import datetime
 from flask import abort, g, render_template, request, redirect, Blueprint, flash, url_for, current_app
 from flask.ext.login import login_required, current_user
 from realms.lib.util import to_canonical, remove_ext, gravatar_url
@@ -64,11 +65,37 @@ def revert():
 def history(name):
     if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
         return current_app.login_manager.unauthorized()
+    return render_template('wiki/history.html', name=name)
 
-    hist = g.current_wiki.get_page(name).get_history()
-    for item in hist:
+
+@blueprint.route("/_history_data/<path:name>")
+def history_data(name):
+    """Ajax provider for paginated history data."""
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+        return current_app.login_manager.unauthorized()
+    draw = int(request.args.get('draw', 0))
+    start = int(request.args.get('start', 0))
+    length = int(request.args.get('length', 10))
+    page = g.current_wiki.get_page(name)
+    items = list(itertools.islice(page.history, start, start + length))
+    for item in items:
         item['gravatar'] = gravatar_url(item['author_email'])
-    return render_template('wiki/history.html', name=name, history=hist)
+        item['DT_RowId'] = item['sha']
+        date = datetime.fromtimestamp(item['time'])
+        item['date'] = date.strftime(current_app.config.get('DATETIME_FORMAT', '%b %d, %Y %I:%M %p'))
+        item['link'] = url_for('.commit', name=name, sha=item['sha'])
+    total_records, hist_complete = page.history_cache
+    if not hist_complete:
+        # Force datatables to fetch more data when it gets to the end
+        total_records += 1
+    return {
+        'draw': draw,
+        'recordsTotal': total_records,
+        'recordsFiltered': total_records,
+        'data': items,
+        'fully_loaded': hist_complete
+    }
+
 
 
 @blueprint.route("/_edit/<path:name>")
@@ -85,7 +112,8 @@ def edit(name):
     return render_template('wiki/edit.html',
                            name=cname,
                            content=page.data,
-                           info=page.info,
+                           # TODO: Remove this? See #148
+                           info=next(page.history),
                            sha=page.sha,
                            partials=page.partials)
 
