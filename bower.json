@@ -10,7 +10,7 @@
     "keymaster": "madrobby/keymaster",
     "ace-builds": "~1.2.3",
     "parsleyjs": "~2.3.10",
-    "marked": "~0.3.2",
+    "markdown-it": "~7.0.0",
     "js-yaml": "~3.6.0",
     "store-js": "~1.3.16",
     "bootswatch-dist": "3.3.6-flatly",

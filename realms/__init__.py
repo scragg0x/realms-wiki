@@ -231,7 +231,7 @@ assets.register('main.js',
                 'vendor/components-bootstrap/js/bootstrap.js',
                 'vendor/handlebars/handlebars.js',
                 'vendor/js-yaml/dist/js-yaml.js',
-                'vendor/marked/lib/marked.js',
+                'vendor/markdown-it/dist/markdown-it.js',
                 'js/html-sanitizer-minified.js',  # don't minify?
                 'vendor/highlightjs/highlight.pack.js',
                 'vendor/parsleyjs/dist/parsley.js',
