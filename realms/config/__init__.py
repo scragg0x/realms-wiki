@@ -23,7 +23,7 @@ class Config(object):
     BASE_URL = 'http://localhost'
     SITE_TITLE = "Realms"
 
-    # https://pythonhosted.org/Flask-SQLAlchemy/config.html#connection-uri-format
+    # http://flask-sqlalchemy.pocoo.org/config/#connection-uri-format
     DB_URI = 'sqlite:////tmp/wiki.db'
     # DB_URI = 'mysql://scott:tiger@localhost/mydatabase'
     # DB_URI = 'postgresql://scott:tiger@localhost/mydatabase'
