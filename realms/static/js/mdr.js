@@ -41,6 +41,7 @@ var metaMarked = function(src, opt, callback) {
 var markdownit = window.markdownit({
   html: true,
   linkify: true,
+  typographer: true,
   highlight: function (str, lang) {
     if (lang && hljs.getLanguage(lang)) {
       try {
