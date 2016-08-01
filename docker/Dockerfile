@@ -28,7 +28,6 @@ ENV GEVENT_RESOLVER=ares
 ENV REALMS_ENV=docker
 ENV REALMS_WIKI_PATH=/home/wiki/data/repo
 ENV REALMS_DB_URI='sqlite:////home/wiki/data/wiki.db'
-ENV REALMS_SQLALCHEMY_DATABASE_URI=${REALMS_DB_URI}
 
 RUN mkdir /home/wiki/data && touch /home/wiki/data/.a
 VOLUME /home/wiki/data
