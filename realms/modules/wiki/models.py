@@ -187,16 +187,10 @@ class WikiPage(HookMixin):
         return len(cached_revs), True
 
     @property
-    def partials(self):
-        data = self.data
-        if not data:
-            return {}
-        partials = {}
-        meta = self._get_meta(data)
-        if meta and 'import' in meta:
-            for partial_name in meta['import']:
-                partials[partial_name] = self.wiki.get_page(partial_name, sha=self.sha)
-        return partials
+    def imports(self):
+        """Names"""
+        meta = self._get_meta(self.data)
+        return meta.get('import', [])
 
     @staticmethod
     def _get_meta(content):

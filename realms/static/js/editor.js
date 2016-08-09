@@ -82,10 +82,26 @@ var deletePage = function() {
     bootbox.alert('Error deleting page!');
   });
 };
-
+var partials = {};
 var aced = new Aced({
   editor: $('#entry-markdown-content').find('.editor').attr('id'),
-  renderer: function(md) { return MDR.convert(md) },
+  renderer: function(md) {
+    var doc = metaMarked(md);
+    if ('import' in doc.meta) {
+      if (!doc.meta['import'].every(function(val) {return val in partials;})) {
+        $.ajax({
+          url: '/_partials',
+          data: {'imports': doc.meta['import']},
+          async: true,
+          dataType: 'json',
+          success: function (response) {
+            $.extend(partials, response['partials']);
+            //TODO: Force editor rerender
+          }});
+      }
+    }
+    return MDR.convert(md, partials)
+  },
   info: Commit.info,
   submit: function(content) {
     var data = {

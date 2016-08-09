@@ -1,3 +1,4 @@
+import collections
 import itertools
 import sys
 from datetime import datetime
@@ -97,7 +98,6 @@ def history_data(name):
     }
 
 
-
 @blueprint.route("/_edit/<path:name>")
 @login_required
 def edit(name):
@@ -115,7 +115,32 @@ def edit(name):
                            # TODO: Remove this? See #148
                            info=next(page.history),
                            sha=page.sha,
-                           partials=page.partials)
+                           partials=_partials(page.imports))
+
+
+def _partials(imports):
+    page_queue = collections.deque(imports)
+    partials = collections.OrderedDict()
+    while page_queue:
+        page_name = page_queue.popleft()
+        if page_name in partials:
+            continue
+        page = g.current_wiki.get_page(page_name)
+        data = page.data
+        partials[page_name] = data
+        if not data:
+            continue
+        meta = page._get_meta(data)
+        if meta and meta.get('import'):
+            page_queue.extend(meta['import'])
+    return partials
+
+
+@blueprint.route("/_partials")
+def partials():
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+        return current_app.login_manager.unauthorized()
+    return {'partials': _partials(request.args.getlist('imports[]'))}
 
 
 @blueprint.route("/_create/", defaults={'name': None})
@@ -239,6 +264,6 @@ def page(name):
     data = g.current_wiki.get_page(cname)
 
     if data:
-        return render_template('wiki/page.html', name=cname, page=data, partials=data.partials)
+        return render_template('wiki/page.html', name=cname, page=data, partials=_partials(data.imports))
     else:
         return redirect(url_for('wiki.create', name=cname))

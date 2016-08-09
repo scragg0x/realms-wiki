@@ -58,11 +58,12 @@ var MDR = {
   parse: function(md){
     return marked(md, { renderer: this.renderer });
   },
-  convert: function(md, sanitize) {
+  convert: function(md, partials, sanitize) {
     if (this.sanitize !== null) {
       sanitize = this.sanitize;
     }
     this.md = md;
+    this.partials = partials;
     this.processMeta();
     try {
       var html = this.parse(this.md);
@@ -93,7 +94,15 @@ var MDR = {
   processMeta: function() {
     var doc = metaMarked(this.md);
     this.md = doc.md;
-    this.meta = doc.meta;
+    var meta = this.meta = {};
+    if (this.partials) {
+      $.each(this.partials, function(key, value) {
+        var doc = metaMarked(value);
+        Handlebars.registerPartial(key, doc.md);
+        $.extend(meta, doc.meta);
+      })
+    }
+    $.extend(this.meta, doc.meta);
     if (this.meta) {
       try {
         var template = Handlebars.compile(this.md);
