@@ -41,7 +41,7 @@ class WikiTest(WikiBaseTest):
         self.assert_200(rv)
 
         self.assert_context('name', 'test')
-        eq_(self.get_context_variable('page').info['message'], 'test message')
+        eq_(next(self.get_context_variable('page').history)['message'], 'test message')
         eq_(self.get_context_variable('page').data, 'testing')
 
     def test_history(self):
