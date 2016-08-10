@@ -189,7 +189,7 @@ class WikiPage(HookMixin):
     @property
     def imports(self):
         """Names"""
-        meta = self._get_meta(self.data)
+        meta = self._get_meta(self.data) or {}
         return meta.get('import', [])
 
     @staticmethod

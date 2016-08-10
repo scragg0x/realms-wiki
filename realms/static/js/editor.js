@@ -87,17 +87,15 @@ var aced = new Aced({
   editor: $('#entry-markdown-content').find('.editor').attr('id'),
   renderer: function(md) {
     var doc = metaMarked(md);
-    if ('import' in doc.meta) {
+    if (doc.meta && 'import' in doc.meta) {
+      // If we don't have all the imports loaded as partials, get them from server
       if (!doc.meta['import'].every(function(val) {return val in partials;})) {
-        $.ajax({
-          url: '/_partials',
-          data: {'imports': doc.meta['import']},
-          async: true,
-          dataType: 'json',
-          success: function (response) {
+        $.getJSON('/partials', {'imports': doc.meta['import']}, function (response) {
             $.extend(partials, response['partials']);
-            //TODO: Force editor rerender
-          }});
+            // TODO: Better way to force update of the preview here than this fake signal?
+            aced.editor.session.doc._signal('change',
+              {'action': 'insert', 'lines': [''], 'start': {'row': 0}, 'end': {'row': 0}});
+          });
       }
     }
     return MDR.convert(md, partials)
