@@ -82,6 +82,7 @@ var deletePage = function() {
     bootbox.alert('Error deleting page!');
   });
 };
+var last_imports = '';
 var partials = [];
 var aced = new Aced({
   editor: $('#entry-markdown-content').find('.editor').attr('id'),
@@ -89,8 +90,8 @@ var aced = new Aced({
     var doc = metaMarked(md);
     if (doc.meta && 'import' in doc.meta) {
       // If the imports have changed, refresh them from the server
-      if (partials.length < doc.meta['import'].length ||
-        !doc.meta['import'].every(function(impname, index) {return partials[partials.length-index-1][0] == impname})) {
+      if (doc.meta['import'].toString() != last_imports) {
+        last_imports = doc.meta['import'].toString();
         $.getJSON('/_partials', {'imports': doc.meta['import']}, function (response) {
             partials = response['partials'];
             // TODO: Better way to force update of the preview here than this fake signal?
