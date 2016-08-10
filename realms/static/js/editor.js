@@ -82,19 +82,20 @@ var deletePage = function() {
     bootbox.alert('Error deleting page!');
   });
 };
-var partials = {};
+var partials = [];
 var aced = new Aced({
   editor: $('#entry-markdown-content').find('.editor').attr('id'),
   renderer: function(md) {
     var doc = metaMarked(md);
     if (doc.meta && 'import' in doc.meta) {
-      // If we don't have all the imports loaded as partials, get them from server
-      if (!doc.meta['import'].every(function(val) {return val in partials;})) {
-        $.getJSON('/partials', {'imports': doc.meta['import']}, function (response) {
-            $.extend(partials, response['partials']);
+      // If the imports have changed, refresh them from the server
+      if (partials.length < doc.meta['import'].length ||
+        !doc.meta['import'].every(function(impname, index) {return partials[partials.length-index-1][0] == impname})) {
+        $.getJSON('/_partials', {'imports': doc.meta['import']}, function (response) {
+            partials = response['partials'];
             // TODO: Better way to force update of the preview here than this fake signal?
             aced.editor.session.doc._signal('change',
-              {'action': 'insert', 'lines': [''], 'start': {'row': 0}, 'end': {'row': 0}});
+              {'action': 'insert', 'lines': [], 'start': {'row': 0}, 'end': {'row': 0}});
           });
       }
     }

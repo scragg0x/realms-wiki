@@ -96,9 +96,9 @@ var MDR = {
     this.md = doc.md;
     var meta = this.meta = {};
     if (this.partials) {
-      $.each(this.partials, function(key, value) {
-        var doc = metaMarked(value);
-        Handlebars.registerPartial(key, doc.md);
+      $.each(this.partials, function(index, item) {
+        var doc = metaMarked(item[1]);
+        Handlebars.registerPartial(item[0], doc.md);
         $.extend(meta, doc.meta);
       })
     }

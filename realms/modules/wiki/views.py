@@ -114,8 +114,7 @@ def edit(name):
                            content=page.data,
                            # TODO: Remove this? See #148
                            info=next(page.history),
-                           sha=page.sha,
-                           partials=_partials(page.imports))
+                           sha=page.sha)
 
 
 def _partials(imports):
@@ -126,14 +125,14 @@ def _partials(imports):
         if page_name in partials:
             continue
         page = g.current_wiki.get_page(page_name)
-        data = page.data
-        partials[page_name] = data
-        if not data:
+        try:
+            partials[page_name] = page.data
+        except KeyError:
+            partials[page_name] = "`Error importing wiki page '{0}'`".format(page_name)
             continue
-        meta = page._get_meta(data)
-        if meta and meta.get('import'):
-            page_queue.extend(meta['import'])
-    return partials
+        page_queue.extend(page.imports)
+    # We want to retain the order (and reverse it) so that combining metadata from the imports works
+    return list(reversed(partials.items()))
 
 
 @blueprint.route("/_partials")
