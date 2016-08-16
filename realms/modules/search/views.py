@@ -1,7 +1,7 @@
 from flask import render_template, request, Blueprint
 from realms import search as search_engine
 
-blueprint = Blueprint('search', __name__)
+blueprint = Blueprint('search', __name__, template_folder='templates')
 
 
 @blueprint.route('/_search')

@@ -6,7 +6,8 @@ from flask.ext.login import login_required, current_user
 from realms.lib.util import to_canonical, remove_ext, gravatar_url
 from .models import PageNotFound
 
-blueprint = Blueprint('wiki', __name__)
+blueprint = Blueprint('wiki', __name__, template_folder='templates',
+                      static_folder='static', static_url_path='/static/wiki')
 
 
 @blueprint.route("/_commit/<sha>/<path:name>")
