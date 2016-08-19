@@ -1,9 +1,12 @@
+from __future__ import absolute_import
+
 import json
 import os
 import sys
-from urlparse import urlparse
 
-from realms.lib.util import in_vagrant
+from six.moves.urllib.parse import urlparse
+
+from ..lib.util import in_vagrant
 
 
 class Config(object):

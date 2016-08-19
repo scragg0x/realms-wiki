@@ -1,8 +1,11 @@
+from __future__ import absolute_import
+
 import re
 import sys
 
 from flask import g, current_app
-from realms.lib.util import filename_to_cname
+
+from ...lib.util import filename_to_cname
 
 
 def simple(app):

@@ -1,6 +1,9 @@
-from realms import login_manager
+from __future__ import absolute_import
+
 from flask import request, flash, redirect
 from flask_login import login_url
+
+from ... import login_manager
 
 modules = set()
 

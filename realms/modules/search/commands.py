@@ -1,7 +1,10 @@
+from __future__ import absolute_import
+
 import click
 from flask import current_app
-from realms import search, cli_group
-from realms.modules.wiki.models import Wiki
+
+from ... import search, cli_group
+from ..wiki.models import Wiki
 
 
 @cli_group(short_help="Search Module")

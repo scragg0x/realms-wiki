@@ -1,7 +1,11 @@
+from __future__ import absolute_import
+
 import os
 import shutil
 import tempfile
+
 from flask_testing import TestCase
+
 from realms.lib.util import random_string
 from realms import create_app
 

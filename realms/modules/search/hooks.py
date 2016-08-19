@@ -1,5 +1,7 @@
-from realms.modules.wiki.models import WikiPage
-from realms import search
+from __future__ import absolute_import
+
+from ..wiki.models import WikiPage
+from ... import search
 
 
 @WikiPage.after('write')

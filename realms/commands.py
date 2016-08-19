@@ -1,14 +1,18 @@
-from realms import config, create_app, db, __version__, cli, cache
-from realms.lib.util import random_string, in_virtualenv, green, yellow, red
-from subprocess import call, Popen
-from multiprocessing import cpu_count
-import click
+from __future__ import absolute_import
+
 import json
 import sys
 import os
-import pip
 import time
 import subprocess
+from subprocess import call, Popen
+from multiprocessing import cpu_count
+
+import click
+import pip
+
+from . import config, create_app, db, __version__, cli, cache
+from .lib.util import random_string, in_virtualenv, green, yellow, red
 
 config = config.conf
 

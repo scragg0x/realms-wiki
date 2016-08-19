@@ -1,11 +1,15 @@
+from __future__ import absolute_import
+
+from hashlib import sha256
+
 from flask import current_app, render_template
 from flask_login import logout_user, login_user
+from itsdangerous import URLSafeSerializer, BadSignature
+
 from realms import login_manager, db
 from realms.lib.model import Model
 from ..models import BaseUser
 from .forms import LoginForm
-from itsdangerous import URLSafeSerializer, BadSignature
-from hashlib import sha256
 
 
 @login_manager.token_loader

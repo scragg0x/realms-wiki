@@ -1,7 +1,11 @@
+from __future__ import absolute_import
+
 import json
-from sqlalchemy import not_, and_
 from datetime import datetime
-from realms import db
+
+from sqlalchemy import not_, and_
+
+from .. import db
 
 
 class Model(db.Model):

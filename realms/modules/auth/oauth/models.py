@@ -1,8 +1,10 @@
+from __future__ import absolute_import
+
 from flask import session
 from flask_login import login_user
 from flask_oauthlib.client import OAuth
 
-from realms import config
+from .... import config
 from ..models import BaseUser
 
 config = config.conf

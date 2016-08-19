@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import functools
 import sys
 
@@ -9,8 +11,10 @@ sys.setdefaultencoding('utf-8')
 import base64
 import time
 import json
-import httplib
 import traceback
+import six.moves.http_client as httplib
+from functools import update_wrapper
+
 import click
 from flask import Flask, request, render_template, url_for, redirect, g
 from flask_cache import Cache
@@ -18,7 +22,6 @@ from flask_login import LoginManager, current_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_assets import Environment, Bundle
 from flask_ldap_login import LDAPLoginManager
-from functools import update_wrapper
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 from sqlalchemy.ext.declarative import declarative_base

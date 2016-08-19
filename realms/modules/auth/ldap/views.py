@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 from flask import current_app, request, redirect, Blueprint, flash, url_for, session
 from ..ldap.models import User
+=======
+from __future__ import absolute_import
+
+from flask import current_app, request, redirect, Blueprint, flash, url_for
+>>>>>>> systematic use of `from __future__ import absolute_import`. it eliminates `import NAME` confusion with very common names (eg. `import ldap` is very ambiguous: can be a ldap module from realms-wiki, a ldap module from flask-ldap-login, or `python-ldap` module.
 from flask_ldap_login import LDAPLoginForm
+
+from .models import User
 
 blueprint = Blueprint('auth.ldap', __name__)
 
