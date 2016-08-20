@@ -11,8 +11,8 @@ from multiprocessing import cpu_count
 import click
 import pip
 
-from . import config, create_app, db, __version__, cli, cache
-from .lib.util import random_string, in_virtualenv, green, yellow, red
+from realms import config, create_app, db, __version__, cli, cache
+from realms.lib.util import random_string, in_virtualenv, green, yellow, red
 
 config = config.conf
 

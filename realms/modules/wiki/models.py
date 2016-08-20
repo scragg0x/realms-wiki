@@ -9,9 +9,9 @@ import yaml
 from dulwich.object_store import tree_lookup_path
 from dulwich.repo import Repo, NotGitRepository
 
-from ...lib.util import cname_to_filename, filename_to_cname
-from ... import cache
-from ...lib.hook import HookMixin
+from realms import cache
+from realms.lib.hook import HookMixin
+from realms.lib.util import cname_to_filename, filename_to_cname
 
 
 class PageNotFound(Exception):

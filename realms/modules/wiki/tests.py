@@ -5,8 +5,8 @@ import json
 from nose.tools import *
 from flask import url_for
 
-from ...lib.util import cname_to_filename, filename_to_cname
-from ...lib.test import BaseTest
+from realms.lib.util import cname_to_filename, filename_to_cname
+from realms.lib.test import BaseTest
 
 
 class WikiBaseTest(BaseTest):

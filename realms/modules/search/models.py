@@ -5,7 +5,7 @@ import sys
 
 from flask import g, current_app
 
-from ...lib.util import filename_to_cname
+from realms.lib.util import filename_to_cname
 
 
 def simple(app):

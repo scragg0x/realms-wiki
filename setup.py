@@ -1,5 +1,5 @@
-from setuptools import setup, find_packages
 import os
+from setuptools import setup, find_packages
 
 if os.environ.get('USER', '') == 'vagrant':
     del os.link

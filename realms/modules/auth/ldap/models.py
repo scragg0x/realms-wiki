@@ -5,7 +5,7 @@ from flask_login import login_user
 from flask_ldap_login import LDAPLoginForm
 
 from realms import ldap
-from ..models import BaseUser
+from realms.modules.auth.models import BaseUser
 
 
 users = {}

@@ -1,13 +1,12 @@
 from __future__ import absolute_import
 
-import functools
 import sys
-
 # Set default encoding to UTF-8
 reload(sys)
 # noinspection PyUnresolvedReferences
 sys.setdefaultencoding('utf-8')
 
+import functools
 import base64
 import time
 import json
@@ -26,11 +25,11 @@ from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 from sqlalchemy.ext.declarative import declarative_base
 
-from .modules.search.models import Search
-from .lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
-from .lib.hook import HookModelMeta, HookMixin
-from .lib.util import is_su, in_virtualenv
-from .version import __version__
+from realms.modules.search.models import Search
+from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
+from realms.lib.hook import HookModelMeta, HookMixin
+from realms.lib.util import is_su, in_virtualenv
+from realms.version import __version__
 
 
 class Application(Flask):

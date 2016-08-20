@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from flask import current_app, render_template, request, redirect, Blueprint, flash, url_for, session
 from flask_login import logout_user
 
-from realms.modules.auth.models import Auth
+from .models import Auth
 
 
 blueprint = Blueprint('auth', __name__, template_folder='templates')

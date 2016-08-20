@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from ... import assets
+from realms import assets
 
 assets.register('editor.js',
                 'vendor/store-js/store.js',

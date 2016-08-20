@@ -4,9 +4,10 @@ import json
 import os
 import sys
 
+# noinspection PyUnresolvedReferences
 from six.moves.urllib.parse import urlparse
 
-from ..lib.util import in_vagrant
+from realms.lib.util import in_vagrant
 
 
 class Config(object):

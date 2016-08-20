@@ -8,7 +8,7 @@ from itsdangerous import URLSafeSerializer, BadSignature
 
 from realms import login_manager, db
 from realms.lib.model import Model
-from ..models import BaseUser
+from realms.modules.auth.models import BaseUser
 from .forms import LoginForm
 
 

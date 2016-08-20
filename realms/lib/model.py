@@ -5,7 +5,7 @@ from datetime import datetime
 
 from sqlalchemy import not_, and_
 
-from .. import db
+from realms import db
 
 
 class Model(db.Model):
