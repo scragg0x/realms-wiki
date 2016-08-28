@@ -44,7 +44,7 @@ setup(name='realms-wiki',
           'markdown2==2.3.1',
           'python-ldap==2.4.22',
           'simplejson==3.6.3',
-          'six=1.10.0'
+          'six==1.10.0'
       ],
       entry_points={
           'console_scripts': [
