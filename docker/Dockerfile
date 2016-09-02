@@ -6,7 +6,7 @@ RUN    apt-get install -y software-properties-common python-software-properties 
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN ln -s /usr/bin/nodejs /usr/bin/node && \
-    npm install -g bower
+    npm install -g bower clean-css
 
 RUN useradd -ms /bin/bash wiki
 
@@ -44,4 +44,3 @@ CMD . .venv/bin/activate && \
         --bind 0.0.0.0:5000 \
         --chdir /home/wiki/realms-wiki \
         'realms:create_app()'
-
