@@ -1,5 +1,5 @@
 from flask import current_app, render_template, request, redirect, Blueprint, flash, url_for
-from flask.ext.login import logout_user
+from flask_login import logout_user
 from realms.modules.auth.models import Auth
 
 blueprint = Blueprint('auth', __name__, template_folder='templates')
