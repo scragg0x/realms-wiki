@@ -1,6 +1,6 @@
 from realms import login_manager
 from flask import request, flash, redirect
-from flask.ext.login import login_url
+from flask_login import login_url
 
 modules = set()
 
