@@ -23,7 +23,9 @@ def commit(name, sha):
     if not data:
         abort(404)
 
-    return render_template('wiki/page.html', name=name, page=data, commit=sha)
+    partials = _partials(data.imports, sha=sha)
+
+    return render_template('wiki/page.html', name=name, page=data, commit=sha, partials=partials)
 
 
 @blueprint.route(r"/_compare/<path:name>/<regex('\w+'):fsha><regex('\.{2,3}'):dots><regex('\w+'):lsha>")
@@ -118,14 +120,14 @@ def edit(name):
                            sha=page.sha)
 
 
-def _partials(imports):
+def _partials(imports, sha='HEAD'):
     page_queue = collections.deque(imports)
     partials = collections.OrderedDict()
     while page_queue:
         page_name = page_queue.popleft()
         if page_name in partials:
             continue
-        page = g.current_wiki.get_page(page_name)
+        page = g.current_wiki.get_page(page_name, sha=sha)
         try:
             partials[page_name] = page.data
         except KeyError:

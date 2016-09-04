@@ -23,7 +23,7 @@
 {% block js %}
   <script>
     $(function(){
-      $("#page-content").html(MDR.convert({{ page.data|tojson|safe }}, {{ partials|tojson|safe }})).show();
+      $("#page-content").html(MDR.convert({{ page.data|tojson|safe }}, {{ partials|d([])|tojson|safe }})).show();
     });
   </script>
 {% endblock %}
