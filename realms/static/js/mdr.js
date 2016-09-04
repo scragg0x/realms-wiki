@@ -52,6 +52,14 @@ var markdownit = window.markdownit({
 
     return ''; // use external default escaping
   }
+}).use(markdownItAnchor, {
+  level: 1,
+  // slugify: string => string,
+  permalink: false,
+  // renderPermalink: (slug, opts, state, permalink) => {},
+  permalinkClass: 'header-anchor',
+  permalinkSymbol: '¶',
+  permalinkBefore: false
 });
 
 // Markdown Renderer
