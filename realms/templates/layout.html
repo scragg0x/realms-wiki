@@ -58,7 +58,7 @@
               </div>
             </form>
             </li>
-            {% if current_user.is_authenticated() %}
+            {% if current_user.is_authenticated %}
               <li class="dropdown user-avatar">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                 <span>
@@ -72,7 +72,7 @@
                 </ul>
                 </li>
             {% else %}
-              <li><a href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i> &nbsp;Login</a></li>
+              <li><a href="{{ url_for('auth.login', next=request.path) }}"><i class="fa fa-user"></i> &nbsp;Login</a></li>
               {% if config.REGISTRATION_ENABLED and 'auth.local' in config.MODULES %}
                 <li><a href="{{ url_for('auth.local.register') }}"><i class="fa fa-users"></i> &nbsp;Register</a></li>
               {% endif %}
@@ -109,7 +109,7 @@
       {% endfor %}
 
       var User = {};
-      User.is_authenticated = {{ current_user.is_authenticated()|tojson }};
+      User.is_authenticated = {{ current_user.is_authenticated|tojson }};
       {% for attr in ['username', 'email'] %}
         User.{{ attr }} = {{ current_user[attr]|tojson }};
       {% endfor %}

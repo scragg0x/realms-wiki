@@ -6,7 +6,7 @@
 
     var PAGE_NAME = '{{ name }}';
   </script>
-  <script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+  <script src="{{ url_for('wiki.static', filename='js/editor.js') }}"></script>
 
   {% if partials %}
     <script>
@@ -25,7 +25,7 @@
   {% endif %}
 
   {% if config.get('COLLABORATION') %}
-    <script src="{{ url_for('static', filename='js/collaboration/main.js') }}"></script>
+    <script src="{{ url_for('wiki.static', filename='js/collaboration/main.js') }}"></script>
   {% endif %}
 
   {% if config.get('COLLABORATION') == 'firepad' %}
@@ -34,11 +34,11 @@
     </script>
     <script src="https://cdn.firebase.com/js/client/1.0.17/firebase.js"></script>
     <script src="https://cdn.firebase.com/libs/firepad/1.0.0/firepad.min.js"></script>
-    <script src="{{ url_for('static', filename='js/collaboration/firepad.js') }}"></script>
+    <script src="{{ url_for('wiki.static', filename='js/collaboration/firepad.js') }}"></script>
   {% endif %}
 
   {% if config.get('COLLABORATION') == 'togetherjs' %}
-    <script src="{{ url_for('static', filename='js/collaboration/togetherjs.js') }}"></script>
+    <script src="{{ url_for('wiki.static', filename='js/collaboration/togetherjs.js') }}"></script>
     <script src="https://togetherjs.com/togetherjs-min.js"></script>
   {% endif %}
 

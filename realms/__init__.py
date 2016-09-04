@@ -13,10 +13,10 @@ import httplib
 import traceback
 import click
 from flask import Flask, request, render_template, url_for, redirect, g
-from flask.ext.cache import Cache
-from flask.ext.login import LoginManager, current_user
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.assets import Environment, Bundle
+from flask_cache import Cache
+from flask_login import LoginManager, current_user
+from flask_sqlalchemy import SQLAlchemy
+from flask_assets import Environment, Bundle
 from flask_ldap_login import LDAPLoginManager
 from functools import update_wrapper
 from werkzeug.routing import BaseConverter
@@ -180,9 +180,7 @@ def create_app(config=None):
 
     db.Model = declarative_base(metaclass=HookModelMeta, cls=HookMixin)
 
-    for status_code in httplib.responses:
-        if status_code >= 400:
-            app.register_error_handler(status_code, error_handler)
+    app.register_error_handler(HTTPException, error_handler)
 
     @app.before_request
     def init_g():

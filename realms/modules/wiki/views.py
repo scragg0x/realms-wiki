@@ -2,16 +2,17 @@ import itertools
 import sys
 from datetime import datetime
 from flask import abort, g, render_template, request, redirect, Blueprint, flash, url_for, current_app
-from flask.ext.login import login_required, current_user
+from flask_login import login_required, current_user
 from realms.lib.util import to_canonical, remove_ext, gravatar_url
 from .models import PageNotFound
 
-blueprint = Blueprint('wiki', __name__)
+blueprint = Blueprint('wiki', __name__, template_folder='templates',
+                      static_folder='static', static_url_path='/static/wiki')
 
 
 @blueprint.route("/_commit/<sha>/<path:name>")
 def commit(name, sha):
-    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous:
         return current_app.login_manager.unauthorized()
 
     cname = to_canonical(name)
@@ -26,7 +27,7 @@ def commit(name, sha):
 
 @blueprint.route(r"/_compare/<path:name>/<regex('\w+'):fsha><regex('\.{2,3}'):dots><regex('\w+'):lsha>")
 def compare(name, fsha, dots, lsha):
-    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous:
         return current_app.login_manager.unauthorized()
 
     diff = g.current_wiki.get_page(name, sha=lsha).compare(fsha)
@@ -41,7 +42,7 @@ def revert():
     commit = request.form.get('commit')
     message = request.form.get('message', "Reverting %s" % cname)
 
-    if not current_app.config.get('ALLOW_ANON') and current_user.is_anonymous():
+    if not current_app.config.get('ALLOW_ANON') and current_user.is_anonymous:
         return dict(error=True, message="Anonymous posting not allowed"), 403
 
     if cname in current_app.config.get('WIKI_LOCKED_PAGES'):
@@ -63,7 +64,7 @@ def revert():
 
 @blueprint.route("/_history/<path:name>")
 def history(name):
-    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous:
         return current_app.login_manager.unauthorized()
     return render_template('wiki/history.html', name=name)
 
@@ -165,7 +166,7 @@ def _tree_index(items, path=""):
 @blueprint.route("/_index", defaults={"path": ""})
 @blueprint.route("/_index/<path:path>")
 def index(path):
-    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous:
         return current_app.login_manager.unauthorized()
 
     items = g.current_wiki.get_index()
@@ -186,7 +187,7 @@ def page_write(name):
     if not cname:
         return dict(error=True, message="Invalid name")
 
-    if not current_app.config.get('ALLOW_ANON') and current_user.is_anonymous():
+    if not current_app.config.get('ALLOW_ANON') and current_user.is_anonymous:
         return dict(error=True, message="Anonymous posting not allowed"), 403
 
     if request.method == 'POST':
@@ -229,7 +230,7 @@ def page_write(name):
 @blueprint.route("/", defaults={'name': 'home'})
 @blueprint.route("/<path:name>")
 def page(name):
-    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous:
         return current_app.login_manager.unauthorized()
 
     cname = to_canonical(name)
