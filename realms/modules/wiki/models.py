@@ -2,11 +2,9 @@ import os
 import posixpath
 import re
 import ghdiff
-import gittle.utils
 import yaml
-from gittle import Gittle
 from dulwich.object_store import tree_lookup_path
-from dulwich.repo import NotGitRepository
+from dulwich.repo import Repo, NotGitRepository
 from realms.lib.util import cname_to_filename, filename_to_cname
 from realms import cache
 from realms.lib.hook import HookMixin
@@ -23,17 +21,13 @@ class Wiki(HookMixin):
     default_committer_name = 'Anon'
     default_committer_email = 'anon@anon.anon'
     index_page = 'home'
-    gittle = None
     repo = None
 
     def __init__(self, path):
         try:
-            self.gittle = Gittle(path)
+            self.repo = Repo(path)
         except NotGitRepository:
-            self.gittle = Gittle.init(path)
-
-        # Dulwich repo
-        self.repo = self.gittle.repo
+            self.repo = Repo.init(path, mkdir=True)
 
         self.path = path
 
@@ -46,20 +40,20 @@ class Wiki(HookMixin):
         :param name: Committer name
         :param email: Committer email
         :param message: Commit message
-        :param files: list of file names that should be committed
+        :param files: list of file names that will be staged for commit
         :return:
         """
-        # Dulwich and gittle seem to want us to encode ourselves at the moment. see #152
         if isinstance(name, unicode):
             name = name.encode('utf-8')
         if isinstance(email, unicode):
             email = email.encode('utf-8')
         if isinstance(message, unicode):
             message = message.encode('utf-8')
-        return self.gittle.commit(name=name,
-                                  email=email,
-                                  message=message,
-                                  files=files)
+        author = committer = "%s <%s>" % (name, email)
+        self.repo.stage(files)
+        return self.repo.do_commit(message=message,
+                                   committer=committer,
+                                   author=author)
 
     def get_page(self, name, sha='HEAD'):
         """Get page data, partials, commit info.
@@ -104,52 +98,93 @@ class WikiPage(HookMixin):
         if cached:
             return cached
 
-        data = self.wiki.gittle.get_commit_files(self.sha, paths=[self.filename]).get(self.filename).get('data')
+        mode, sha = tree_lookup_path(self.wiki.repo.get_object, self.wiki.repo[self.sha].tree, self.filename)
+        data = self.wiki.repo[sha].data
         cache.set(cache_key, data)
         return data
 
     @property
-    def info(self):
-        cache_key = self._cache_key('info')
-        cached = cache.get(cache_key)
-        if cached:
-            return cached
-
-        info = self.get_history(limit=1)[0]
-        cache.set(cache_key, info)
-        return info
-
-    def get_history(self, limit=100):
+    def history(self):
         """Get page history.
 
-        :param limit: Limit history size.
-        :return: list -- List of dicts
+        History can take a long time to generate for repositories with many commits.
+        This returns an iterator to avoid having to load them all at once, and caches
+        as it goes.
+
+        :return: iter -- Iterator over dicts
 
         """
+        cache_head = []
+        cache_tail = cache.get(self._cache_key('history')) or [{'_cache_missing': True}]
+        while True:
+            if not cache_tail:
+                return
+            for index, cached_rev in enumerate(cache_tail):
+                if cached_rev.get("_cache_missing"):
+                    break
+                else:
+                    yield cached_rev
+            cache_head.extend(cache_tail[:index])
+            cache_tail = cache_tail[index+1:]
+            start_sha = cached_rev.get('sha')
+            end_sha = cache_tail[0].get('sha') if cache_tail else None
+            for rev in self._iter_revs(start_sha=start_sha, end_sha=end_sha, filename=cached_rev.get('filename')):
+                cache_head.append(rev)
+                placeholder = {
+                    '_cache_missing': True,
+                    'sha': rev['sha'],
+                    'filename': rev['new_filename']
+                }
+                cache.set(self._cache_key('history'), cache_head + [placeholder] + cache_tail)
+                yield rev
+            cache.set(self._cache_key('history'), cache_head + cache_tail)
+
+    def _iter_revs(self, start_sha=None, end_sha=None, filename=None):
+        if end_sha:
+            end_sha = [end_sha]
         if not len(self.wiki.repo.open_index()):
             # Index is empty, no commits
-            return []
-
-        versions = []
-
-        walker = self.wiki.repo.get_walker(paths=[self.filename], max_entries=limit)
+            return
+        filename = filename or self.filename
+        walker = iter(self.wiki.repo.get_walker(paths=[filename],
+                                                include=start_sha,
+                                                exclude=end_sha,
+                                                follow=True))
+        if start_sha:
+            # If we are not starting from HEAD, we already have the start commit
+            next(walker)
+        filename = self.filename
         for entry in walker:
             change_type = None
             for change in entry.changes():
-                if change.old.path == self.filename:
+                if change.new.path == filename:
+                    filename = change.old.path
                     change_type = change.type
-                elif change.new.path == self.filename:
-                    change_type = change.type
-            author_name, author_email = entry.commit.author.rstrip('>').split('<')
-            versions.append(dict(
-                author=author_name.strip(),
-                author_email=author_email,
-                time=entry.commit.author_time,
-                message=entry.commit.message,
-                sha=entry.commit.id,
-                type=change_type))
+                    break
 
-        return versions
+            author_name, author_email = entry.commit.author.rstrip('>').split('<')
+            r = dict(author=author_name.strip(),
+                     author_email=author_email,
+                     time=entry.commit.author_time,
+                     message=entry.commit.message,
+                     sha=entry.commit.id,
+                     type=change_type,
+                     new_filename=change.new.path,
+                     old_filename=change.old.path)
+            yield r
+
+    @property
+    def history_cache(self):
+        """Get info about the history cache.
+
+        :return: tuple -- (cached items, cache complete?)
+        """
+        cached_revs = cache.get(self._cache_key('history'))
+        if not cached_revs:
+            return 0, False
+        elif any(rev.get('_cache_missing') for rev in cached_revs):
+            return len(cached_revs) - 1, False
+        return len(cached_revs), True
 
     @property
     def partials(self):
@@ -196,8 +231,14 @@ class WikiPage(HookMixin):
 
         return username, email
 
-    def _clear_cache(self):
-        cache.delete_many(*(self._cache_key(p) for p in ['data', 'info']))
+    def _invalidate_cache(self, save_history=None):
+        cache.delete(self._cache_key('data'))
+        if save_history:
+            if not save_history[0].get('_cache_missing'):
+                save_history = [{'_cache_missing': True}] + save_history
+            cache.set(self._cache_key('history'), save_history)
+        else:
+            cache.delete(self._cache_key('history'))
 
     def delete(self, username=None, email=None, message=None):
         """Delete page.
@@ -211,14 +252,12 @@ class WikiPage(HookMixin):
         if not message:
             message = "Deleted %s" % self.name
 
-        # gittle.rm won't actually remove the file, have to do it ourselves
         os.remove(os.path.join(self.wiki.path, self.filename))
-        self.wiki.gittle.rm(self.filename)
         commit = self.wiki.commit(name=username,
                                   email=email,
                                   message=message,
                                   files=[self.filename])
-        self._clear_cache()
+        self._invalidate_cache()
         return commit
 
     def rename(self, new_name, username=None, email=None, message=None):
@@ -232,7 +271,7 @@ class WikiPage(HookMixin):
         """
         assert self.sha == 'HEAD'
         old_filename, new_filename = self.filename, cname_to_filename(new_name)
-        if old_filename not in self.wiki.gittle.index:
+        if old_filename not in self.wiki.repo.open_index():
             # old doesn't exist
             return None
         elif old_filename == new_filename:
@@ -247,29 +286,25 @@ class WikiPage(HookMixin):
             message = "Moved %s to %s" % (self.name, new_name)
 
         os.rename(os.path.join(self.wiki.path, old_filename), os.path.join(self.wiki.path, new_filename))
-
-        self.wiki.gittle.add(new_filename)
-        self.wiki.gittle.rm(old_filename)
-
         commit = self.wiki.commit(name=username,
                                   email=email,
                                   message=message,
                                   files=[old_filename, new_filename])
 
-        self._clear_cache()
+        old_history = cache.get(self._cache_key('history'))
+        self._invalidate_cache()
         self.name = new_name
         self.filename = new_filename
         # We need to clear the cache for the new name as well as the old
-        self._clear_cache()
+        self._invalidate_cache(save_history=old_history)
 
         return commit
 
-    def write(self, content, message=None, create=False, username=None, email=None):
+    def write(self, content, message=None, username=None, email=None):
         """Write page to git repo
 
         :param content: Content of page.
         :param message: Commit message.
-        :param create: Perform git add operation?
         :param username: Commit Name.
         :param email: Commit Email.
         :return: Git commit sha1.
@@ -283,9 +318,6 @@ class WikiPage(HookMixin):
         with open(self.wiki.path + "/" + self.filename, 'w') as f:
             f.write(content)
 
-        if create:
-            self.wiki.gittle.add(self.filename)
-
         if not message:
             message = "Updated %s" % self.name
 
@@ -296,7 +328,8 @@ class WikiPage(HookMixin):
                                message=message,
                                files=[self.filename])
 
-        self._clear_cache()
+        old_history = cache.get(self._cache_key('history'))
+        self._invalidate_cache(save_history=old_history)
         return ret
 
     def revert(self, commit_sha, message, username, email):
@@ -315,8 +348,7 @@ class WikiPage(HookMixin):
             raise PageNotFound('Commit not found')
 
         if not message:
-            commit_info = gittle.utils.git.commit_info(self.wiki.gittle[commit_sha.encode('latin-1')])
-            message = commit_info['message']
+            message = "Revert '%s' to %s" % (self.name, commit_sha[:7])
 
         return self.write(new_page.data, message=message, username=username, email=email)
 

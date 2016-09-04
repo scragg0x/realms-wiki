@@ -6,7 +6,7 @@ RUN    apt-get install -y software-properties-common python-software-properties 
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN ln -s /usr/bin/nodejs /usr/bin/node && \
-    npm install -g bower
+    npm install -g bower clean-css
 
 RUN useradd -ms /bin/bash wiki
 
@@ -28,7 +28,6 @@ ENV GEVENT_RESOLVER=ares
 ENV REALMS_ENV=docker
 ENV REALMS_WIKI_PATH=/home/wiki/data/repo
 ENV REALMS_DB_URI='sqlite:////home/wiki/data/wiki.db'
-ENV REALMS_SQLALCHEMY_DATABASE_URI=${REALMS_DB_URI}
 
 RUN mkdir /home/wiki/data && touch /home/wiki/data/.a
 VOLUME /home/wiki/data
@@ -45,4 +44,3 @@ CMD . .venv/bin/activate && \
         --bind 0.0.0.0:5000 \
         --chdir /home/wiki/realms-wiki \
         'realms:create_app()'
-

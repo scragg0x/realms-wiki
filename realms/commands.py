@@ -1,4 +1,4 @@
-from realms import config, create_app, db, __version__, flask_cli as cli, cache
+from realms import config, create_app, db, __version__, cli, cache
 from realms.lib.util import random_string, in_virtualenv, green, yellow, red
 from subprocess import call, Popen
 from multiprocessing import cpu_count
@@ -425,7 +425,7 @@ def clear_cache():
 def test():
     """ Run tests
     """
-    for mod in [('flask.ext.testing', 'Flask-Testing'), ('nose', 'nose'), ('blinker', 'blinker')]:
+    for mod in [('flask_testing', 'Flask-Testing'), ('nose', 'nose'), ('blinker', 'blinker')]:
         if not module_exists(mod[0]):
             pip.main(['install', mod[1]])
 

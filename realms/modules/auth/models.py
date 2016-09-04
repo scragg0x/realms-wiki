@@ -1,5 +1,5 @@
 from flask import current_app
-from flask.ext.login import UserMixin, logout_user, AnonymousUserMixin
+from flask_login import UserMixin, logout_user, AnonymousUserMixin
 from realms import login_manager
 from realms.lib.util import gravatar_url
 from itsdangerous import URLSafeSerializer, BadSignature
