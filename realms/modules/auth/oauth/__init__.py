@@ -1,5 +1,5 @@
 from __future__ import absolute_import
 
-from ..models import Auth
+from realms.modules.auth.models import Auth
 
 Auth.register('oauth')
