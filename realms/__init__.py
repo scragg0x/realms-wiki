@@ -222,7 +222,7 @@ def create_app(config=None):
         @app.before_request
         def proxy_auth():
             from realms.modules.auth.proxy.models import User as ProxyUser
-            remote_user = request.environ.get(app.config["AUTH_PROXY_HEADER_NAME"])
+            remote_user = request.headers.get(app.config["AUTH_PROXY_HEADER_NAME"])
             if remote_user:
                 if current_user.is_authenticated:
                     if current_user.id == remote_user:
