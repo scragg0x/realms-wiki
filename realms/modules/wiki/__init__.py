@@ -1,6 +1,9 @@
+from __future__ import absolute_import
+
 import os
 import sys
-from realms.modules.wiki.models import Wiki
+
+from .models import Wiki
 
 
 def init(app):

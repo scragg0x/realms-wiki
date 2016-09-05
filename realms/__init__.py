@@ -1,16 +1,19 @@
-import functools
-import sys
+from __future__ import absolute_import
 
+import sys
 # Set default encoding to UTF-8
 reload(sys)
 # noinspection PyUnresolvedReferences
 sys.setdefaultencoding('utf-8')
 
+import functools
 import base64
 import time
 import json
-import httplib
 import traceback
+import six.moves.http_client as httplib
+from functools import update_wrapper
+
 import click
 from flask import Flask, request, render_template, url_for, redirect, g
 from flask_cache import Cache
@@ -18,16 +21,15 @@ from flask_login import LoginManager, current_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_assets import Environment, Bundle
 from flask_ldap_login import LDAPLoginManager
-from functools import update_wrapper
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 from sqlalchemy.ext.declarative import declarative_base
 
-from .modules.search.models import Search
-from .lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
-from .lib.hook import HookModelMeta, HookMixin
-from .lib.util import is_su, in_virtualenv
-from .version import __version__
+from realms.modules.search.models import Search
+from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
+from realms.lib.hook import HookModelMeta, HookMixin
+from realms.lib.util import is_su, in_virtualenv
+from realms.version import __version__
 
 
 class Application(Flask):
@@ -229,7 +231,8 @@ assets.register('main.js',
                 'vendor/components-bootstrap/js/bootstrap.js',
                 'vendor/handlebars/handlebars.js',
                 'vendor/js-yaml/dist/js-yaml.js',
-                'vendor/marked/lib/marked.js',
+                'vendor/markdown-it/dist/markdown-it.js',
+                'vendor/markdown-it-anchor/index.0',
                 'js/html-sanitizer-minified.js',  # don't minify?
                 'vendor/highlightjs/highlight.pack.js',
                 'vendor/parsleyjs/dist/parsley.js',

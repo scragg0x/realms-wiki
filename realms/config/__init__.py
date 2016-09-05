@@ -1,7 +1,11 @@
+from __future__ import absolute_import
+
 import json
 import os
 import sys
-from urlparse import urlparse
+
+# noinspection PyUnresolvedReferences
+from six.moves.urllib.parse import urlparse
 
 from realms.lib.util import in_vagrant
 
@@ -71,7 +75,7 @@ class Config(object):
 
     CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
 
-    # Valid options: simple, elasticsearch, woosh
+    # Valid options: simple, elasticsearch, whoosh
     SEARCH_TYPE = 'simple'
 
     ELASTICSEARCH_URL = 'http://127.0.0.1:9200'

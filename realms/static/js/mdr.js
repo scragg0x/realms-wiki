@@ -38,15 +38,28 @@ var metaMarked = function(src, opt, callback) {
   }
 };
 
-marked.setOptions({
-  renderer: new marked.Renderer(),
-  gfm: true,
-  tables: true,
-  breaks: false,
-  pedantic: false,
-  sanitize: false,
-  smartLists: true,
-  smartypants: false
+var markdownit = window.markdownit({
+  html: true,
+  linkify: true,
+  typographer: true,
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return hljs.highlight(lang, str).value;
+      } catch (__) {
+      }
+    }
+
+    return ''; // use external default escaping
+  }
+}).use(markdownItAnchor, {
+  level: 1,
+  // slugify: string => string,
+  permalink: false,
+  // renderPermalink: (slug, opts, state, permalink) => {},
+  permalinkClass: 'header-anchor',
+  permalinkSymbol: '¶',
+  permalinkBefore: false
 });
 
 // Markdown Renderer
@@ -54,9 +67,8 @@ var MDR = {
   meta: null,
   md: null,
   sanitize: true, // Override
-  renderer: new marked.Renderer(),
   parse: function(md){
-    return marked(md, { renderer: this.renderer });
+    return markdownit.render(md);
   },
   convert: function(md, partials, sanitize) {
     if (this.sanitize !== null) {
@@ -117,13 +129,8 @@ var MDR = {
   }
 };
 
-MDR.renderer.table = function(header, body) {
-  return '<table class="table table-bordered">\n'
-    + '<thead>\n'
-    + header
-    + '</thead>\n'
-    + '<tbody>\n'
-    + body
-    + '</tbody>\n'
-    + '</table>\n';
+// Add some custom classes to table tags
+markdownit.renderer.rules.table_open = function (tokens, idx, options, env, self) {
+  tokens[idx].attrPush(['class', 'table table-bordered']);
+  return self.renderToken(tokens, idx, options);
 };

@@ -1,6 +1,10 @@
+from __future__ import absolute_import
+
 import json
+
 from nose.tools import *
 from flask import url_for
+
 from realms.lib.util import cname_to_filename, filename_to_cname
 from realms.lib.test import BaseTest
 

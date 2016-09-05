@@ -1,6 +1,10 @@
-from flask import current_app, request, redirect, Blueprint, flash, url_for
-from ..ldap.models import User
+from __future__ import absolute_import
+
+from flask import current_app, request, redirect, Blueprint, flash, url_for, session
 from flask_ldap_login import LDAPLoginForm
+
+from .models import User
+
 
 blueprint = Blueprint('auth.ldap', __name__)
 
@@ -14,6 +18,6 @@ def login():
         return redirect(url_for('auth.login'))
 
     if User.auth(form.user, request.form['password']):
-        return redirect(request.args.get("next") or url_for(current_app.config['ROOT_ENDPOINT']))
+        return redirect(session.get("next_url") or url_for(current_app.config['ROOT_ENDPOINT']))
     else:
         return redirect(url_for('auth.login'))

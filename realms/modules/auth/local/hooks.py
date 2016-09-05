@@ -1,5 +1,8 @@
+from __future__ import absolute_import
+
 from flask import current_app
 from flask_wtf import RecaptchaField
+
 from .forms import RegistrationForm
 
 

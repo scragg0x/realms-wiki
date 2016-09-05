@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from flask import Blueprint, url_for, request, flash, redirect, session, current_app
 from .models import User
 
@@ -16,7 +18,7 @@ def login(provider):
 
 @blueprint.route('/login/oauth/<provider>/callback')
 def callback(provider):
-    next_url = request.args.get('next') or url_for(current_app.config['ROOT_ENDPOINT'])
+    next_url = session.get('next_url') or url_for(current_app.config['ROOT_ENDPOINT'])
     try:
         remote_app = User.get_app(provider)
         resp = remote_app.authorized_response()

@@ -1,12 +1,18 @@
-from flask import current_app, render_template, request, redirect, Blueprint, flash, url_for
+from __future__ import absolute_import
+
+from flask import current_app, render_template, request, redirect, Blueprint, flash, url_for, session
 from flask_login import logout_user
-from realms.modules.auth.models import Auth
+
+from .models import Auth
+
 
 blueprint = Blueprint('auth', __name__, template_folder='templates')
 
 
 @blueprint.route("/login", methods=['GET', 'POST'])
 def login():
+    next_url = request.args.get('next') or url_for(current_app.config['ROOT_ENDPOINT'])
+    session['next_url'] = next_url
     return render_template("auth/login.html", forms=Auth.login_forms())
 
 

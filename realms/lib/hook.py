@@ -1,6 +1,9 @@
-from flask_sqlalchemy import DeclarativeMeta
+from __future__ import absolute_import
 
 from functools import wraps
+
+from flask_sqlalchemy import DeclarativeMeta
+
 
 
 def hook_func(name, fn):

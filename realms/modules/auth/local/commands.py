@@ -1,8 +1,11 @@
+from __future__ import absolute_import
+
 import click
-from realms.lib.util import random_string
-from realms.modules.auth.local.models import User
-from realms.lib.util import green, red, yellow
+
 from realms import cli_group
+from realms.lib.util import random_string
+from realms.lib.util import green, red, yellow
+from .models import User
 
 
 @cli_group(short_help="Auth Module")
