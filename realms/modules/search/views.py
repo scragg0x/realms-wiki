@@ -11,7 +11,7 @@ blueprint = Blueprint('search', __name__, template_folder='templates')
 
 @blueprint.route('/_search')
 def search():
-    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous:
         return current_app.login_manager.unauthorized()
 
     results = search_engine.wiki(request.args.get('q'))
