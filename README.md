@@ -348,6 +348,9 @@ Note: of course with that setup you must ensure that **Realms is only accessible
 Example Nginx configuration:
     
     location / {
+        auth_basic "Restricted";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+        
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $http_host;
