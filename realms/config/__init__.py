@@ -100,6 +100,10 @@ class Config(object):
     # Name of page that will act as home
     WIKI_HOME = 'home'
 
+    # Should we trust authentication set by a proxy
+    AUTH_PROXY = False
+    AUTH_PROXY_HEADER_NAME = "REMOTE_USER"
+
     AUTH_LOCAL_ENABLE = True
     ALLOW_ANON = True
     REGISTRATION_ENABLED = True
