@@ -58,7 +58,7 @@
               </div>
             </form>
             </li>
-            {% if current_user.is_authenticated() %}
+            {% if current_user.is_authenticated %}
               <li class="dropdown user-avatar">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                 <span>
@@ -113,7 +113,7 @@
       {% endfor %}
 
       var User = {};
-      User.is_authenticated = {{ current_user.is_authenticated()|tojson }};
+      User.is_authenticated = {{ current_user.is_authenticated|tojson }};
       {% for attr in ['username', 'email'] %}
         User.{{ attr }} = {{ current_user[attr]|tojson }};
       {% endfor %}
