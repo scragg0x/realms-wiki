@@ -58,7 +58,7 @@
               </div>
             </form>
             </li>
-            {% if current_user.is_authenticated %}
+            {% if current_user.is_authenticated() %}
               <li class="dropdown user-avatar">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                 <span>
@@ -68,7 +68,11 @@
                 </a>
                 <ul class="dropdown-menu">
                     <!--<li><a href="{{ url_for('auth.settings') }}"><i class="fa fa-gear"></i> Settings</a></li>-->
-                    <li><a href="{{ url_for('auth.logout') }}"><i class="fa fa-power-off"></i> Logout</a></li>
+                    {% if current_user.type != "proxy" %}
+                        <li><a href="{{ url_for('auth.logout') }}"><i class="fa fa-power-off"></i> Logout</a></li>
+                    {% else %}
+                        <li><button class="btn btn-block" disabled="disabled"><i class="fa fa-power-off"></i> Logout</button></li>
+                    {% endif %}
                 </ul>
                 </li>
             {% else %}
@@ -109,7 +113,7 @@
       {% endfor %}
 
       var User = {};
-      User.is_authenticated = {{ current_user.is_authenticated|tojson }};
+      User.is_authenticated = {{ current_user.is_authenticated()|tojson }};
       {% for attr in ['username', 'email'] %}
         User.{{ attr }} = {{ current_user[attr]|tojson }};
       {% endfor %}

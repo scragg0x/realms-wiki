@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import sys
+import logging
 # Set default encoding to UTF-8
 reload(sys)
 # noinspection PyUnresolvedReferences
@@ -17,7 +18,7 @@ from functools import update_wrapper
 import click
 from flask import Flask, request, render_template, url_for, redirect, g
 from flask_cache import Cache
-from flask_login import LoginManager, current_user
+from flask_login import LoginManager, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_assets import Environment, Bundle
 from flask_ldap_login import LDAPLoginManager
@@ -214,6 +215,23 @@ def create_app(config=None):
     with app.app_context():
         if app.config.get('DB_URI'):
             db.metadata.create_all(db.get_engine(app))
+
+    if app.config["AUTH_PROXY"]:
+        logger = logging.getLogger("realms.auth")
+
+        @app.before_request
+        def proxy_auth():
+            from realms.modules.auth.proxy.models import User as ProxyUser
+            remote_user = request.environ.get(app.config["AUTH_PROXY_HEADER_NAME"])
+            if remote_user:
+                if current_user.is_authenticated():
+                    if current_user.id == remote_user:
+                        return
+                    logger.info("login in realms and login by proxy are different: '{}'/'{}'".format(
+                        current_user.id, remote_user))
+                    logout_user()
+                logger.info("User logged in by proxy as '{}'".format(remote_user))
+                ProxyUser.do_login(remote_user)
 
     return app
 

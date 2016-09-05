@@ -5,7 +5,9 @@ from flask_login import login_url
 
 from realms import login_manager
 
+
 modules = set()
+
 
 @login_manager.unauthorized_handler
 def unauthorized():
