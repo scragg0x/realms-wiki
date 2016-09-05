@@ -14,7 +14,9 @@ import pip
 from realms import config, create_app, db, __version__, cli, cache
 from realms.lib.util import random_string, in_virtualenv, green, yellow, red
 
+
 config = config.conf
+
 
 # called to discover commands in modules
 app = create_app()
