@@ -82,10 +82,26 @@ var deletePage = function() {
     bootbox.alert('Error deleting page!');
   });
 };
-
+var last_imports = '';
+var partials = [];
 var aced = new Aced({
   editor: $('#entry-markdown-content').find('.editor').attr('id'),
-  renderer: function(md) { return MDR.convert(md) },
+  renderer: function(md) {
+    var doc = metaMarked(md);
+    if (doc.meta && 'import' in doc.meta) {
+      // If the imports have changed, refresh them from the server
+      if (doc.meta['import'].toString() != last_imports) {
+        last_imports = doc.meta['import'].toString();
+        $.getJSON('/_partials', {'imports': doc.meta['import']}, function (response) {
+            partials = response['partials'];
+            // TODO: Better way to force update of the preview here than this fake signal?
+            aced.editor.session.doc._signal('change',
+              {'action': 'insert', 'lines': [], 'start': {'row': 0}, 'end': {'row': 0}});
+          });
+      }
+    }
+    return MDR.convert(md, partials)
+  },
   info: Commit.info,
   submit: function(content) {
     var data = {

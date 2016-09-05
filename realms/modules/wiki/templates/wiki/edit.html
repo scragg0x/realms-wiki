@@ -8,22 +8,6 @@
   </script>
   <script src="{{ url_for('wiki.static', filename='js/editor.js') }}"></script>
 
-  {% if partials %}
-    <script>
-      $(function() {
-        {% for name, value in partials.items() %}
-          {% if name and value %}
-            try {
-              Handlebars.registerPartial({{ name|tojson|safe }}, {{ value.data|tojson|safe }});
-            } catch (e) {
-              // no data?
-            }
-          {% endif %}
-        {% endfor %}
-      });
-    </script>
-  {% endif %}
-
   {% if config.get('COLLABORATION') %}
     <script src="{{ url_for('wiki.static', filename='js/collaboration/main.js') }}"></script>
   {% endif %}

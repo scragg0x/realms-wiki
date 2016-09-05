@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import collections
 import itertools
 import sys
 from datetime import datetime
@@ -27,7 +28,9 @@ def commit(name, sha):
     if not data:
         abort(404)
 
-    return render_template('wiki/page.html', name=name, page=data, commit=sha)
+    partials = _partials(data.imports, sha=sha)
+
+    return render_template('wiki/page.html', name=name, page=data, commit=sha, partials=partials)
 
 
 @blueprint.route(r"/_compare/<path:name>/<regex('\w+'):fsha><regex('\.{2,3}'):dots><regex('\w+'):lsha>")
@@ -103,7 +106,6 @@ def history_data(name):
     }
 
 
-
 @blueprint.route("/_edit/<path:name>")
 @login_required
 def edit(name):
@@ -120,8 +122,32 @@ def edit(name):
                            content=page.data,
                            # TODO: Remove this? See #148
                            info=next(page.history),
-                           sha=page.sha,
-                           partials=page.partials)
+                           sha=page.sha)
+
+
+def _partials(imports, sha='HEAD'):
+    page_queue = collections.deque(imports)
+    partials = collections.OrderedDict()
+    while page_queue:
+        page_name = page_queue.popleft()
+        if page_name in partials:
+            continue
+        page = g.current_wiki.get_page(page_name, sha=sha)
+        try:
+            partials[page_name] = page.data
+        except KeyError:
+            partials[page_name] = "`Error importing wiki page '{0}'`".format(page_name)
+            continue
+        page_queue.extend(page.imports)
+    # We want to retain the order (and reverse it) so that combining metadata from the imports works
+    return list(reversed(partials.items()))
+
+
+@blueprint.route("/_partials")
+def partials():
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+        return current_app.login_manager.unauthorized()
+    return {'partials': _partials(request.args.getlist('imports[]'))}
 
 
 @blueprint.route("/_create/", defaults={'name': None})
@@ -245,6 +271,6 @@ def page(name):
     data = g.current_wiki.get_page(cname)
 
     if data:
-        return render_template('wiki/page.html', name=cname, page=data, partials=data.partials)
+        return render_template('wiki/page.html', name=cname, page=data, partials=_partials(data.imports))
     else:
         return redirect(url_for('wiki.create', name=cname))

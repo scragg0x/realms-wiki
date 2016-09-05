@@ -23,12 +23,7 @@
 {% block js %}
   <script>
     $(function(){
-      {% if partials %}
-        {% for name, value in partials.items() %}
-          Handlebars.registerPartial({{ name|tojson|safe }}, {{ value.data|tojson|safe }});
-        {% endfor %}
-      {% endif %}
-      $("#page-content").html(MDR.convert({{ page.data|tojson|safe }})).show();
+      $("#page-content").html(MDR.convert({{ page.data|tojson|safe }}, {{ partials|d([])|tojson|safe }})).show();
     });
   </script>
 {% endblock %}
