@@ -214,7 +214,6 @@ def create_app(config=None):
         if app.config.get('DB_URI'):
             db.metadata.create_all(db.get_engine(app))
 
-
     return app
 
 # Init plugins here if possible
