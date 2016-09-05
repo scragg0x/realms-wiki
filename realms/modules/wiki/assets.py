@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from realms import assets
 
 assets.register('editor.js',

@@ -1,5 +1,8 @@
+from __future__ import absolute_import
+
 import click
 from flask import current_app
+
 from realms import search, cli_group
 from realms.modules.wiki.models import Wiki
 

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from flask import Blueprint, url_for, request, flash, redirect, session, current_app
 from .models import User
 

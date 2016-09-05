@@ -1,6 +1,10 @@
+from __future__ import absolute_import
+
 from flask import current_app, render_template, request, redirect, Blueprint, flash, url_for, session
-from realms.modules.auth.local.models import User
-from realms.modules.auth.local.forms import LoginForm, RegistrationForm
+
+from .models import User
+from .forms import LoginForm, RegistrationForm
+
 
 blueprint = Blueprint('auth.local', __name__)
 

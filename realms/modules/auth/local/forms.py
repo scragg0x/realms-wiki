@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from flask_wtf import Form
 from wtforms import StringField, PasswordField, validators
 

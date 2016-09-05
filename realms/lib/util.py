@@ -1,4 +1,5 @@
-import click
+from __future__ import absolute_import
+
 import re
 import os
 import hashlib
@@ -6,6 +7,8 @@ import json
 import string
 import random
 import sys
+
+import click
 from jinja2 import Template
 
 

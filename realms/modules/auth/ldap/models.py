@@ -1,8 +1,11 @@
+from __future__ import absolute_import
+
 from flask import render_template
 from flask_login import login_user
-from realms import ldap
 from flask_ldap_login import LDAPLoginForm
-from ..models import BaseUser
+
+from realms import ldap
+from realms.modules.auth.models import BaseUser
 
 
 users = {}

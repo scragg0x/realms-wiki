@@ -1,4 +1,7 @@
+from __future__ import absolute_import
+
 from flask import g, current_app
+
 from .models import Wiki
 
 

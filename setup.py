@@ -1,5 +1,5 @@
-from setuptools import setup, find_packages
 import os
+from setuptools import setup, find_packages
 
 if os.environ.get('USER', '') == 'vagrant':
     del os.link
@@ -43,7 +43,8 @@ setup(name='realms-wiki',
           'itsdangerous==0.24',
           'markdown2==2.3.1',
           'python-ldap==2.4.22',
-          'simplejson==3.6.3'
+          'simplejson==3.6.3',
+          'six==1.10.0'
       ],
       entry_points={
           'console_scripts': [
