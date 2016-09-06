@@ -80,7 +80,7 @@ def history(name):
 @blueprint.route("/_history_data/<path:name>")
 def history_data(name):
     """Ajax provider for paginated history data."""
-    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous:
         return current_app.login_manager.unauthorized()
     draw = int(request.args.get('draw', 0))
     start = int(request.args.get('start', 0))
@@ -145,7 +145,7 @@ def _partials(imports, sha='HEAD'):
 
 @blueprint.route("/_partials")
 def partials():
-    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous:
         return current_app.login_manager.unauthorized()
     return {'partials': _partials(request.args.getlist('imports[]'))}
 
