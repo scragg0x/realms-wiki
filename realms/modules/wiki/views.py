@@ -145,7 +145,7 @@ def _partials(imports, sha='HEAD'):
 
 @blueprint.route("/_partials")
 def partials():
-    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous():
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous:
         return current_app.login_manager.unauthorized()
     return {'partials': _partials(request.args.getlist('imports[]'))}
 
