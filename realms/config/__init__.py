@@ -160,6 +160,8 @@ class Config(object):
             self.MODULES.append('auth.oauth')
         if hasattr(self, 'LDAP'):
             self.MODULES.append('auth.ldap')
+        if hasattr(self, "AUTH_PROXY"):
+            self.MODULES.append('auth.proxy')
         if in_vagrant():
             self.USE_X_SENDFILE = False
         if self.ENV == "DEV":
