@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 import sys
-import logging
 # Set default encoding to UTF-8
 reload(sys)
 # noinspection PyUnresolvedReferences
