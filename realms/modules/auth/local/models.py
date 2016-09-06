@@ -99,4 +99,3 @@ class User(Model, BaseUser):
     def login_form():
         form = LoginForm()
         return render_template('auth/local/login.html', form=form)
-

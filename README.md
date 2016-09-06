@@ -285,14 +285,15 @@ To disable local authentication, put the following your config.
 
 ### LDAP (beta)
 
-Realms uses the following library to authenticate using LDAP.  https://github.com/ContinuumIO/flask-ldap-login
-It supports direct bind and bind by search. 
+Realms can authenticate users with a LDAP directory. It supports "direct bind" and "bind by search". 
+
 Use these examples as a guide and place it in your realms-wiki.json config.
 
+LDAP connections with TLS (port 636) or with START_TLS are not yet possible.
 
 #### Bind By Search Example
 
-In this example, BIND_DN and BIND_AUTH are used to search and authenticate.  Leaving them blank implies anonymous authentication.
+In this example, BIND_DN and BIND_AUTH are used to search and authenticate. Leaving them blank implies anonymous authentication.
 
     "LDAP": {
         "URI": "ldap://localhost:8389",
@@ -318,6 +319,7 @@ In this example, BIND_DN and BIND_AUTH are used to search and authenticate.  Lea
             "OPT_PROTOCOL_VERSION": 3,
         }
     }
+
 
 
 ### OAuth (beta)

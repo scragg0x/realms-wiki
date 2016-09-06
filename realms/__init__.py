@@ -20,7 +20,6 @@ from flask_cache import Cache
 from flask_login import LoginManager, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_assets import Environment, Bundle
-from flask_ldap_login import LDAPLoginManager
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 from sqlalchemy.ext.declarative import declarative_base
@@ -117,13 +116,6 @@ class Assets(Environment):
         return super(Assets, self).register(name, Bundle(*args, filters=filters, output=output))
 
 
-class MyLDAPLoginManager(LDAPLoginManager):
-    @property
-    def attrlist(self):
-        # the parent method doesn't always work
-        return None
-
-
 class RegexConverter(BaseConverter):
     """ Enables Regex matching on endpoints
     """
@@ -177,7 +169,6 @@ def create_app(config=None):
     cache.init_app(app)
     assets.init_app(app)
     search.init_app(app)
-    ldap.init_app(app)
 
     db.Model = declarative_base(metaclass=HookModelMeta, cls=HookMixin)
 
@@ -223,7 +214,6 @@ db = SQLAlchemy()
 cache = Cache()
 assets = Assets()
 search = Search()
-ldap = MyLDAPLoginManager()
 
 assets.register('main.js',
                 'vendor/jquery/dist/jquery.js',
