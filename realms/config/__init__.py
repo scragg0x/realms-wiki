@@ -100,6 +100,10 @@ class Config(object):
     # Name of page that will act as home
     WIKI_HOME = 'home'
 
+    # Should we trust authentication set by a proxy
+    AUTH_PROXY = False
+    AUTH_PROXY_HEADER_NAME = "REMOTE_USER"
+
     AUTH_LOCAL_ENABLE = True
     ALLOW_ANON = True
     REGISTRATION_ENABLED = True
@@ -156,6 +160,8 @@ class Config(object):
             self.MODULES.append('auth.oauth')
         if hasattr(self, 'LDAP'):
             self.MODULES.append('auth.ldap')
+        if hasattr(self, "AUTH_PROXY"):
+            self.MODULES.append('auth.proxy')
         if in_vagrant():
             self.USE_X_SENDFILE = False
         if self.ENV == "DEV":

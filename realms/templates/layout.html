@@ -68,7 +68,11 @@
                 </a>
                 <ul class="dropdown-menu">
                     <!--<li><a href="{{ url_for('auth.settings') }}"><i class="fa fa-gear"></i> Settings</a></li>-->
-                    <li><a href="{{ url_for('auth.logout') }}"><i class="fa fa-power-off"></i> Logout</a></li>
+                    {% if current_user.type != "proxy" %}
+                        <li><a href="{{ url_for('auth.logout') }}"><i class="fa fa-power-off"></i> Logout</a></li>
+                    {% else %}
+                        <li><button class="btn btn-block" disabled="disabled"><i class="fa fa-power-off"></i> Logout</button></li>
+                    {% endif %}
                 </ul>
                 </li>
             {% else %}

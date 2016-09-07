@@ -336,6 +336,36 @@ Put them in your `realms-wiki.json` config file.  Use the example below.
         }
     }
 
+### Authentication by reverse proxy
+
+If you configured realms behind a reverse-proxy or a single-sign-on, it is possible to delegate authentication to
+the proxy.
+
+    "AUTH_PROXY": true
+    
+Note: of course with that setup you must ensure that **Realms is only accessible through the proxy**.
+
+Example Nginx configuration:
+    
+    location / {
+        auth_basic "Restricted";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+        
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_set_header REMOTE_USER $remote_user;
+    
+        proxy_pass http://127.0.0.1:5000/;
+        proxy_redirect off;
+    }    
+    
+By default, Realms will look for the user ID in `REMOTE_USER` HTTP header. You can specify another header name with:
+
+    "AUTH_PROXY_HEADER_NAME": "LOGGED_IN_USER"
+    
+
+
 ## Running
 
     realms-wiki start

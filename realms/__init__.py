@@ -17,7 +17,7 @@ from functools import update_wrapper
 import click
 from flask import Flask, request, render_template, url_for, redirect, g
 from flask_cache import Cache
-from flask_login import LoginManager, current_user
+from flask_login import LoginManager, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_assets import Environment, Bundle
 from flask_ldap_login import LDAPLoginManager
@@ -26,9 +26,8 @@ from werkzeug.exceptions import HTTPException
 from sqlalchemy.ext.declarative import declarative_base
 
 from realms.modules.search.models import Search
-from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict
+from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, to_dict, is_su, in_virtualenv
 from realms.lib.hook import HookModelMeta, HookMixin
-from realms.lib.util import is_su, in_virtualenv
 from realms.version import __version__
 
 

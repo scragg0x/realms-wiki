@@ -17,6 +17,7 @@ from . import modules
 def load_user(auth_id):
     return Auth.load_user(auth_id)
 
+
 auth_users = {}
 
 
@@ -40,7 +41,9 @@ class Auth(object):
     def login_forms():
         forms = []
         for t in modules:
-            forms.append(Auth.get_auth_user(t).login_form())
+            form = Auth.get_auth_user(t).login_form()
+            if form:
+                forms.append(form)
         return "<hr />".join(forms)
 
 
