@@ -5,3 +5,6 @@ recursive-include realms/static/css *
 recursive-include realms/static/js *
 recursive-include realms/static/vendor *
 recursive-include realms/templates *
+recursive-include realms/modules/auth/templates *
+recursive-include realms/modules/search/templates *
+recursive-include realms/modules/wiki/templates *
