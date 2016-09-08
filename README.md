@@ -289,38 +289,89 @@ Realms can authenticate users with a LDAP directory. It supports "direct bind" a
 
 Use these examples as a guide and place it in your realms-wiki.json config.
 
-LDAP connections with TLS (port 636) or with START_TLS are not yet possible.
+An optional KEY_MAP can be used to map LDAP attributes to the Realms user object.
 
-#### Bind By Search Example
+#### "Bind by search" example
 
-In this example, BIND_DN and BIND_AUTH are used to search and authenticate. Leaving them blank implies anonymous authentication.
+In this example, BIND_DN and BIND_AUTH are used to bind to the LDAP directory (omit them for anonymous bind).
+After binding, a LDAP SEARCH is performed using the template "USER_SEARCH". In this template, `%(username)s` is the
+UserID that the user entered in the Realms authentication form. If the user is found in LDAP, a final BIND is tried
+with his credentials to check the password.
+
 
     "LDAP": {
-        "URI": "ldap://localhost:8389",
-        "BIND_DN": "",
-        "BIND_AUTH": "",
-        "USER_SEARCH": {"base": "dc=realms,dc=io", "filter": "uid=%(username)s"},
+        "URI": "ldap://127.0.0.1:389",
+        "BIND_DN": "cn=realms,ou=apps,dc=realms,dc=io",
+        "BIND_AUTH": "wlvksdfknv:dsqc9893",
+        "USER_SEARCH": {"base": "ou=users, dc=realms,dc=io", "filter": "(uid=%(username)s)"},
         "KEY_MAP": {
-            "username":"cn",
+            "username": "cn",
             "email": "mail"
         }
     }
 
-#### Direct Bind Example
+#### "Direct bind" example
+
+Here authentication is just a simple BIND using the user's credentials. The user DN is given by the BIND_DN template.
+In this template, `%(username)s` is the UserID that the user entered in the Realms authentication form.
 
     "LDAP": {
-        "URI": "ldap://localhost:8389",
+        "URI": "ldap://127.0.0.1:389",
         "BIND_DN": "uid=%(username)s,ou=People,dc=realms,dc=io",
         "KEY_MAP": {
-            "username":"cn",
+            "username": "cn",
             "email": "mail",
-        },
-        "OPTIONS": {
-            "OPT_PROTOCOL_VERSION": 3,
         }
     }
 
+#### LDAP/TLS
 
+(for brevity we don't repeat the Bind By Search configurations or the KEY_MAP, but they can be used with TLS too)
+
+LDAP over TLS is typically done like this:
+
+    "LDAP": {
+        "URI": "ldaps://127.0.0.1:686",
+        "BIND_DN": "uid=%(username)s,ou=People,dc=realms,dc=io",
+        "TLS_OPTIONS": {
+            "CA_CERTS_FILE": "PATH TO THE CERTIFICATE PEM OF THE AUTHORITY THAT SIGNED THE LDAP SERVER CERTIFICATE"
+        }
+    }
+
+If the LDAP server certificate has been emitted by an authority that's trusted at system-level (and your Python version
+is not too old), it might be possible to omit `CA_CERTS_FILE`.
+
+If you don't want Realms to validate at all the LDAP server certificate (don't do that in production), pass an
+additional VALIDATE option:
+
+    "LDAP": {
+        "URI": "ldaps://127.0.0.1:686",
+        "BIND_DN": "uid=%(username)s,ou=People,dc=realms,dc=io",
+        "TLS_OPTIONS": {
+            "VALIDATE": "NONE"
+        }        
+    }
+
+#### LDAP with START_TLS
+
+It is similar to LDAP/TLS. Just add a START_TLS option:
+
+    "LDAP": {
+        "URI": "ldap://127.0.0.1:389",
+        "BIND_DN": "uid=%(username)s,ou=People,dc=realms,dc=io",
+        "CA_CERTS_FILE": "PATH TO THE CERTIFICATE PEM OF THE AUTHORITY THAT SIGNED THE LDAP SERVER CERTIFICATE",
+        "TLS_OPTIONS": {
+            "CA_CERTS_FILE": "PATH TO THE CERTIFICATE PEM OF THE AUTHORITY THAT SIGNED THE LDAP SERVER CERTIFICATE"
+        }
+        "START_TLS": true
+    }
+
+The VALIDATE option can be used here too.
+
+#### Configuration change for TLS
+
+Please note that the TLS/START_TLS configuration changed from previous versions of Realms. The old way that was from
+flask-ldap-login using LDAP options like `OPT_X_TLS_REQUIRE_CERT` does not work anymore.
 
 ### OAuth (beta)
 

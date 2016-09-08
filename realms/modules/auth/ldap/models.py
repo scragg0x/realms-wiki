@@ -1,8 +1,9 @@
 from __future__ import absolute_import
 
 import logging
-import ldap3
+import ssl
 
+import ldap3
 from flask import render_template, current_app
 from flask_login import login_user, logout_user
 
@@ -71,11 +72,11 @@ class LdapConn(object):
     def __init__(self, config, userid, password):
         self.config = config
         self.tls = None
-        self.setup_tls()
+        self.setup_tls_options()
         self.server = ldap3.Server(self.config['URI'], tls=self.tls)
         self.userid = userid
         self.password = password
-        self.version = int(self.config.get("OPTIONS", {}).get("OPT_PROTOCOL_VERSION", 3))
+        self.version = int(self.config['LDAP_PROTO_VERSION'])
         self.conn = None
 
     def check(self):
@@ -89,20 +90,33 @@ class LdapConn(object):
             if self.conn.bound:
                 self.conn.unbind()
 
-    def setup_tls(self):
-        # todo !
-        pass
+    def setup_tls_options(self):
+        if self.config['START_TLS'] or self.config['URI'].startswith('ldaps://'):
+            # noinspection PyUnresolvedReferences
+            self.tls = ldap3.Tls(
+                local_certificate_file=self.config.get('TLS_OPTIONS', {}).get('CLIENT_CERT_FILE'),
+                local_private_key_file=self.config.get('TLS_OPTIONS', {}).get('CLIENT_PRIVKEY_FILE'),
+                local_private_key_password=self.config.get('TLS_OPTIONS', {}).get('CLIENT_PRIVKEY_PASSWORD'),
+                validate=self.config.get('TLS_OPTIONS', {}).get('VALIDATE', ssl.CERT_REQUIRED),
+                ca_certs_file=self.config.get('TLS_OPTIONS', {}).get('CA_CERTS_FILE'),
+                version=self.config.get('TLS_OPTIONS', {}).get('VERSION', ssl.PROTOCOL_SSLv23)
+            )
 
     def start_tls(self):
-        logger = logging.getLogger("realms.auth.ldap")
-        if self.tls:
+        assert(isinstance(self.conn, ldap3.Connection))
+        if self.config['START_TLS']:
+            logger = logging.getLogger("realms.auth.ldap")
             try:
                 self.conn.open()
-                self.conn.start_tls()
-            except ldap3.LDAPStartTLSError:
+            except ldap3.LDAPSocketOpenError as ex:
+                logger.exception("Error when connecting to LDAP server")
+                return False
+            try:
+                return self.conn.start_tls()
+            except ldap3.LDAPStartTLSError as ex:
                 logger.exception("START_TLS error")
                 return False
-            except Exception:
+            except Exception as ex:
                 logger.exception("START_TLS unexpectedly failed")
                 return False
         return True
@@ -116,11 +130,9 @@ class LdapConn(object):
             password=self.password,
             version=self.version
         )
-
         if not self.start_tls():
-            # START_TLS was demanded but it failed
+            # START_TLS was required but it failed
             return None
-
         if not self.conn.bind():
             logger.info("Invalid credentials for '{}'".format(self.userid))
             return None
@@ -173,15 +185,17 @@ class LdapConn(object):
             if not self.conn.search(base_dn, filtr, attributes=ldap3.ALL_ATTRIBUTES, search_scope=scope):
                 logger.info("User was not found in LDAP: '{}'".format(self.userid))
                 return None
-
-            return self._get_attributes(self.conn.response)
+            user_dn = self.conn.response[0]['dn']
+            attrs = self._get_attributes(self.conn.response)
+            # the user was found in LDAP, now let's try a BIND to check the password
+            return attrs if self.conn.rebind(user=user_dn, password=self.password) else None
         finally:
             self.close()
 
     def _get_attributes(self, resp):
         attrs = {}
         ldap_attrs = resp[0]['attributes']
-        for attrname, ldap_attrname in self.config['KEY_MAP'].items():
+        for attrname, ldap_attrname in self.config.get('KEY_MAP', {}).items():
             if ldap_attrs.get(ldap_attrname):
                 # ldap attributes are multi-valued, we only return the first one
                 attrs[attrname] = ldap_attrs.get(ldap_attrname)[0]
