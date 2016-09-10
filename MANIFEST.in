@@ -1,10 +1,5 @@
 include requirements.txt LICENSE README.md
-recursive-include realms/static/img *
-recursive-include realms/static/fonts *
-recursive-include realms/static/css *
-recursive-include realms/static/js *
-recursive-include realms/static/vendor *
-recursive-include realms/templates *
-recursive-include realms/modules/auth/templates *
-recursive-include realms/modules/search/templates *
-recursive-include realms/modules/wiki/templates *
+graft realms/static
+graft realms/templates
+graft realms/modules/**/static
+graft realms/modules/**/templates
