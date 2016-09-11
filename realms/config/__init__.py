@@ -105,7 +105,7 @@ class Config(object):
     AUTH_PROXY_HEADER_NAME = "REMOTE_USER"
 
     AUTH_LOCAL_ENABLE = True
-    ALLOW_ANON = True
+    _ALLOW_ANON = True
     REGISTRATION_ENABLED = True
     PRIVATE_WIKI = False
 
@@ -119,6 +119,14 @@ class Config(object):
     WIKI_LOCKED_PAGES = []
 
     ROOT_ENDPOINT = 'wiki.page'
+
+    @property
+    def ALLOW_ANON(self):
+        return not self.PRIVATE_WIKI and self._ALLOW_ANON
+
+    @ALLOW_ANON.setter
+    def ALLOW_ANON(self, value):
+        self._ALLOW_ANON = value
 
     # Used by Flask-Login
     @property
