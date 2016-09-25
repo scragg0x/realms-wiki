@@ -24,7 +24,7 @@ setup(name='realms-wiki',
       packages=find_packages(),
       install_requires=[
           'Flask==0.11.1',
-          'Flask-Assets==0.11',
+          'Flask-Assets==0.12',
           'Flask-Cache==0.13.1',
           'Flask-Elastic==0.2',
           'Flask-Login==0.3.2',
