@@ -5,7 +5,7 @@ from hashlib import sha256
 
 from flask import current_app
 from flask_login import UserMixin, logout_user, AnonymousUserMixin
-from itsdangerous import URLSafeSerializer, BadSignature
+from itsdangerous import URLSafeSerializer
 import bcrypt
 
 from realms import login_manager
