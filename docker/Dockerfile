@@ -1,7 +1,7 @@
 FROM ubuntu:trusty
 
 RUN apt-get update
-RUN    apt-get install -y software-properties-common python-software-properties python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev npm git python-virtualenv && \
+RUN apt-get install -y software-properties-common python-software-properties python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev npm git python-virtualenv && \
     apt-get clean  && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -33,6 +33,8 @@ RUN mkdir /home/wiki/data && touch /home/wiki/data/.a
 VOLUME /home/wiki/data
 
 EXPOSE 5000
+
+RUN .venv/bin/realms-wiki create_db
 
 CMD . .venv/bin/activate && \
     gunicorn \
