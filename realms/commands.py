@@ -4,7 +4,6 @@ import json
 import sys
 import os
 import time
-import subprocess
 from subprocess import call, Popen
 from multiprocessing import cpu_count
 
@@ -73,6 +72,7 @@ def prompt_and_invoke(ctx, fn):
         kw[p.name] = v
 
     ctx.invoke(fn, **kw)
+
 
 @cli.command()
 @click.option('--site-title',
@@ -295,7 +295,7 @@ def configure(json_string):
     """
     try:
         config.update(json.loads(json_string))
-    except ValueError, e:
+    except ValueError as e:
         red('Config value should be valid JSON')
 
 
@@ -403,9 +403,10 @@ def create_db():
     """ Creates DB tables
     """
     green("Creating all tables")
-    with app.app_context():
-        green('DB_URI: %s' % app.config.get('DB_URI'))
-        db.metadata.create_all(db.get_engine(app))
+    if app.config.get('DB_URI'):
+        with app.app_context():
+            green('DB_URI: %s' % app.config.get('DB_URI'))
+            db.metadata.create_all(db.get_engine(app))
 
 
 @cli.command()
@@ -449,13 +450,9 @@ def version():
 
 @cli.command(add_help_option=False)
 def deploy():
-    """ Deploy to PyPI and docker hub
+    """ Deploy to PyPI
     """
     call("python setup.py sdist upload", shell=True)
-    call("sudo docker build --no-cache -t realms/realms-wiki %s/docker" % app.config['APP_PATH'], shell=True)
-    id_ = json.loads(Popen("sudo docker inspect realms/realms-wiki".split(), stdout=subprocess.PIPE).communicate()[0])[0]['Id']
-    call("sudo docker tag %s realms/realms-wiki:%s" % (id_, __version__), shell=True)
-    call("sudo docker push realms/realms-wiki", shell=True)
 
 if __name__ == '__main__':
     cli()
