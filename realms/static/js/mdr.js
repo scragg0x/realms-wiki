@@ -115,7 +115,7 @@ var MDR = {
       })
     }
     $.extend(this.meta, doc.meta);
-    if (this.meta) {
+    if (Object.keys(this.meta).length) {
       try {
         var template = Handlebars.compile(this.md);
         this.md = template(this.meta);
