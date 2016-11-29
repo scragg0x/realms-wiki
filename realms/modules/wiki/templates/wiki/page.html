@@ -25,5 +25,7 @@
     $(function(){
       $("#page-content").html(MDR.convert({{ page.data|tojson|safe }}, {{ partials|d([])|tojson|safe }})).show();
     });
+    $(document).ready(function(){
+      renderMathInElement(document.body,{delimiters: [{left: "$$", right: "$$", display: true},{left: "$", right: "$", display: false}]})});
   </script>
 {% endblock %}

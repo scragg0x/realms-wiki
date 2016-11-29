@@ -17,6 +17,7 @@
     "bootswatch-dist": "3.3.6-flatly",
     "bootbox": "4.4.0",
     "datatables": "1.10.11",
-    "datatables-plugins": "latest"
+    "datatables-plugins": "latest",
+    "katex": "latest"
   }
 }
