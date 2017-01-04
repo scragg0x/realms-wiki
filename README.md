@@ -66,8 +66,15 @@ The easiest way. Install it using Python Package Index:
     cd realms-wiki
 
     sudo apt-get install -y software-properties-common python-software-properties
-    sudo add-apt-repository -y ppa:chris-lea/node.js
-    sudo apt-get update
+    
+    # If using Ubuntu 14.04, get nodejs from this PPA:
+    #sudo add-apt-repository -y ppa:chris-lea/node.js
+    #sudo apt-get update
+    
+    # If using Ubuntu 16.04, get nodejs, nodejs-legacy, and npm from 
+    # the official repo. Also, get virtualenv:
+    sudo apt-get install -y npm nodejs-legacy virtualenv
+
     sudo apt-get install -y nodejs python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev
     sudo npm install -g bower
     bower install
@@ -370,7 +377,7 @@ By default, Realms will look for the user ID in `REMOTE_USER` HTTP header. You c
 
     realms-wiki start
     
-### Upstart
+### Upstart (Ubuntu 14.04)
     
 Setup upstart with this command:
 
@@ -384,7 +391,63 @@ After your config is in place use the following commands:
     sudo stop realms-wiki
     sudo restart realms-wiki
     
+### Systemd (Ubuntu 16.04)
+    
+Setup systemd by creating the file **/etc/systemd/system/realms-wiki.service**:
 
+    [Unit]
+    Description=Realms Wiki
+
+    [Service]
+    User=ubuntu
+    Group=ssl-cert
+    Type=forking
+
+    ExecStart=/home/ubuntu/realms-wiki/.venv/bin/python /home/ubuntu/realms-wiki/.venv/bin/gunicorn \
+    --certfile=/etc/ssl/certs/ssl-cert-snakeoil.pem   \
+    --keyfile=/etc/ssl/private/ssl-cert-snakeoil.key  \
+    --name realms-wiki     \
+    --access-logfile -     \
+    --error-logfile -      \
+    --worker-class gevent  \
+    --workers 5            \
+    --bind 0.0.0.0:5000    \
+    --user ubuntu          \
+    --group ssl-cert       \
+    --chdir /home/ubuntu/realms-wiki/.venv  \
+    'realms:create_app()'
+
+    Restart=on-failure
+    LimitNOFILE=65335
+    WorkingDirectory=/home/ubuntu/realms-wiki/.venv
+    Environment=PATH=/home/ubuntu/realms-wiki/.venv/bin:/usr/local/bin:/usr/bin:/bin:$PATH
+    Environment=LC_ALL=en_US.UTF-8
+    Environment=GEVENT_RESOLVER=ares
+
+    [Install]
+    WantedBy=multi-user.target
+
+This file must be created as user root. Also note that ports below `1024` 
+require user root.
+
+Globally replace /home/ubuntu/realms-wiki/ in the example above with your local 
+Realms-wiki install path.
+
+Note that this example uses the HTTPS (SSL) support built in to gunicorn.
+It references the self-signed certificate that gets created if you run 
+**sudo apt-get install ssl-cert**. The private key is only visible to the group 
+ssl-cert, so in this example gunicorn runs with group *ssl-cert*.
+
+Finally, let systemd know about the new config file:
+
+    sudo systemctl daemon-reload
+    
+After your config is in place use the following commands:
+    
+    sudo systemctl start realms-wiki.service
+    sudo systemctl stop realms-wiki.service
+    sudo systemctl restart realms-wiki.service
+    
 ### Development mode
 
 This will start the server in the foreground with auto reloaded enabled:

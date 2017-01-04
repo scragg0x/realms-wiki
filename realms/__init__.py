@@ -220,7 +220,8 @@ def create_app(config=None):
 login_manager = LoginManager()
 
 db = SQLAlchemy()
-cache = Cache()
+# Add a 5 second timeout, to also work with offline git + text editor commits
+cache = Cache(config={'CACHE_DEFAULT_TIMEOUT': 5.0})
 assets = Assets()
 search = Search()
 ldap = MyLDAPLoginManager()
