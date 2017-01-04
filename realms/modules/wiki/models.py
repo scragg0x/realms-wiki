@@ -123,13 +123,15 @@ class WikiPage(HookMixin):
         while True:
             if not cache_tail:
                 return
+            index = 0
             for index, cached_rev in enumerate(cache_tail):
                 if cached_rev.get("_cache_missing"):
                     break
                 else:
+                    cache_head.append(cached_rev)
                     yield cached_rev
-            cache_head.extend(cache_tail[:index])
             cache_tail = cache_tail[index+1:]
+
             start_sha = cached_rev.get('sha')
             end_sha = cache_tail[0].get('sha') if cache_tail else None
             for rev in self._iter_revs(start_sha=start_sha, end_sha=end_sha, filename=cached_rev.get('filename')):

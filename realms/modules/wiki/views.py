@@ -5,12 +5,13 @@ import itertools
 import sys
 from datetime import datetime
 
-from flask import abort, g, render_template, request, redirect, Blueprint, flash, url_for, current_app
+from flask import abort, g, render_template, request, redirect, Blueprint, flash, url_for, current_app, make_response
+from werkzeug.contrib.atom import AtomFeed
 from flask_login import login_required, current_user
 
+from realms.version import __version__
 from realms.lib.util import to_canonical, remove_ext, gravatar_url
 from .models import PageNotFound
-
 
 blueprint = Blueprint('wiki', __name__, template_folder='templates',
                       static_folder='static', static_url_path='/static/wiki')
@@ -77,6 +78,41 @@ def history(name):
     return render_template('wiki/history.html', name=name)
 
 
+@blueprint.route("/_feed/<path:name>")
+def feed(name):
+    if current_app.config.get('PRIVATE_WIKI') and current_user.is_anonymous:
+        return current_app.login_manager.unauthorized()
+    cname = to_canonical(name)
+    wiki_name = current_app.config['SITE_TITLE']
+    start = 0
+    length = int(request.args.get('length', 20))
+
+    the_feed = AtomFeed(
+        title="{} - Recent changes for page '{}'".format(wiki_name, cname),
+        url=url_for('wiki.page', name=cname, _external=True),
+        id="{}_pagefeed_{}".format(to_canonical(wiki_name), cname),
+        feed_url=url_for('wiki.feed', name=cname, _external=True),
+        generator=("Realms wiki", 'https://github.com/scragg0x/realms-wiki', __version__)
+    )
+
+    page = g.current_wiki.get_page(cname)
+    items = list(itertools.islice(page.history, start, start + length))  # type: list[dict]
+
+    for item in items:
+        the_feed.add(
+            title="Commit '{}'".format(item['sha']),
+            content=item['message'],
+            url=url_for('wiki.commit', name=name, sha=item['sha'], _external=True),
+            id="{}/{}".format(item['sha'], cname),
+            author=item['author'],
+            updated=datetime.fromtimestamp(item['time'])
+        )
+
+    response = make_response((the_feed.to_string(), {'Content-type': 'application/atom+xml; charset=utf-8'}))
+    response.add_etag()
+    return response.make_conditional(request)
+
+
 @blueprint.route("/_history_data/<path:name>")
 def history_data(name):
     """Ajax provider for paginated history data."""
@@ -86,7 +122,7 @@ def history_data(name):
     start = int(request.args.get('start', 0))
     length = int(request.args.get('length', 10))
     page = g.current_wiki.get_page(name)
-    items = list(itertools.islice(page.history, start, start + length))
+    items = list(itertools.islice(page.history, start, start + length))     # type: list[dict]
     for item in items:
         item['gravatar'] = gravatar_url(item['author_email'])
         item['DT_RowId'] = item['sha']

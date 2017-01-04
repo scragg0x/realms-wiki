@@ -1,4 +1,9 @@
 {% extends 'layout.html' %}
+
+{% block feed %}
+    <link href="{{ url_for('wiki.feed', name=name) }}" rel="feed" type="application/atom+xml" title={{ "Recent changes for page '{}'".format(name) }} >
+{% endblock %}
+
 {% block page_menu %}
   <div class="controls pull-right">
     <a class="btn btn-default btn-sm" href="{{ url_for('wiki.edit', name=name) }}">Edit</a>
