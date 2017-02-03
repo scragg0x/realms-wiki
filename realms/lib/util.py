@@ -84,7 +84,7 @@ def clean_url(url):
     return re.sub(r"//+", '/', url)
 
 
-def to_canonical(s):
+def sanitize(s):
     """
     Remove leading/trailing whitespace (from all path components)
     Remove leading underscores and slashes "/"
@@ -99,6 +99,17 @@ def to_canonical(s):
     s = s.lstrip("_/ ")
     s = re.sub(r"[" + re.escape(reserved_chars) + "]", "", s)
     s = re.sub(r"[" + re.escape(unsafe_chars) + "]", "", s)
+    return s
+
+
+def to_canonical(s):
+    """
+    Remove leading/trailing whitespace (from all path components)
+    Remove leading underscores and slashes "/"
+    Convert spaces to dashes "-"
+    Limit path components to 63 chars and total size to 436 chars
+    """
+    s = sanitize(s)
     # Strip leading/trailing spaces from path components, replace internal spaces
     # with '-', and truncate to 63 characters.
     parts = (part.strip().replace(" ", "-")[:63] for part in s.split("/"))
@@ -115,7 +126,7 @@ def cname_to_filename(cname):
     :return: str -- Filename
 
     """
-    return cname + ".md"
+    return sanitize(cname) + ".md"
 
 
 def filename_to_cname(filename):
