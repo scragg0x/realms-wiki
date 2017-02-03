@@ -441,13 +441,16 @@ ssl-cert, so in this example gunicorn runs with group *ssl-cert*.
 Finally, let systemd know about the new config file:
 
     sudo systemctl daemon-reload
-    
+
 After your config is in place use the following commands:
     
     sudo systemctl start realms-wiki.service
     sudo systemctl stop realms-wiki.service
     sudo systemctl restart realms-wiki.service
     
+    # Enable auto-start of this service on reboot:
+    sudo systemctl enable realms-wiki.service
+
 ### Development mode
 
 This will start the server in the foreground with auto reloaded enabled:
