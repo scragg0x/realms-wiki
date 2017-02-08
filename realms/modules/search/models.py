@@ -51,8 +51,6 @@ class SimpleSearch(BaseSearch):
             page = g.current_wiki.get_page(name)
             for tag in query.split():
                 found = False
-                if found:
-                    break
                 for word in nametmp.split('-'):
                     if tag in word:
                         if not dict(name=name, content=page.data) in res:
