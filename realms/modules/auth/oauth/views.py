@@ -2,8 +2,10 @@ from __future__ import absolute_import
 
 from flask import Blueprint, url_for, request, flash, redirect, session, current_app
 from .models import User
+from realms import config
 
 blueprint = Blueprint('auth.oauth', __name__)
+config = config.conf
 
 
 def oauth_failed(next_url):
@@ -36,6 +38,25 @@ def callback(provider):
     profile = User.get_provider_value(provider, 'profile')
     data = remote_app.get(profile).data if profile else resp
 
-    User.auth(provider, data, oauth_token)
+    # Adding check to verify domain restriction this is hacky but works.
+    # A proper implementation should be in flask_oauthlib but its not there
+    # so we do it a hacky way like this
 
-    return redirect(next_url)
+    restricted_domain = config.OAUTH.get(provider, {}).get('domain', None)
+
+    # If the domain restriction is in place then we verify the domain
+    # provided in config and oauth and check if both are some,
+    # if not same we do not authenticate in our system
+    if restricted_domain:
+        if data['hd'] == restricted_domain:
+            User.auth(provider, data, oauth_token)
+            return redirect(next_url)
+        else:
+            flash('You are not authorized to sign in.', 'error')
+            flash('Reason: Domain restriction in place, domain:"%s" is not allowed to sign in' % data['hd'])
+            return redirect(next_url)
+    # If no domain restriction is in place, just authenticate
+    # user and create user
+    else:
+        User.auth(provider, data, oauth_token)
+        return redirect(next_url)
