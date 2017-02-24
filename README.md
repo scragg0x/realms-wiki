@@ -340,7 +340,11 @@ Put them in your `realms-wiki.json` config file.  Use the example below.
         "github": {
             "key": "",
             "secret": ""
-        }
+        },
+        "google": {
+            "key": "",
+            "secret": "",
+            "domain": ""    # this is optional if you want to restrict to a GSuite domain
     }
 
 ### Authentication by reverse proxy
