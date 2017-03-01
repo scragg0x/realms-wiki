@@ -246,7 +246,7 @@ repositories.
     
 For `yum` instructions or more details, follow the link below:
 
-http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-repositories.html
+https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html
 
 **Configuring Elasticsearch**
 
