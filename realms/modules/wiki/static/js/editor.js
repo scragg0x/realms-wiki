@@ -76,7 +76,7 @@ var deletePage = function() {
   }).done(function(data) {
     var msg = 'Deleted page: ' + pageName;
     bootbox.alert(msg, function() {
-      location.href = '/';
+      location.href = Config['RELATIVE_PATH'] + '/';
     });
   }).fail(function(data, status, error) {
     bootbox.alert('Error deleting page!');

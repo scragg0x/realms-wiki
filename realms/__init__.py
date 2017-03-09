@@ -30,6 +30,11 @@ from realms.lib.util import to_canonical, remove_ext, mkdir_safe, gravatar_url, 
 from realms.lib.hook import HookModelMeta, HookMixin
 from realms.version import __version__
 
+try:
+    from mod_wsgi import version
+    running_on_wsgi = True
+except:
+    running_on_wsgi = False
 
 class Application(Flask):
 
@@ -73,7 +78,11 @@ class Application(Flask):
 
             # Blueprint
             if hasattr(sources, 'views'):
-                self.register_blueprint(sources.views.blueprint, url_prefix=self.config['RELATIVE_PATH'])
+
+                if running_on_wsgi:
+                    self.register_blueprint(sources.views.blueprint, url_prefix='')
+                else:
+                    self.register_blueprint(sources.views.blueprint, url_prefix=self.config['RELATIVE_PATH'])
 
             # Click
             if hasattr(sources, 'commands'):
@@ -202,7 +211,7 @@ def create_app(config=None):
     def page_not_found(e):
         return render_template('errors/404.html'), 404
 
-    if app.config.get('RELATIVE_PATH'):
+    if not running_on_wsgi and app.config.get('RELATIVE_PATH'):
         @app.route("/")
         def root():
             return redirect(url_for(app.config.get('ROOT_ENDPOINT')))
