@@ -35,7 +35,6 @@ try:
     running_on_wsgi = True
 except:
     running_on_wsgi = False
-    pass
 
 class Application(Flask):
 
