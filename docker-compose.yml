@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+
+  realms:
+    container_name: realms
+    image: zsiddiqi/realms-wiki:1.0.0
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    volumes:
+      - ./realms-data:/home/wiki/data
+    ports:
+      - "5001:5000"
+    # set as default in Dockerfile. Change if using a different DB
+    # environment:
+    #   - REALMS_DB_URI=sqlite:////home/wiki/data/wiki.db
