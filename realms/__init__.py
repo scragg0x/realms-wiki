@@ -247,6 +247,8 @@ assets.register('main.js',
                 'vendor/parsleyjs/dist/parsley.js',
                 'vendor/datatables/media/js/jquery.dataTables.js',
                 'vendor/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.js',
+                'vendor/katex/dist/katex.min.js',
+                'vendor/katex/dist/contrib/auto-render.min.js',
                 'js/hbs-helpers.js',
                 'js/mdr.js',
                 'js/main.js')
@@ -256,6 +258,7 @@ assets.register('main.css',
                 'vendor/components-font-awesome/css/font-awesome.css',
                 'vendor/highlightjs/styles/github.css',
                 'vendor/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css',
+                'vendor/katex/dist/katex.min.css',
                 'css/style.css')
 
 
