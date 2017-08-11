@@ -3,11 +3,13 @@ from __future__ import absolute_import
 import os
 import shutil
 import tempfile
+from functools import partial
 
 from flask_testing import TestCase
 
 from realms import create_app
 from realms.lib.util import random_string
+from realms.lib.flask_csrf_test_client import FlaskClient
 
 
 class BaseTest(TestCase):
@@ -19,6 +21,8 @@ class BaseTest(TestCase):
         app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = False
         app.config['WIKI_PATH'] = os.path.join(self.tempdir, random_string(12))
         app.config['DB_URI'] = 'sqlite:///%s/%s.db' % (self.tempdir, random_string(12))
+        app.test_client_class = FlaskClient
+        app.testing = True
         app.config.update(self.configure())
         return app
 
