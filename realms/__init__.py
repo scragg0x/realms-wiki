@@ -21,6 +21,7 @@ from flask_login import LoginManager, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_assets import Environment, Bundle
 from flask_ldap_login import LDAPLoginManager
+from flask_wtf import CsrfProtect
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 from sqlalchemy.ext.declarative import declarative_base
@@ -124,8 +125,6 @@ class Assets(Environment):
         output = kwargs.get('output', self.default_output[ext])
 
         return super(Assets, self).register(name, Bundle(*args, filters=filters, output=output))
-
-
 class MyLDAPLoginManager(LDAPLoginManager):
     @property
     def attrlist(self):
@@ -187,6 +186,7 @@ def create_app(config=None):
     assets.init_app(app)
     search.init_app(app)
     ldap.init_app(app)
+    csrf.init_app(app)
 
     db.Model = declarative_base(metaclass=HookModelMeta, cls=HookMixin)
 
@@ -234,6 +234,7 @@ cache = Cache(config={'CACHE_DEFAULT_TIMEOUT': 5.0})
 assets = Assets()
 search = Search()
 ldap = MyLDAPLoginManager()
+csrf = CsrfProtect()
 
 assets.register('main.js',
                 'vendor/jquery/dist/jquery.js',

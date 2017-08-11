@@ -5,6 +5,7 @@
     Commit.info = {{ info|tojson }};
 
     var PAGE_NAME = '{{ name }}';
+    var csrf_token = "{{ csrf_token() }}";
   </script>
   <script src="{{ url_for('wiki.static', filename='js/editor.js') }}"></script>
 

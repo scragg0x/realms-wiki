@@ -12,11 +12,15 @@ from realms.lib.test import BaseTest
 class WikiBaseTest(BaseTest):
     def update_page(self, name, message=None, content=None):
         return self.client.post(url_for('wiki.page_write', name=name),
-                                data=dict(message=message, content=content))
+                                data=dict(message=message, content=content,
+                                          csrf_token=self.client.csrf_token))
 
     def create_page(self, name, message=None, content=None):
-        return self.client.post(url_for('wiki.page_write', name=name),
-                                data=dict(message=message, content=content))
+        ret = self.client.post(url_for('wiki.page_write', name=name),
+                                data=dict(message=message, content=content,
+                                          csrf_token=self.client.csrf_token))
+        print ret.data
+        return ret
 
 
 class UtilTest(WikiBaseTest):
@@ -70,22 +74,31 @@ class WikiTest(WikiBaseTest):
         rv1 = self.create_page('test', message='test message', content='testing_old')
         self.update_page('test', message='test message', content='testing_new')
         data = json.loads(rv1.data)
-        self.client.post(url_for('wiki.revert'), data=dict(name='test', commit=data['sha']))
+        self.client.post(url_for('wiki.revert'),
+                         data=dict(name='test', commit=data['sha'],
+                                   csrf_token=self.client.csrf_token))
         self.client.get(url_for('wiki.page', name='test'))
         eq_(self.get_context_variable('page').data, 'testing_old')
-        self.assert_404(self.client.post(url_for('wiki.revert'), data=dict(name='test', commit='does not exist')))
+        self.assert_404(self.client.post(url_for('wiki.revert'),
+                                         data=dict(name='test', commit='does not exist',
+                                                   csrf_token=self.client.csrf_token)))
 
         self.app.config['WIKI_LOCKED_PAGES'] = ['test']
-        self.assert_403(self.client.post(url_for('wiki.revert'), data=dict(name='test', commit=data['sha'])))
+        self.assert_403(self.client.post(url_for('wiki.revert'),
+                                         data=dict(name='test', commit=data['sha'],
+                                                   csrf_token=self.client.csrf_token)))
         self.app.config['WIKI_LOCKED_PAGES'] = []
 
     def test_anon(self):
         rv1 = self.create_page('test', message='test message', content='testing_old')
+        print rv1
         self.update_page('test', message='test message', content='testing_new')
         data = json.loads(rv1.data)
         self.app.config['ALLOW_ANON'] = False
         self.assert_403(self.update_page('test', message='test message', content='testing_again'))
-        self.assert_403(self.client.post(url_for('wiki.revert'), data=dict(name='test', commit=data['sha'])))
+        self.assert_403(self.client.post(url_for('wiki.revert'),
+                                         data=dict(name='test', commit=data['sha'],
+                                                   csrf_token=self.client.csrf_token)))
 
 
 class RelativePathTest(WikiTest):

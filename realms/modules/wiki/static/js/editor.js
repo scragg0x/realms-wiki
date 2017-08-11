@@ -116,6 +116,13 @@ var aced = new Aced({
     var newPath = Config['RELATIVE_PATH'] + '/' + data['name'];
 
     var type = (Commit.info['sha']) ? "PUT" : "POST";
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
 
     $.ajax({
       type: type,
