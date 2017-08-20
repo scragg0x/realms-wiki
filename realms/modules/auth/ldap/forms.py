@@ -5,5 +5,5 @@ from wtforms import StringField, PasswordField, validators
 
 
 class LoginForm(Form):
-    login = StringField('Username', [validators.DataRequired()])
+    username = StringField('User ID', [validators.DataRequired()])
     password = PasswordField('Password', [validators.DataRequired()])
