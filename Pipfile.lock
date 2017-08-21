@@ -1,0 +1,161 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "36cdb0a8ff94ba985ffe014df37220898871f97aead14e6109a764bf7566e472"
+        },
+        "requires": {},
+        "sources": [
+            {
+                "url": "https://pypi.python.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "bcrypt": {
+            "version": "==1.0.2"
+        },
+        "beautifulsoup4": {
+            "version": "==4.3.2"
+        },
+        "certifi": {
+            "version": "==2017.7.27.1"
+        },
+        "cffi": {
+            "version": "==1.10.0"
+        },
+        "chardet": {
+            "version": "==3.0.4"
+        },
+        "click": {
+            "version": "==3.3"
+        },
+        "dulwich": {
+            "version": "==0.18.2"
+        },
+        "elasticsearch": {
+            "version": "==5.4.0"
+        },
+        "flask": {
+            "version": "==0.11.1"
+        },
+        "flask-assets": {
+            "version": "==0.12"
+        },
+        "flask-cache": {
+            "version": "==0.13.1"
+        },
+        "flask-elastic": {
+            "version": "==0.2"
+        },
+        "flask-login": {
+            "version": "==0.3.2"
+        },
+        "flask-oauthlib": {
+            "version": "==0.9.4"
+        },
+        "flask-sqlalchemy": {
+            "version": "==2.1"
+        },
+        "flask-wtf": {
+            "version": "==0.12"
+        },
+        "gevent": {
+            "version": "==1.0.2"
+        },
+        "ghdiff": {
+            "version": "==0.4"
+        },
+        "greenlet": {
+            "version": "==0.4.12"
+        },
+        "gunicorn": "==19.3",
+        "idna": {
+            "version": "==2.6"
+        },
+        "itsdangerous": {
+            "version": "==0.24"
+        },
+        "jinja2": {
+            "version": "==2.9.6"
+        },
+        "ldap3": {
+            "version": "==2.3"
+        },
+        "markdown2": {
+            "version": "==2.3.1"
+        },
+        "markupsafe": {
+            "version": "==1.0"
+        },
+        "oauthlib": {
+            "version": "==2.0.2"
+        },
+        "pyasn1": {
+            "version": "==0.3.2"
+        },
+        "pycparser": {
+            "version": "==2.18"
+        },
+        "pyyaml": {
+            "version": "==3.11"
+        },
+        "requests": {
+            "version": "==2.18.4"
+        },
+        "requests-oauthlib": {
+            "version": "==0.8.0"
+        },
+        "simplejson": {
+            "version": "==3.6.3"
+        },
+        "six": {
+            "version": "==1.10.0"
+        },
+        "sqlalchemy": {
+            "version": "==1.1.13"
+        },
+        "urllib3": {
+            "version": "==1.22"
+        },
+        "webassets": {
+            "version": "==0.12.1"
+        },
+        "werkzeug": {
+            "version": "==0.12.2"
+        },
+        "wtforms": {
+            "version": "==2.1"
+        }
+    },
+    "develop": {
+        "blinker": {
+            "version": "==1.3"
+        },
+        "flask-testing": "==0.4.3",
+        "nose": {
+            "version": "==1.3.4"
+        },
+        "pew": {
+            "version": "==0.1.26"
+        },
+        "pip": {
+            "version": "==9.0.1"
+        },
+        "pipenv": {
+            "version": "==5.1.2"
+        },
+        "pythonz-bd": {
+            "version": "==1.11.4"
+        },
+        "setuptools": {
+            "version": "==36.2.7"
+        },
+        "virtualenv": {
+            "version": "==15.1.0"
+        },
+        "virtualenv-clone": {
+            "version": "==0.2.6"
+        }
+    }
+}
