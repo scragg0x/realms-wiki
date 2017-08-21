@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 import json
 import os
-import sys
 
 # noinspection PyUnresolvedReferences
 from six.moves.urllib.parse import urlparse
@@ -160,7 +159,7 @@ class Config(object):
     MODULES = ['wiki', 'search', 'auth']
 
     def __init__(self):
-        for k, v in self.read().iteritems():
+        for k, v in self.read().items():
             setattr(self, k, v)
         if getattr(self, 'AUTH_LOCAL_ENABLE', True):
             self.MODULES.append('auth.local')

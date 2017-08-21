@@ -204,7 +204,7 @@ def create_app():
 
     @app.template_filter('b64encode')
     def _jinja2_filter_b64encode(s):
-        return base64.urlsafe_b64encode(s).rstrip("=")
+        return base64.urlsafe_b64encode(s.encode('utf-8')).rstrip(b"=").decode()
 
     @app.errorhandler(404)
     def page_not_found(e):

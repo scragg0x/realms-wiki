@@ -155,7 +155,7 @@ def edit(name):
     g.assets['js'].append('editor.js')
     return render_template('wiki/edit.html',
                            name=cname,
-                           content=page.data,
+                           content=page.data.decode(),
                            # TODO: Remove this? See #148
                            info=next(page.history),
                            sha=page.sha)
@@ -176,7 +176,8 @@ def _partials(imports, sha='HEAD'):
             continue
         page_queue.extend(page.imports)
     # We want to retain the order (and reverse it) so that combining metadata from the imports works
-    return list(reversed(partials.items()))
+    # nested list for python >3.5 compatibility
+    return list(reversed(list(partials.items())))
 
 
 @blueprint.route("/_partials")

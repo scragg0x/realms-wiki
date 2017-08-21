@@ -1,9 +1,9 @@
 from __future__ import absolute_import
+from six import with_metaclass
 
 from functools import wraps
 
 from flask_sqlalchemy import DeclarativeMeta
-
 
 
 def hook_func(name, fn):
@@ -26,8 +26,6 @@ def hook_func(name, fn):
 
 class HookMixinMeta(type):
     def __new__(cls, name, bases, attrs):
-        super_new = super(HookMixinMeta, cls).__new__
-
         hookable = []
         for key, value in attrs.items():
             # Disallow hooking methods which start with an underscore (allow __init__ etc. still)
@@ -38,12 +36,10 @@ class HookMixinMeta(type):
                 hookable.append(key)
         attrs['_hookable'] = hookable
 
-        return super_new(cls, name, bases, attrs)
+        return super(HookMixinMeta, cls).__new__(cls, name, bases, attrs)
 
 
-class HookMixin(object):
-    __metaclass__ = HookMixinMeta
-
+class HookMixin(with_metaclass(HookMixinMeta, object)):
     _pre_hooks = {}
     _post_hooks = {}
     _hookable = []

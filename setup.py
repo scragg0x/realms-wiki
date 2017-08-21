@@ -1,5 +1,10 @@
 import os
+from pipenv.project import Project
+from pipenv.utils import convert_deps_to_pip
 from setuptools import setup, find_packages
+
+pipfile = Project().parsed_pipfile
+requirements = convert_deps_to_pip(pipfile['packages'], r=False)
 
 if os.environ.get('USER', '') == 'vagrant':
     del os.link
@@ -22,30 +27,7 @@ CLASSIFIERS = [
 setup(name='realms-wiki',
       version=__version__,
       packages=find_packages(),
-      install_requires=[
-          'Flask==0.11.1',
-          'Flask-Assets==0.12',
-          'Flask-Cache==0.13.1',
-          'Flask-Elastic==0.2',
-          'Flask-Login==0.3.2',
-          'Flask-OAuthlib==0.9.3',
-          'Flask-SQLAlchemy==2.1',
-          'Flask-WTF==0.12',
-          'PyYAML==3.11',
-          'bcrypt==1.0.2',
-          'beautifulsoup4==4.3.2',
-          'click==3.3',
-          'dulwich==0.14.1',
-          'ldap3==1.4.0',
-          'gevent==1.0.2',
-          'ghdiff==0.4',
-          'gunicorn==19.3',
-          'itsdangerous==0.24',
-          'markdown2==2.3.1',
-          'python-ldap==2.4.22',
-          'simplejson==3.6.3',
-          'six==1.10.0'
-      ],
+      install_requires=requirements,
       entry_points={
           'console_scripts': [
               'realms-wiki = realms.commands:cli'

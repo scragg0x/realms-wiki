@@ -94,8 +94,8 @@ def sanitize(s):
     reserved_chars = "&$+,:;=?@#"
     unsafe_chars = "?<>[]{}|\^~%"
 
-    s = s.encode("utf8")
-    s = re.sub(r"\s+", " ", s)
+    # s = s.encode("utf8")
+    s = re.sub(r"\s+", b" ", s)
     s = s.lstrip("_/ ")
     s = re.sub(r"[" + re.escape(reserved_chars) + "]", "", s)
     s = re.sub(r"[" + re.escape(unsafe_chars) + "]", "", s)
@@ -113,6 +113,7 @@ def to_canonical(s):
     # Strip leading/trailing spaces from path components, replace internal spaces
     # with '-', and truncate to 63 characters.
     parts = (part.strip().replace(" ", "-")[:63] for part in s.split("/"))
+
     # Join any non-empty path components back together
     s = "/".join(filter(None, parts))
     s = s[:436]

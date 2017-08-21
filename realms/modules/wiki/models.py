@@ -8,6 +8,7 @@ import ghdiff
 import yaml
 from dulwich.object_store import tree_lookup_path
 from dulwich.repo import Repo, NotGitRepository
+from six import text_type
 
 from realms import cache
 from realms.lib.hook import HookMixin
@@ -32,6 +33,7 @@ class Wiki(HookMixin):
             self.repo = Repo(path)
         except NotGitRepository:
             self.repo = Repo.init(path, mkdir=True)
+            # TODO add first commit here
 
         self.path = path
 
@@ -47,13 +49,13 @@ class Wiki(HookMixin):
         :param files: list of file names that will be staged for commit
         :return:
         """
-        if isinstance(name, unicode):
+        if isinstance(name, text_type):
             name = name.encode('utf-8')
-        if isinstance(email, unicode):
+        if isinstance(email, text_type):
             email = email.encode('utf-8')
-        if isinstance(message, unicode):
+        if isinstance(message, text_type):
             message = message.encode('utf-8')
-        author = committer = "%s <%s>" % (name, email)
+        author = committer = "%s <%s>".format(name, email).encode()
         self.repo.stage(files)
         return self.repo.do_commit(message=message,
                                    committer=committer,
@@ -102,7 +104,7 @@ class WikiPage(HookMixin):
         if cached:
             return cached
 
-        mode, sha = tree_lookup_path(self.wiki.repo.get_object, self.wiki.repo[self.sha].tree, self.filename)
+        mode, sha = tree_lookup_path(self.wiki.repo.get_object, self.wiki.repo[self.sha].tree, self.filename.encode())
         data = self.wiki.repo[sha].data
         cache.set(cache_key, data)
         return data
@@ -152,6 +154,7 @@ class WikiPage(HookMixin):
             # Index is empty, no commits
             return
         filename = filename or self.filename
+        filename = filename.encode('utf-8')
         walker = iter(self.wiki.repo.get_walker(paths=[filename],
                                                 include=start_sha,
                                                 exclude=end_sha,
@@ -168,7 +171,7 @@ class WikiPage(HookMixin):
                     change_type = change.type
                     break
 
-            author_name, author_email = entry.commit.author.rstrip('>').split('<')
+            author_name, author_email = entry.commit.author.rstrip(b'>').split(b'<')
             r = dict(author=author_name.strip(),
                      author_email=author_email,
                      time=entry.commit.author_time,
@@ -206,7 +209,7 @@ class WikiPage(HookMixin):
         :return: dict
 
         """
-        if not content.startswith("---"):
+        if not content.startswith(b"---"):
             return None
 
         meta_end = re.search("\n(\.{3}|\-{3})", content)
@@ -309,7 +312,7 @@ class WikiPage(HookMixin):
         :param email: Commit Email.
         :return: Git commit sha1.
         """
-        assert self.sha == 'HEAD'
+        assert self.sha == b'HEAD'
         dirname = posixpath.join(self.wiki.path, posixpath.dirname(self.filename))
 
         if not os.path.exists(dirname):

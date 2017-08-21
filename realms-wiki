@@ -3,12 +3,12 @@
 from realms.commands import cli
 
 if __name__ == '__main__':
-    print
-    print "----------------------------------"
-    print "This script is for development.\n" \
+    print()
+    print("----------------------------------")
+    print("This script is for development.\n" \
           "If you installed via pip, " \
-          "you should have realms-wiki in your PATH that should be used instead."
-    print "----------------------------------"
-    print
+          "you should have realms-wiki in your PATH that should be used instead.")
+    print("----------------------------------")
+    print()
 
     cli()
