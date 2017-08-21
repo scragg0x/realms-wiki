@@ -1,10 +1,15 @@
 from __future__ import absolute_import
 
 import sys
+
 # Set default encoding to UTF-8
-reload(sys)
-# noinspection PyUnresolvedReferences
-sys.setdefaultencoding('utf-8')
+try:
+    reload(sys)
+    # noinspection PyUnresolvedReferences
+    sys.setdefaultencoding('utf-8')
+except NameError:
+    # python3
+    pass
 
 import functools
 import base64
@@ -17,7 +22,7 @@ from functools import update_wrapper
 import click
 from flask import Flask, request, render_template, url_for, redirect, g
 from flask_cache import Cache
-from flask_login import LoginManager, current_user, logout_user
+from flask_login import LoginManager, current_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_assets import Environment, Bundle
 from flask_wtf import CsrfProtect
@@ -35,6 +40,7 @@ try:
     running_on_wsgi = True
 except:
     running_on_wsgi = False
+
 
 class Application(Flask):
 
@@ -126,13 +132,6 @@ class Assets(Environment):
         return super(Assets, self).register(name, Bundle(*args, filters=filters, output=output))
 
 
-class MyLDAPLoginManager(LDAPLoginManager):
-    @property
-    def attrlist(self):
-        # the parent method doesn't always work
-        return None
-
-
 class RegexConverter(BaseConverter):
     """ Enables Regex matching on endpoints
     """
@@ -175,7 +174,7 @@ def error_handler(e):
     return response, status_code
 
 
-def create_app(config=None):
+def create_app():
     app = Application(__name__)
     app.config.from_object('realms.config.conf')
     app.url_map.converters['regex'] = RegexConverter
@@ -233,7 +232,6 @@ db = SQLAlchemy()
 cache = Cache(config={'CACHE_DEFAULT_TIMEOUT': 5.0})
 assets = Assets()
 search = Search()
-ldap = MyLDAPLoginManager()
 csrf = CsrfProtect()
 
 assets.register('main.js',
