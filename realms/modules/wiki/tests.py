@@ -19,7 +19,6 @@ class WikiBaseTest(BaseTest):
         ret = self.client.post(url_for('wiki.page_write', name=name),
                                 data=dict(message=message, content=content,
                                           csrf_token=self.client.csrf_token))
-        print ret.data
         return ret
 
 
@@ -91,7 +90,6 @@ class WikiTest(WikiBaseTest):
 
     def test_anon(self):
         rv1 = self.create_page('test', message='test message', content='testing_old')
-        print rv1
         self.update_page('test', message='test message', content='testing_new')
         data = json.loads(rv1.data)
         self.app.config['ALLOW_ANON'] = False
