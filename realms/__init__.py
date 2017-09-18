@@ -252,7 +252,6 @@ assets.register('main.js',
 
 assets.register('main.css',
                 'vendor/bootswatch-dist/css/bootstrap.css',
-                'vendor/components-font-awesome/css/font-awesome.css',
                 'vendor/highlightjs/styles/github.css',
                 'vendor/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css',
                 'css/style.css')

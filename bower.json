@@ -3,7 +3,6 @@
   "version": "0.1.2",
   "dependencies": {
     "components-bootstrap": "~3.3.6",
-    "components-font-awesome": "~4.7.0",
     "jquery": "~2.2.3",
     "highlightjs": "~9.2.0",
     "handlebars": "~4.0.5",
