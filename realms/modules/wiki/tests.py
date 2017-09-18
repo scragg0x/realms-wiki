@@ -16,10 +16,9 @@ class WikiBaseTest(BaseTest):
                                           csrf_token=self.client.csrf_token))
 
     def create_page(self, name, message=None, content=None):
-        ret = self.client.post(url_for('wiki.page_write', name=name),
+        return self.client.post(url_for('wiki.page_write', name=name),
                                 data=dict(message=message, content=content,
                                           csrf_token=self.client.csrf_token))
-        return ret
 
 
 class UtilTest(WikiBaseTest):

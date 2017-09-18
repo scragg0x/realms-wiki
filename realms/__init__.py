@@ -298,6 +298,7 @@ class AppGroup(click.Group):
         kwargs.setdefault('cls', AppGroup)
         return click.Group.group(self, *args, **kwargs)
 
+
 cli = AppGroup()
 
 # Decorator to be used in modules instead of click.group

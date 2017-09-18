@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import os
 import shutil
 import tempfile
-from functools import partial
 
 from flask_testing import TestCase
 

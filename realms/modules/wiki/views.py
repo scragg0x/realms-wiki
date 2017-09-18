@@ -24,12 +24,12 @@ def commit(name, sha):
 
     cname = to_canonical(name)
 
-    data = g.current_wiki.get_page(cname, sha=sha)
+    data = g.current_wiki.get_page(cname, sha=sha.decode())
 
     if not data:
         abort(404)
 
-    partials = _partials(data.imports, sha=sha)
+    partials = _partials(data.imports, sha=sha.decode())
 
     return render_template('wiki/page.html', name=name, page=data, commit=sha, partials=partials)
 
@@ -68,7 +68,7 @@ def revert():
     if sha:
         flash("Page reverted")
 
-    return dict(sha=sha)
+    return dict(sha=sha.decode())
 
 
 @blueprint.route("/_history/<path:name>")
@@ -168,7 +168,7 @@ def _partials(imports, sha='HEAD'):
         page_name = page_queue.popleft()
         if page_name in partials:
             continue
-        page = g.current_wiki.get_page(page_name, sha=sha)
+        page = g.current_wiki.get_page(page_name, sha=sha.decode())
         try:
             partials[page_name] = page.data
         except KeyError:
@@ -282,7 +282,7 @@ def page_write(name):
                                                         username=current_user.username,
                                                         email=current_user.email)
 
-        return dict(sha=sha)
+        return dict(sha=sha.decode())
 
     elif request.method == 'DELETE':
         # DELETE
@@ -292,7 +292,7 @@ def page_write(name):
         sha = g.current_wiki.get_page(cname).delete(username=current_user.username,
                                                     email=current_user.email)
 
-    return dict(sha=sha)
+    return dict(sha=sha.decode())
 
 
 @blueprint.route("/", defaults={'name': 'home'})
