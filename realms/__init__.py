@@ -240,7 +240,7 @@ assets.register('main.js',
                 'vendor/handlebars/handlebars.js',
                 'vendor/js-yaml/dist/js-yaml.js',
                 'vendor/markdown-it/dist/markdown-it.js',
-                'vendor/markdown-it-anchor/index.0',
+                # 'vendor/markdown-it-anchor/index.0', # no ES5 version
                 'js/html-sanitizer-minified.js',  # don't minify?
                 'vendor/highlightjs/highlight.pack.js',
                 'vendor/parsleyjs/dist/parsley.js',
