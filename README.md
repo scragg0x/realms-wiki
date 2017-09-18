@@ -21,7 +21,7 @@ Source: https://github.com/scragg0x/realms-wiki
 
 ## Screenshots
 
-[<img src="https://db.tt/Q2XHGRnT" width=340 />](https://db.tt/Q2XHGRnT)&nbsp;[<img  width=340 src="https://db.tt/pIZ4w2oN" />](https://db.tt/pIZ4w2oN)&nbsp;[<img  width=340 src="https://db.tt/ERLmDHrk" />](https://db.tt/ERLmDHrk)&nbsp;[<img width=340 src="https://db.tt/Ls08ocLh" />](https://db.tt/Ls08ocLh)&nbsp;[<img width=340 src="https://db.tt/7QVfXFQ4" />](https://db.tt/7QVfXFQ4)&nbsp;[<img width=340 src="https://db.tt/Lna3BOm1" />](https://db.tt/Lna3BOm1)
+[<img src="https://storage.googleapis.com/realms-wiki/img/1.png" width=340 />](https://storage.googleapis.com/realms-wiki/img/1.png)&nbsp;[<img  width=340 src="https://storage.googleapis.com/realms-wiki/img/2.png" />](https://storage.googleapis.com/realms-wiki/img/2.png)&nbsp;[<img  width=340 src="https://storage.googleapis.com/realms-wiki/img/3.png" />](https://storage.googleapis.com/realms-wiki/img/3.png)&nbsp;[<img width=340 src="https://storage.googleapis.com/realms-wiki/img/4.png" />](https://storage.googleapis.com/realms-wiki/img/4.png)&nbsp;[<img width=340 src="https://storage.googleapis.com/realms-wiki/img/5.png" />](https://storage.googleapis.com/realms-wiki/img/5.png)&nbsp;[<img width=340 src="https://storage.googleapis.com/realms-wiki/img/6.png" />](https://storage.googleapis.com/realms-wiki/img/6.png)
 
 ## Requirements
 
