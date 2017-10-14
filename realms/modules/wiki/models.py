@@ -98,16 +98,21 @@ class WikiPage(HookMixin):
         self.wiki = wiki
 
     @property
-    def data(self):
+    def file(self):
         cache_key = self._cache_key('data')
         cached = cache.get(cache_key)
         if cached:
             return cached
 
         mode, sha = tree_lookup_path(self.wiki.repo.get_object, self.wiki.repo[self.sha].tree, self.filename.encode())
-        data = self.wiki.repo[sha].data
-        cache.set(cache_key, data)
-        return data
+        file = self.wiki.repo[sha]
+        cache.set(cache_key, file)
+        return file
+
+
+    @property
+    def data(self):
+        return self.file.data
 
     @property
     def history(self):
