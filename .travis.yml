@@ -16,7 +16,7 @@ addons:
     - libssl-dev
 
 install:
-  - pip install pipenv
+  - pip install -U pipenv
   - pipenv install --dev
 
 script: pipenv run nosetests
