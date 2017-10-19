@@ -18,3 +18,4 @@ realms/static/assets/*
 /wiki.db
 /wiki
 npm-debug.log
+realms-data
