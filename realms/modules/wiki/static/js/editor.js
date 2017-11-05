@@ -110,6 +110,12 @@ var aced = new Aced({
       content: content
     };
 
+    if (!data.name) {
+      $page_name.addClass('parsley-error');
+      bootbox.alert("<h3>Invalid Page Name</h3>");
+      return;
+    }
+
     // If renaming an existing page, use the old page name for the URL to PUT to
     var subPath = (PAGE_NAME) ? PAGE_NAME : data['name'];
     var path = Config['RELATIVE_PATH'] + '/' + subPath;
