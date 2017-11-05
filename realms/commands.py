@@ -30,7 +30,7 @@ def get_user():
 
 def get_pid():
     try:
-        with file(config.PIDFILE) as f:
+        with open(config.PIDFILE) as f:
             return f.read().strip()
     except IOError:
         return None
@@ -313,9 +313,7 @@ def dev(port, host):
     else:
         yellow("Using default configuration")
 
-    create_app().run(host=host,
-                     port=port,
-                     debug=True)
+    app.run(host=host, port=port, debug=True)
 
 
 def start_server():
@@ -453,6 +451,7 @@ def deploy():
     """ Deploy to PyPI
     """
     call("python setup.py sdist upload", shell=True)
+
 
 if __name__ == '__main__':
     cli()
