@@ -5,7 +5,6 @@ Inspired by [Gollum][gollum], [Ghost][ghost], and [Dillinger][dillinger].
 Basic authentication and registration included.
 
 Demo: http://realms.io
-This domain is being used temporarily as a demo so expect it to change.
 
 Source: https://github.com/scragg0x/realms-wiki
 
@@ -25,7 +24,7 @@ Source: https://github.com/scragg0x/realms-wiki
 
 ## Requirements
 
-- Python 2.7
+- Python 2.7 (Python 3.x is a WIP)
 
 ### Optional
 
@@ -40,7 +39,7 @@ Source: https://github.com/scragg0x/realms-wiki
 
 You will need the following packages to get started:
 
-#### Ubuntu
+#### Ubuntu 16.04
 
     sudo apt-get install -y python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev
 
@@ -50,7 +49,7 @@ You will need the following packages to get started:
     
 #### OSX / Windows
 
-This app is designed for Linux and I recommend using Vagrant to install on OSX or Windows.
+This app is designed for Linux. Vagrant can be used to run on OSX/Windows host.
 
 ### Realms Wiki installation via PyPI
 
@@ -65,43 +64,32 @@ The easiest way. Install it using Python Package Index:
     git clone https://github.com/scragg0x/realms-wiki
     cd realms-wiki
 
-    sudo apt-get install -y software-properties-common python-software-properties
+    curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+    sudo apt-get install -y nodejs
     
-    # If using Ubuntu 14.04, get nodejs from this PPA:
-    #sudo add-apt-repository -y ppa:chris-lea/node.js
-    #sudo apt-get update
-    
-    # If using Ubuntu 16.04, get nodejs, nodejs-legacy, and npm from 
-    # the official repo. Also, get virtualenv:
-    sudo apt-get install -y npm nodejs-legacy virtualenv
-
-    sudo apt-get install -y nodejs python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev
+    sudo apt-get install -y python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev
     sudo npm install -g bower
     bower install
 
-    virtualenv .venv
-    source .venv/bin/activate
+    sudo pip install -U pipenv
+    pipenv install --two
 
-    pip install -r requirements.txt
-    realms-wiki start
+    # development
+    pipenv run python realms-wiki dev
+
+    # install / start
+    pipenv run python setup.py install
+    pipenv run realms-wiki start
     
 NodeJS is required for installing [bower](http://bower.io) and it's used for pulling front end dependencies.
 
-### Realms Wiki via Vagrant
+### Vagrant
 
-Vagrantfile is included for development or running locally.
+Vagrantfile is included for development and testing with compatible backends.
 To get started with Vagrant, download and install Vagrant and VirtualBox for your platform with the links provided:
 
 - https://www.vagrantup.com/downloads.html
 - https://www.virtualbox.org/wiki/Downloads
-
-Then execute the following in the terminal:
-
-    git clone https://github.com/scragg0x/realms-wiki
-    cd realms-wiki
-    vagrant up
-
-Check [http://127.0.0.1:5000/](http://127.0.0.1:5000/) to make sure it's running.
 
 ### Realms Wiki via Docker
 
@@ -235,16 +223,7 @@ We currently support Elasticsearch and Whoosh as alternative backend.
 
 ### Elasticsearch Setup
 
-There are multiple ways to install/run Elasticsearch. An easy way is to use your their
-repositories.  
-
-**apt**
-
-    wget -qO - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo apt-key add -
-    echo "deb http://packages.elasticsearch.org/elasticsearch/1.4/debian stable main" | sudo tee /etc/apt/sources.list.d/elasticsearch.list
-    apt-get update && apt-get install elasticsearch
-    
-For `yum` instructions or more details, follow the link below:
+**Installing Elasticsearch**
 
 https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html
 
