@@ -35,8 +35,6 @@ Source: https://github.com/scragg0x/realms-wiki
 
 ## Installation
 
-### Requirements installation
-
 You will need the following packages to get started:
 
 #### Ubuntu 16.04
@@ -98,8 +96,7 @@ Here is an example run command, it will pull the image from docker hub initially
 
     docker run --name realms-wiki -p 5000:5000 -d realms/realms-wiki
     
-You can build your own image if you want. Mine is based off https://github.com/phusion/baseimage-docker
-The Dockerfile is located in [docker/Dockerfile](docker/Dockerfile) `realms/base` just creates the deploy user.
+The Dockerfile is located in [docker/Dockerfile](docker/Dockerfile)
 
 ## Config and Setup
 

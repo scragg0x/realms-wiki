@@ -1,37 +1,35 @@
-FROM ubuntu:trusty
+FROM ubuntu:xenial
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update && \
+# install prereqs
+RUN apt-get -qq update && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
-    apt-get install -y software-properties-common python-software-properties build-essential\
-    python python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev \
-    pkg-config libssl-dev libsasl2-dev libldap2-dev git python-virtualenv && \
-    add-apt-repository -y ppa:chris-lea/node.js && \
-    apt-get install -y npm nodejs && \
-    apt-get clean  && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    ln -s /usr/bin/nodejs /usr/bin/node && \
-    npm install -g bower clean-css@3 && \
-    useradd -ms /bin/bash wiki && \
-    gpasswd -a wiki sudo
+    apt-get install -y sudo git curl python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev
+
+# install pipenv
+RUN pip install -U pipenv
+
+# install node
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+RUN apt-get install -y nodejs
+RUN npm install -g bower clean-css@3
+
+# clean up
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# create wiki user
+RUN useradd -ms /bin/bash wiki && gpasswd -a wiki sudo
 
 # copy the cloned repo recursively
 COPY ./ /home/wiki/realms-wiki/
 RUN chown -R wiki:wiki /home/wiki && \
     echo "wiki:wiki" | chpasswd && \
-    echo "wiki    ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers
+    echo "wiki    ALL=(ALL:ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
 
 USER wiki
 
 WORKDIR /home/wiki/realms-wiki/
-
-RUN virtualenv /home/wiki/realms-wiki/.venv && \
-    . /home/wiki/realms-wiki/.venv/bin/activate && \
-    bower --config.interactive=false install && \
-    pip install -r requirements.txt && \
-    mkdir /home/wiki/data && \
-    touch /home/wiki/data/.a
 
 ENV WORKERS=3
 ENV GEVENT_RESOLVER=ares
@@ -39,6 +37,13 @@ ENV GEVENT_RESOLVER=ares
 ENV REALMS_ENV=docker
 ENV REALMS_WIKI_PATH=/home/wiki/data/repo
 ENV REALMS_DB_URI='sqlite:////home/wiki/data/wiki.db'
+ENV PIPENV_VENV_IN_PROJECT=1
+
+RUN pipenv install --two --dev && \
+    bower --config.interactive=false install && \
+    mkdir /home/wiki/data
+
+RUN pipenv run python setup.py install
 
 VOLUME /home/wiki/data
 
@@ -60,4 +65,3 @@ CMD . /home/wiki/realms-wiki/.venv/bin/activate && \
         --bind 0.0.0.0:5000 \
         --chdir /home/wiki/realms-wiki \
         'realms:create_app()'
-#    /usr/local/bin/realms-wiki start
