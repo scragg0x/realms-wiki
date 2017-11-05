@@ -77,7 +77,10 @@ class User(Model, BaseUser):
 
     @staticmethod
     def auth(email, password):
-        user = User.get_by_email(email)
+        if '@' in email:
+            user = User.get_by_email(email)
+        else:
+            user = User.get_by_username(email)
 
         if not user:
             # User doesn't exist
