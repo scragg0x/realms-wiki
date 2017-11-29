@@ -358,7 +358,7 @@ The default LDAP login header is **LDAP Login**, but **LDAP** alone is a bit vag
 You can set a custom LDAP Login header like so:
 
     "LDAP": {
-        "LOGIN_DESCRIPTION": "ACME LDAP Login <i>(yor email account)</i>",
+        "LOGIN_DESCRIPTION": "ACME LDAP Login <i>(your email account)</i>",
         ...
     }
 
