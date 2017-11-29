@@ -351,6 +351,18 @@ It is similar to LDAP/TLS. Just add a START_TLS option:
 
 The VALIDATE option can be used here too.
 
+#### LDAP Login custom header
+
+The default LDAP login header is **LDAP Login**, but **LDAP** alone is a bit vague sometimes.
+
+You can set a custom LDAP Login header like so:
+
+    "LDAP": {
+        "LOGIN_DESCRIPTION": "ACME LDAP Login <i>(yor email account)</i>",
+        ...
+    }
+
+
 #### Configuration change for TLS
 
 Please note that the TLS/START_TLS configuration changed from previous versions of Realms. The old way that was from

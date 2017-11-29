@@ -1,5 +1,5 @@
 {% from 'macros.html' import render_form, render_field %}
-{% if config.get('AUTH_LOCAL_ENABLE') %}
+{% if config.AUTH_LOCAL_ENABLE %}
     <button type="button" class="btn btn-info" data-toggle="modal" data-target="#ldap-modal">
       <i class="fa fa-folder-open-o"></i>&nbsp; Login with LDAP
     </button>
@@ -21,7 +21,13 @@
       </div>
     </div>
 {% else %}
-    <h3><i class="fa fa-folder-open-o"></i>&nbsp;LDAP Login</h3>
+    <h3><i class="fa fa-folder-open-o"></i>&nbsp;
+{% if config.LDAP.LOGIN_DESCRIPTION %}
+      {{ config.LDAP.LOGIN_DESCRIPTION|safe }}
+{% else %}
+      LDAP Login
+{% endif %}
+    </h3>
     {% call render_form(form, action_url=url_for('auth.ldap.login'), action_text='Login', btn_class='btn btn-primary') %}
     {{ render_field(form.username, placeholder='Username', type='text', required=1) }}
     {{ render_field(form.password, placeholder='Password', type='password', required=1) }}
