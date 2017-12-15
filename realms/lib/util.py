@@ -72,11 +72,8 @@ def extract_name(file_path):
 
 
 def get_ext(path):
-    match = re.match(r"^[^.]+\.([^.]+)$", path)
-    if match:
-        return match.group(1)
-    else:
-        return ''
+    (file, ext) = os.path.splitext(path)
+    return ext
 
 
 def remove_ext(path):
