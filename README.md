@@ -40,7 +40,7 @@ attachments:
 This is a test example page. 
 ```
 
-[[https://github.com/thomaskcr/realms-wiki/blob/master/docs/screenshot-filemanager.png]]
+![](https://raw.githubusercontent.com/thomaskcr/realms-wiki/master/docs/screenshot-filemanager.png)
 
 
 ## Requirements
