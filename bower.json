@@ -16,6 +16,8 @@
     "bootswatch-dist": "3.3.6-flatly",
     "bootbox": "4.4.0",
     "datatables": "1.10.16",
-    "datatables-plugins": "latest"
+    "datatables-plugins": "latest",
+    "x-editable": "^1.5.1",
+    "dropzone": "^5.1.1"
   }
 }

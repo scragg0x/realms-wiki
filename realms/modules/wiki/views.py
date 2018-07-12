@@ -13,6 +13,10 @@ from realms.version import __version__
 from realms.lib.util import to_canonical, remove_ext, gravatar_url
 from .models import PageNotFound
 
+import yaml
+import shortuuid
+import boto3, botocore
+
 blueprint = Blueprint('wiki', __name__, template_folder='templates',
                       static_folder='static', static_url_path='/static/wiki')
 
@@ -295,6 +299,122 @@ def page_write(name):
     return dict(sha=sha.decode())
 
 
+@blueprint.route("/_filedata/<path:name>", methods=['POST'])
+@login_required
+def filedata(name):
+    page_cname = to_canonical(name)
+    page = g.current_wiki.get_page(page_cname)
+
+    file_key = request.form['pk']
+    attr_name = request.form['name']
+    value = request.form['value']
+
+    if attr_name == "description":
+        front_matter = page.get_front_matter() if page else {}
+            
+        if "attachments" in front_matter.keys():
+            attachments = front_matter["attachments"]
+        else:
+            attachments = []
+
+        found_key = False
+        updated_attachments = []
+
+        for attachment in attachments:
+            if file_key == attachment.get("key"):
+                attachment["description"] = value
+                found_key = True
+
+            updated_attachments.append(attachment)
+
+        front_matter["attachments"] = updated_attachments
+
+        page_content = page.data if page else ""
+        page_content = page.update_front_matter(page_content, front_matter)
+
+        sha = page.write(page_content, message="Updated file data for " + file_key,
+                         username=current_user.username, email=current_user.email)
+
+        return value
+    else:
+        # In the future this endpoint can be used to edit filenames (only the
+        # key needs to stay the same) or other file attributes. 
+        raise NotImplementedError
+
+
+@blueprint.route("/_download/<path:key>", methods=['GET'])
+@login_required
+def download(key):
+    S3_ACCESS_KEY = current_app.config.get('S3_ACCESS_KEY') 
+    S3_SECRET_KEY = current_app.config.get('S3_SECRET_KEY') 
+    S3_BUCKET = current_app.config.get('S3_BUCKET') 
+
+    bucket_name = S3_BUCKET
+    s3 = boto3.client("s3", aws_access_key_id=S3_ACCESS_KEY,
+        aws_secret_access_key=S3_SECRET_KEY)
+
+    signed_url = s3.generate_presigned_url(
+        ClientMethod='get_object',
+        Params={
+            'Bucket': bucket_name,
+            'Key': key
+        },
+        ExpiresIn=100
+    )
+
+    return redirect(signed_url)
+
+
+@blueprint.route("/_upload/<path:name>", methods=['POST'])
+@login_required
+def upload(name):
+    page_cname = to_canonical(name)
+    page = g.current_wiki.get_page(page_cname)
+    
+    front_matter = page.get_front_matter() if page else {}
+    
+    if "attachments" in front_matter.keys():
+        attachments = front_matter["attachments"]
+    else:
+        attachments = []
+
+    S3_ACCESS_KEY = current_app.config.get('S3_ACCESS_KEY') 
+    S3_SECRET_KEY = current_app.config.get('S3_SECRET_KEY') 
+    S3_BUCKET = current_app.config.get('S3_BUCKET') 
+
+    bucket_name = S3_BUCKET
+    s3 = boto3.client("s3", aws_access_key_id=S3_ACCESS_KEY,
+        aws_secret_access_key=S3_SECRET_KEY)
+
+    for key, f in request.files.iteritems():
+        if key.startswith('file'):
+            filename = f.filename
+
+            file_folder = datetime.strftime(datetime.utcnow(), "%Y%m%d%H%M") + "_" + str(shortuuid.uuid())[:6]
+            file_key = "wiki/files/" + file_folder + "/" + filename
+
+            attachments.append({
+                "filename": str(filename),
+                "handler": "S3",
+                "key": str(file_key)
+            })
+
+            s3.upload_fileobj(f, bucket_name, file_key)
+
+    front_matter["attachments"] = attachments
+
+    # Get page again to reduce odds of race condition issue
+    page = g.current_wiki.get_page(page_cname)
+
+    page_content = page.data if page else ""
+
+    page_content = page.update_front_matter(page_content, front_matter)
+
+    sha = page.write(page_content, message="Attached file to " + page_cname,
+                     username=current_user.username, email=current_user.email)
+
+    return "Success"
+
 @blueprint.route("/", defaults={'name': 'home'})
 @blueprint.route("/<path:name>")
 def page(name):
@@ -307,7 +427,12 @@ def page(name):
 
     data = g.current_wiki.get_page(cname)
 
+    front_matter = data.get_front_matter()
+
+    enable_files = current_app.config.get('FILE_MANAGER_ENABLE') 
+
     if data:
-        return render_template('wiki/page.html', name=cname, page=data, partials=_partials(data.imports))
+        return render_template('wiki/page.html', name=cname, page=data, partials=_partials(data.imports), 
+                               front_matter=front_matter, enable_files=enable_files)
     else:
         return redirect(url_for('wiki.create', name=cname))

@@ -200,6 +200,27 @@ class WikiPage(HookMixin):
         """Names"""
         meta = self._get_meta(self.data) or {}
         return meta.get('import', [])
+    
+    def get_front_matter(self):
+        return self._get_meta(self.data) or {}
+
+    @staticmethod
+    def update_front_matter(content, obj):
+        frontmatter_text = "---" + "\n"
+        frontmatter_text += yaml.safe_dump(obj, default_flow_style=False)
+        frontmatter_text += "---"
+        
+        if not content.startswith(b"---"):
+            content = frontmatter_text + "\n\n" + content
+        else:
+            meta_end = re.search("\n(\.{3}|\-{3})", content)
+
+            if not meta_end:
+                content = frontmatter_text + content
+            else:
+                content = frontmatter_text + content[meta_end.end():]
+
+        return content
 
     @staticmethod
     def _get_meta(content):
