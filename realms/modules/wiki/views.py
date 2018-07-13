@@ -427,11 +427,10 @@ def page(name):
 
     data = g.current_wiki.get_page(cname)
 
-    front_matter = data.get_front_matter()
-
-    enable_files = current_app.config.get('FILE_MANAGER_ENABLE') 
-
     if data:
+        front_matter = data.get_front_matter()
+        enable_files = current_app.config.get('FILE_MANAGER_ENABLE') 
+        
         return render_template('wiki/page.html', name=cname, page=data, partials=_partials(data.imports), 
                                front_matter=front_matter, enable_files=enable_files)
     else:
