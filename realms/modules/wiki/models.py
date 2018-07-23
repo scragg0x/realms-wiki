@@ -38,7 +38,7 @@ class Wiki(HookMixin):
         self.path = path
 
     def __repr__(self):
-        return "Wiki: %s" % self.path
+        return "Wiki: {0}".format(self.path)
 
     def commit(self, name, email, message, files):
         """Commit to the underlying git repo.
@@ -55,7 +55,7 @@ class Wiki(HookMixin):
             email = email.encode('utf-8')
         if isinstance(message, text_type):
             message = message.encode('utf-8')
-        author = committer = "%s <%s>".format(name, email).encode()
+        author = committer = "{0} <{1}>".format(name, email).encode()
         self.repo.stage(files)
         return self.repo.do_commit(message=message,
                                    committer=committer,
