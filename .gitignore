@@ -1,6 +1,7 @@
 .vagrant
 .venv
 .venv-pypy
+.vscode
 .idea
 .webassets-cache
 *.pyc
