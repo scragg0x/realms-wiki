@@ -314,3 +314,44 @@ a.label {
   }
 }
 
+/* Attachments and dropzone styling */
+
+.dropzone {
+  border: 2px dashed #0087F7;
+  border-radius: 5px;
+  background: white;
+}
+
+.dropzone {
+  cursor: pointer;
+  padding: 5px 25px;
+}
+
+.dropzone.dz-clickable .dz-message, .dropzone.dz-clickable .dz-message * {
+  cursor: pointer;
+}
+.dropzone .dz-message {
+  font-weight: 400;
+}
+
+.dropzone .dz-message {
+  text-align: center;
+  margin: 1em 0;
+}
+
+#attachments {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.empty-description {
+  color: #c1c1c1;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+a.editable {
+  color: #2c3e50;
+  font-size: 12px;
+  text-decoration: none !important;
+}

@@ -22,6 +22,27 @@ Source: https://github.com/scragg0x/realms-wiki
 
 [<img src="https://storage.googleapis.com/realms-wiki/img/1.png" width=340 />](https://storage.googleapis.com/realms-wiki/img/1.png)&nbsp;[<img  width=340 src="https://storage.googleapis.com/realms-wiki/img/2.png" />](https://storage.googleapis.com/realms-wiki/img/2.png)&nbsp;[<img  width=340 src="https://storage.googleapis.com/realms-wiki/img/3.png" />](https://storage.googleapis.com/realms-wiki/img/3.png)&nbsp;[<img width=340 src="https://storage.googleapis.com/realms-wiki/img/4.png" />](https://storage.googleapis.com/realms-wiki/img/4.png)&nbsp;[<img width=340 src="https://storage.googleapis.com/realms-wiki/img/5.png" />](https://storage.googleapis.com/realms-wiki/img/5.png)&nbsp;[<img width=340 src="https://storage.googleapis.com/realms-wiki/img/6.png" />](https://storage.googleapis.com/realms-wiki/img/6.png)
 
+### File Uploads
+
+When an S3 bucket is setup in the configuration, you can upload files by dropping them into the wiki page. Files are stored in S3 and downloads use signed urls so the bucket does not need to be public. Attachments are stored in the front matter of the page. 
+
+```
+---
+attachments:
+- filename: data_export-out_v4.csv
+  handler: S3
+  key: wiki/files/201807120616_F8sZrW/data_export-out_v4.csv
+---
+
+
+# Test Page
+
+This is a test example page. 
+```
+
+![](https://raw.githubusercontent.com/thomaskcr/realms-wiki/master/docs/screenshot-filemanager.png)
+
+
 ## Requirements
 
 - Python 2.7 (Python 3.x is a WIP)

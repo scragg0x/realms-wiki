@@ -32,6 +32,11 @@ class Config(object):
     # DB_URI = 'postgresql://scott:tiger@localhost/mydatabase'
     # DB_URI = 'oracle://scott:tiger@127.0.0.1:1521/sidname'
     # DB_URI = 'crate://'
+    
+    FILE_MANAGER_ENABLE = False
+    S3_ACCESS_KEY = ""
+    S3_SECRET_KEY = ""
+    S3_BUCKET = ""
 
     # LDAP = {
     #     'URI': '',

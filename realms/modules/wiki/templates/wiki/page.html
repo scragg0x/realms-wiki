@@ -17,19 +17,80 @@
       <form method="POST" action="{{ url_for('wiki.revert') }}" class="ajax-form" data-redirect="{{ url_for('wiki.page', name=name) }}">
         <input type="hidden" value="{{ name }}" name="name" />
         <input type="hidden" value="{{ commit }}" name="commit" />
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
         <input type="submit" class="btn btn-danger btn-sm" title="Revert back to this revision" value="Revert" />
       </form>
     </div>
   {% endif %}
   <div id="page-content"></div>
+  
+  {% if enable_files %}
+  <hr style="margin-top: 40px;" />
+  
+  <div class="row" id="attachments">
+    <div class="col-sm-12">
+      <div class="col-sm-12" id="attachment-files">
+        <table class="table table-striped">
+          <tbody>
+            {% for attachment in front_matter.get("attachments", []) %}
+            <tr>
+              <td width="10%" style="text-align:center;"><i class="fa fa-file-o"></i></td>
+              <td width="30%"><a href="{{ url_for('wiki.download', key=attachment.key) }}">{{ attachment.filename }}</a></td>
+              <td>
+                  <a href="#" class="file-description" data-type="text" data-pk="{{ attachment.key }}" data-url="{{ url_for('wiki.filedata', name=name) }}" data-name="description">{{ attachment.description }}</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-sm-offset-3">
+      <div id="attachment-dropzone">
+        <form action="{{ url_for('wiki.upload', name=name) }}" class="dropzone" id="file-dropzone">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 
 {% endblock %}
 
+{% block css %}
+  {% if enable_files %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/x-editable/dist/bootstrap3-editable/css/bootstrap-editable.css') }}" />
+  {% endif %}
+{% endblock %}
+
 {% block js %}
+  {% if enable_files %}
+    <script src="{{ url_for('static', filename='vendor/dropzone/dist/min/dropzone.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.min.js') }}"></script>
+  {% endif %}
+
   <script>
     $(function(){
       $("#page-content").html(MDR.convert({{ page.data|tojson|safe }}, {{ partials|d([])|tojson|safe }})).show();
+      
+      {% if enable_files %}
+      $('.file-description').editable({
+        mode: "inline",
+        emptytext: "Click to add description",
+        emptyclass: "empty-description",
+        params: function(params) {
+            params.csrf_token = "{{ csrf_token() }}";
+            return params;
+        }
+      });
+      {% endif %}
     });
+
+    {% if enable_files %}
+    Dropzone.options.fileDropzone = {
+      uploadMultiple: true
+    };
+    {% endif %}
   </script>
 {% endblock %}
