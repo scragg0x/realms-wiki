@@ -77,7 +77,7 @@ class Application(Flask):
         __import__(import_name, fromlist=fromlist)
 
         for module_name in self.config['MODULES']:
-            sources = __import__('%s.%s' % (import_name, module_name), fromlist=fromlist)
+            sources = __import__('{0}.{1}'.format(import_name, module_name), fromlist=fromlist)
 
             if hasattr(sources, 'init'):
                 sources.init(self)

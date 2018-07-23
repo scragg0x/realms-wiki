@@ -286,7 +286,7 @@ class WikiPage(HookMixin):
         username, email = self._get_user(username, email)
 
         if not message:
-            message = "Moved %s to %s" % (self.name, new_name)
+            message = "Moved {0} to {1}".format(self.name, new_name)
 
         os.rename(os.path.join(self.wiki.path, old_filename), os.path.join(self.wiki.path, new_filename))
         commit = self.wiki.commit(name=username,
@@ -351,7 +351,7 @@ class WikiPage(HookMixin):
             raise PageNotFound('Commit not found')
 
         if not message:
-            message = "Revert '%s' to %s" % (self.name, commit_sha[:7])
+            message = "Revert '{0}' to {1}".format(self.name, commit_sha[:7])
 
         return self.write(new_page.data, message=message, username=username, email=email)
 

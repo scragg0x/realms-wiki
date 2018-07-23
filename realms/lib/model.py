@@ -167,7 +167,7 @@ class Model(db.Model):
 
     def __repr__(self):
         if 'id' in self.__table__.columns.keys():
-            return '%s(%s)' % (self.__class__.__name__, self.id)
+            return '{0}({1})'.format(self.__class__.__name__, self.id)
         data = {}
         for key in self.__table__.columns.keys():
             val = getattr(self, key)
@@ -209,8 +209,8 @@ class Model(db.Model):
                 if len(item) == 0:
                     return item
                 if item[0] != '.':
-                    item = '.%s' % item
-                item = '%s%s' % (path, item)
+                    item = '.{0}'.format(item)
+                item = '{0}{1}'.format(path, item)
                 return item
             show[:] = [prepend_path(x) for x in show]
             hide[:] = [prepend_path(x) for x in hide]
@@ -220,14 +220,14 @@ class Model(db.Model):
         properties = dir(self)
 
         for key in columns:
-            check = '%s.%s' % (path, key)
+            check = '{0}.{1}'.format(path, key)
             if check in hide or key in hidden:
                 continue
             if show_all or key is 'id' or check in show or key in default:
                 ret_data[key] = getattr(self, key)
 
         for key in relationships:
-            check = '%s.%s' % (path, key)
+            check = '{0}.{1}'.format(path, key)
             if check in hide or key in hidden:
                 continue
             if show_all or check in show or key in default:
@@ -239,7 +239,7 @@ class Model(db.Model):
                         ret_data[key].append(item.to_dict(
                             show=show,
                             hide=hide,
-                            path=('%s.%s' % (path, key.lower())),
+                            path=('{0}.{1}'.format(path, key.lower())),
                             show_all=show_all,
                         ))
                 else:
@@ -247,7 +247,7 @@ class Model(db.Model):
                         ret_data[key] = getattr(self, key).to_dict(
                             show=show,
                             hide=hide,
-                            path=('%s.%s' % (path, key.lower())),
+                            path=('{0}.{1}'.format(path, key.lower())),
                             show_all=show_all,
                         )
                     else:
@@ -256,7 +256,7 @@ class Model(db.Model):
         for key in list(set(properties) - set(columns) - set(relationships)):
             if key.startswith('_'):
                 continue
-            check = '%s.%s' % (path, key)
+            check = '{0}.{1}'.format(path, key)
             if check in hide or key in hidden:
                 continue
             if show_all or check in show or key in default:

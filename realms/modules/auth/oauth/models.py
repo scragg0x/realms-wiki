@@ -97,7 +97,7 @@ class User(BaseUser):
         self.email = email
         self.id = user_id
         self.token = token
-        self.auth_id = "%s-%s" % (provider, username)
+        self.auth_id = "{0}-{1}".format(provider, username)
 
     @property
     def auth_token_id(self):
@@ -166,7 +166,7 @@ class User(BaseUser):
         return resp.get(cls.get_provider_value(provider, 'token_name'))
 
     def get_id(self):
-        return unicode("%s/%s" % (self.type, self.auth_id))
+        return unicode("{0}/{1}".format(self.type, self.auth_id))
 
     @staticmethod
     def login_form():

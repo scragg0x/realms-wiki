@@ -19,7 +19,7 @@ class BaseTest(TestCase):
         app.config['TESTING'] = True
         app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = False
         app.config['WIKI_PATH'] = os.path.join(self.tempdir, random_string(12))
-        app.config['DB_URI'] = 'sqlite:///%s/%s.db' % (self.tempdir, random_string(12))
+        app.config['DB_URI'] = 'sqlite:///{0}/{1}.db'.format(self.tempdir, random_string(12))
         app.test_client_class = FlaskClient
         app.testing = True
         app.config.update(self.configure())

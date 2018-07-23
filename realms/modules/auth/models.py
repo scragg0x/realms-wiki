@@ -29,7 +29,7 @@ class Auth(object):
 
     @staticmethod
     def get_auth_user(auth_type):
-        mod = importlib.import_module('realms.modules.auth.%s.models' % auth_type)
+        mod = importlib.import_module('realms.modules.auth.{0}.models'.format(auth_type))
         return mod.User
 
     @staticmethod
@@ -60,7 +60,7 @@ class BaseUser(UserMixin):
     type = 'base'
 
     def get_id(self):
-        return unicode("%s/%s" % (self.type, self.id))
+        return unicode("{0}/{1}".format(self.type, self.id))
 
     def get_auth_token(self):
         key = sha256(self.auth_token_id).hexdigest()

@@ -88,7 +88,7 @@ class WhooshSearch(BaseSearch):
             try:
                 self.search_index = whoosh_index.open_dir(index_path)
             except whoosh_index.IndexError as e:
-                sys.exit("Error opening whoosh index: %s" % (e))
+                sys.exit("Error opening whoosh index: {0}".format(e))
         else:
             self.search_index = whoosh_index.create_in(index_path, self.schema)
 

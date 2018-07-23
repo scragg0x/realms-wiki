@@ -46,7 +46,7 @@ class HookMixin(with_metaclass(HookMixinMeta, object)):
 
     @classmethod
     def after(cls, method_name):
-        assert method_name in cls._hookable, "'%s' not a hookable method of '%s'" % (method_name, cls.__name__)
+        assert method_name in cls._hookable, "'{0}' not a hookable method of '{1}'".format(method_name, cls.__name__)
 
         def outer(f, *args, **kwargs):
             cls._post_hooks.setdefault(method_name, []).append((f, args, kwargs))
@@ -55,7 +55,7 @@ class HookMixin(with_metaclass(HookMixinMeta, object)):
 
     @classmethod
     def before(cls, method_name):
-        assert method_name in cls._hookable, "'%s' not a hookable method of '%s'" % (method_name, cls.__name__)
+        assert method_name in cls._hookable, "'{0}' not a hookable method of '{1}'".format(method_name, cls.__name__)
 
         def outer(f, *args, **kwargs):
             cls._pre_hooks.setdefault(method_name, []).append((f, args, kwargs))

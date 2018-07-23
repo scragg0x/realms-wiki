@@ -36,7 +36,7 @@ class WikiTest(WikiBaseTest):
 
         for route in ['page', 'edit', 'history']:
             rv = self.client.get(url_for("wiki.%s" % route, name='test'))
-            self.assert_200(rv, "wiki.%s: %s" % (route, rv.status_code))
+            self.assert_200(rv, "wiki.{0}: {1}".format(route, rv.status_code))
 
         self.assert_200(self.client.get(url_for('wiki.index')))
 
