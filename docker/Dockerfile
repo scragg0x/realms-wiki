@@ -31,20 +31,6 @@ USER wiki
 
 WORKDIR /home/wiki/realms-wiki/
 
-<<<<<<< HEAD
-=======
-ENV PIPENV_VENV_IN_PROJECT=1
-
-RUN virtualenv /home/wiki/realms-wiki/.venv && \
-    . /home/wiki/realms-wiki/.venv/bin/activate && \
-    bower --config.interactive=false install && \
-    pip install pipenv && \
-    pipenv install --two && \
-    pipenv run python /home/wiki/realms-wiki/setup.py install && \
-    mkdir /home/wiki/data && \
-    touch /home/wiki/data/.a
-
->>>>>>> deps: update gunicorn, markdown2
 ENV WORKERS=3
 ENV GEVENT_RESOLVER=ares
 
