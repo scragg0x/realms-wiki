@@ -71,7 +71,7 @@ class WikiTest(WikiBaseTest):
     def test_revert(self):
         rv1 = self.create_page('test', message='test message', content='testing_old')
         self.update_page('test', message='test message', content='testing_new')
-        data = json.loads(rv1.data)
+        data = rv1.json
         self.client.post(url_for('wiki.revert'),
                          data=dict(name='test', commit=data['sha'],
                                    csrf_token=self.client.csrf_token))
@@ -90,7 +90,7 @@ class WikiTest(WikiBaseTest):
     def test_anon(self):
         rv1 = self.create_page('test', message='test message', content='testing_old')
         self.update_page('test', message='test message', content='testing_new')
-        data = json.loads(rv1.data)
+        data = rv1.json
         self.app.config['ALLOW_ANON'] = False
         self.assert_403(self.update_page('test', message='test message', content='testing_again'))
         self.assert_403(self.client.post(url_for('wiki.revert'),
