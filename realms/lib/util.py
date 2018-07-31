@@ -71,8 +71,26 @@ def extract_name(file_path):
     return os.path.basename(file_path)
 
 
+def get_ext(path):
+    (file, ext) = os.path.splitext(path)
+    return ext
+
+
 def remove_ext(path):
     return re.sub(r"\..*$", "", path)
+
+
+def is_markdown(path):
+    ext = get_ext(path)
+    print "Test: " + ext
+    if ext == '':
+        return True
+    elif ext == 'md':
+        return True
+    elif ext == 'mdwn':
+        return True
+    else:
+        return False
 
 
 def clean_url(url):
@@ -127,7 +145,10 @@ def cname_to_filename(cname):
     :return: str -- Filename
 
     """
-    return sanitize(cname) + ".md"
+    if remove_ext(cname) != cname:
+        return cname
+    else:
+        return sanitize(cname) + ".md"
 
 
 def filename_to_cname(filename):

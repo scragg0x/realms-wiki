@@ -10,7 +10,7 @@ from werkzeug.contrib.atom import AtomFeed
 from flask_login import login_required, current_user
 
 from realms.version import __version__
-from realms.lib.util import to_canonical, remove_ext, gravatar_url
+from realms.lib.util import to_canonical, remove_ext, gravatar_url, is_markdown
 from .models import PageNotFound
 
 blueprint = Blueprint('wiki', __name__, template_folder='templates',
@@ -308,6 +308,12 @@ def page(name):
     data = g.current_wiki.get_page(cname)
 
     if data:
-        return render_template('wiki/page.html', name=cname, page=data, partials=_partials(data.imports))
+        if is_markdown(cname):
+            return render_template('wiki/page.html', name=cname, page=data, partials=_partials(data.imports))
+        else:
+            response = make_response(data.data)
+            response.headers['Content-Type'] = 'image/png'
+            response.headers['Content-Disposition'] = 'attachment; filename=img.png'
+            return response
     else:
         return redirect(url_for('wiki.create', name=cname))
