@@ -45,12 +45,25 @@ class SimpleSearch(BaseSearch):
         for entry in g.current_wiki.get_index():
             name = filename_to_cname(entry['name'])
             name = re.sub(r"//+", '/', name)
-            if set(query.split()).intersection(name.replace('/', '-').split('-')):
-                page = g.current_wiki.get_page(name)
-
-                # this can be None, not sure how
-                if page:
-                    res.append(dict(name=name, content=page.data))
+            toremove = '/-_'
+            for char in toremove:
+                nametmp = name.replace(char, '-')
+            page = g.current_wiki.get_page(name)
+            for tag in query.split():
+                found = False
+                for word in nametmp.split('-'):
+                    if tag in word:
+                        if not dict(name=name, content=page.data) in res:
+                            res.append(dict(name=name, content=page.data))
+                            found = True
+                            break
+                if not found:
+                    for word in page.data.split():
+                        if tag in word:
+                            if not dict(name=name, content=page.data) in res:
+                                res.append(dict(name=name, content=page.data))
+                                found = True
+                                break
         return res
 
     def users(self, query):
