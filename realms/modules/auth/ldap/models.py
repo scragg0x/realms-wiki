@@ -113,7 +113,7 @@ class LdapConn(object):
                 return False
             try:
                 return self.conn.start_tls()
-            except ldap3.LDAPStartTLSError as ex:
+            except ldap3.core.exceptions.LDAPStartTLSError as ex:
                 logger.exception("START_TLS error")
                 return False
             except Exception as ex:
