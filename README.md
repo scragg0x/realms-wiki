@@ -25,6 +25,7 @@ Source: https://github.com/scragg0x/realms-wiki
 ## Requirements
 
 - Python 2.7 (Python 3.x is a WIP)
+- GCC or Clang (for building gevent)
 
 ### Optional
 
@@ -65,7 +66,7 @@ The easiest way. Install it using Python Package Index:
     curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
     sudo apt-get install -y nodejs
     
-    sudo apt-get install -y python-pip python-dev libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev
+    sudo apt-get install -y python-pip python-dev gcc libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libyaml-dev libssl-dev libsasl2-dev libldap2-dev
     sudo npm install -g bower
     bower install
 
